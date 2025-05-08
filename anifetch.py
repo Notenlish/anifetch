@@ -339,9 +339,11 @@ for y, fetch_line in enumerate(fetch_output):
 
     width_to_offset = GAP + WIDTH
 
-    # I have no idea why this is the way it is.
+    # Removing the dust that may appear with a padding
     output = f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
-    template.append(output)
+    max_width = shutil.get_terminal_size().columns
+    cleaned_line = (output.rstrip() + ' ' * (max_width - len(output.rstrip())))[:max_width] + '\n'
+    template.append(cleaned_line)
 
 # writing the tempate to a file.
 with open(BASE_PATH / "template.txt", "w") as f:
