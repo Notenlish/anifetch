@@ -3,9 +3,8 @@
   pkgs,
   ...
 }: let
-  loop = pkgs.writeShellScriptBin "loop.sh" ''
-    export PATH="${pkgs.bc}/bin:${pkgs.ffmpeg}/bin:$PATH"
-    ${(builtins.readFile ../../loop.sh)}
+  loop = pkgs.writeShellScriptBin "loop-anifetch.sh" ''
+    ${(builtins.readFile ../../loop-anifetch.sh)}
   '';
   anifetch-unwrapped = pkgs.writers.writePython3Bin "anifetch.py" {doCheck = false;} (builtins.readFile ../../anifetch.py);
 in
@@ -18,8 +17,10 @@ in
     ];
 
     dependencies = [
+      pkgs.bc
       pkgs.chafa
       pkgs.ffmpeg
+      loop
     ];
     preBuild = ''
       cat > setup.py << EOF
@@ -33,7 +34,6 @@ in
       EOF
     '';
     postInstall = ''
-      cp ${loop}/bin/loop.sh $out/bin/loop.sh
       mv $out/bin/anifetch.py $out/bin/anifetch
     '';
   }

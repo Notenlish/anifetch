@@ -359,7 +359,9 @@ RIGHT = WIDTH + PAD_LEFT
 BOTTOM = HEIGHT  # + TOP
 
 script_dir = os.path.dirname(__file__)
-script_path = os.path.join(script_dir, "loop.sh")
+script_path = os.path.join(script_dir, "loop-anifetch.sh")
+if not os.path.exists(script_path):
+    script_path = "loop-anifetch.sh"
 
 
 RIGHT = WIDTH + PAD_LEFT
