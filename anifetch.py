@@ -343,7 +343,7 @@ for y, fetch_line in enumerate(fetch_output):
     max_width = shutil.get_terminal_size().columns
     cleaned_line = (output.rstrip() + ' ' * (max_width - len(output.rstrip())))[:max_width+20] + '\n'
     template.append(cleaned_line)
-    # template.append(output)
+
 # writing the tempate to a file.
 with open(BASE_PATH / "template.txt", "w") as f:
     f.writelines(template)
