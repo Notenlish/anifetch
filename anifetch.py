@@ -218,14 +218,10 @@ def get_sound():
 
 thread_sound = threading.Thread(target=get_sound)
 
-def chafa_process(f, i):
+def chafa_process(f):
     WIDTH = args.width
     HEIGHT = args.height
-    # for i, f in enumerate(animation_files):
-        # TODO: REMOVE THIS
-        #print_verbose(f"- Frame: {f}")
 
-        # f = 00001.png
     chafa_args = args.chafa_arguments.strip()
     chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
@@ -257,16 +253,15 @@ def chafa_files(code):
     print_verbose("checking dir for changes")
     while len(animation_files) == 0:
         animation_files = os.listdir(BASE_PATH / "video")
-    # for i, f in enumerate(animation_files):
     i = 1
-    # sleep_time = args.framerate / 1000
+    sleep_time = 2 / 100
     while len(code) == 1:
-        # time.sleep(sleep_time)
+        time.sleep(sleep_time)
         f = str(i) + ".png"
         path = BASE_PATH / "video" / f
         if os.path.exists(path):
             last_f = f
-            thread_chafa = threading.Thread(target=chafa_process, args=(f, i, ))
+            thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
             thread_chafa.start()
             threads.append(thread_chafa)
             print_verbose("Launching chafa threads")
