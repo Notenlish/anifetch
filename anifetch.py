@@ -1,3 +1,5 @@
+import threading
+import threading
 import argparse
 import json
 import os
@@ -6,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import time
+import threading
 
 
 def print_verbose(*msg):
@@ -188,35 +191,30 @@ if should_update:
 WIDTH = args.width
 HEIGHT = args.height
 
-
 # put cached frames here
 frames: list[str] = []
 
-# cache is invalid, re-render
-if should_update:
-    print_verbose("SHOULD RENDER WITH CHAFA")
-
-    # delete all old frames
-    shutil.rmtree(BASE_PATH / "video")
-    os.mkdir(BASE_PATH / "video")
-
+def ffmpeg_process():
     stdout = None if args.verbose else subprocess.DEVNULL
     stderr = None if args.verbose else subprocess.STDOUT
-
-
-    subprocess.call(
+    ffmpeg = subprocess.Popen(
         [
             "ffmpeg",
             "-i",
             f"{args.filename}",
             "-vf",
             f"fps={args.framerate},format=rgba",
-            str(BASE_PATH / "video/%05d.png"),
+            str(BASE_PATH / "video/%d.png"),
         ],
         stdout=stdout,
         stderr=stderr,
     )
+    ffmpeg.wait()
 
+
+thread_ffmpeg = threading.Thread(target=ffmpeg_process)
+
+def get_sound():
     print_verbose(args.sound_flag_given)
 
     if args.sound_flag_given:
@@ -237,6 +235,69 @@ if should_update:
 
         print_verbose(args.sound_saved_path)
 
+thread_sound = threading.Thread(target=get_sound)
+
+def chafa_process(f):
+    WIDTH = args.width
+    HEIGHT = args.height
+    # for i, f in enumerate(animation_files):
+        # TODO: REMOVE THIS
+        #print_verbose(f"- Frame: {f}")
+
+        # f = 00001.png
+    chafa_args = args.chafa_arguments.strip()
+    chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
+
+    path = BASE_PATH / "video" / f
+    chafa_cmd = [
+        "chafa",
+        *chafa_args.split(" "),
+        # "--color-space=rgb",
+        f"--size={WIDTH}x{HEIGHT}",
+        path.as_posix(),
+    ]
+    frame = subprocess.check_output(
+        chafa_cmd,
+        text=True,
+    )
+
+    with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
+        file.write(frame)
+
+        # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
+        # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
+    animation_files = os.listdir(BASE_PATH / "video")
+    chafa_files = os.listdir(BASE_PATH / "output")
+    if len(animation_files) == len(chafa_files): 
+        HEIGHT = len(frame.splitlines())
+        frames.append(frame) # dont question this, I need frames to have at least a single item
+
+def files_new():
+    animation_files = os.listdir(BASE_PATH / "video")
+    while len(animation_files) == 0:
+        animation_files = os.listdir(BASE_PATH / "video")
+    chafa_files = os.listdir(BASE_PATH / "output")
+    threads = []
+    for i, f in enumerate(animation_files):
+        thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
+
+        thread_chafa.start()
+        threads.append(thread_chafa)
+        print_verbose("Launching chafa threads")
+
+    for i in enumerate(threads):
+        thread_chafa.join()
+
+thread_chafa = threading.Thread(target=files_new)
+
+
+# cache is invalid, re-render
+if should_update:
+    print_verbose("SHOULD RENDER WITH CHAFA")
+
+    # delete all old frames
+    shutil.rmtree(BASE_PATH / "video")
+    os.mkdir(BASE_PATH / "video")
 
     # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames. Empty the directory to fix this.
     shutil.rmtree(BASE_PATH / "output")
@@ -244,38 +305,21 @@ if should_update:
 
     print_verbose("Emptied the output folder.")
 
+    thread_sound.start()
+
+    thread_ffmpeg.start()
+   
+    thread_ffmpeg.join()
+
+    thread_sound.join()
+    
+    files_new()
+
+
+
+
+
     # get the frames
-    animation_files = os.listdir(BASE_PATH / "video")
-    animation_files.sort()
-    for i, f in enumerate(animation_files):
-        # TODO: REMOVE THIS
-        #print_verbose(f"- Frame: {f}")
-
-        # f = 00001.png
-        chafa_args = args.chafa_arguments.strip()
-        chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
-
-        path = BASE_PATH / "video" / f
-        chafa_cmd = [
-            "chafa",
-            *chafa_args.split(" "),
-            # "--color-space=rgb",
-            f"--size={WIDTH}x{HEIGHT}",
-            path.as_posix(),
-        ]
-        frame = subprocess.check_output(
-            chafa_cmd,
-            text=True,
-        )
-
-        with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
-            file.write(frame)
-
-        # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
-        # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
-        if i == 0:
-            HEIGHT = len(frame.splitlines())
-            frames.append(frame) # dont question this, I need frames to have at least a single item
 else:
     # just use cached
     for filename in os.listdir(BASE_PATH / "output"):
