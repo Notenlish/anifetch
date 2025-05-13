@@ -237,7 +237,7 @@ def get_sound():
 
 thread_sound = threading.Thread(target=get_sound)
 
-def chafa_process(f):
+def chafa_process(f, i):
     WIDTH = args.width
     HEIGHT = args.height
     # for i, f in enumerate(animation_files):
@@ -266,20 +266,15 @@ def chafa_process(f):
 
         # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
         # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
-    animation_files = os.listdir(BASE_PATH / "video")
-    chafa_files = os.listdir(BASE_PATH / "output")
-    if len(animation_files) == len(chafa_files): 
+    if i == 0: 
         HEIGHT = len(frame.splitlines())
         frames.append(frame) # dont question this, I need frames to have at least a single item
 
-def files_new():
-    animation_files = os.listdir(BASE_PATH / "video")
-    while len(animation_files) == 0:
-        animation_files = os.listdir(BASE_PATH / "video")
-    chafa_files = os.listdir(BASE_PATH / "output")
+def chafa_files():
     threads = []
+    animation_files = os.listdir(BASE_PATH / "video")
     for i, f in enumerate(animation_files):
-        thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
+        thread_chafa = threading.Thread(target=chafa_process, args=(f, i, ))
 
         thread_chafa.start()
         threads.append(thread_chafa)
@@ -287,9 +282,6 @@ def files_new():
 
     for i in enumerate(threads):
         thread_chafa.join()
-
-thread_chafa = threading.Thread(target=files_new)
-
 
 # cache is invalid, re-render
 if should_update:
@@ -313,7 +305,7 @@ if should_update:
 
     thread_sound.join()
     
-    files_new()
+    chafa_files()
 
 
 
