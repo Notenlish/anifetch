@@ -194,25 +194,6 @@ HEIGHT = args.height
 # put cached frames here
 frames: list[str] = []
 
-def ffmpeg_process():
-    stdout = None if args.verbose else subprocess.DEVNULL
-    stderr = None if args.verbose else subprocess.STDOUT
-    ffmpeg = subprocess.Popen(
-        [
-            "ffmpeg",
-            "-i",
-            f"{args.filename}",
-            "-vf",
-            f"fps={args.framerate},format=rgba",
-            str(BASE_PATH / "video/%d.png"),
-        ],
-        stdout=stdout,
-        stderr=stderr,
-    )
-    ffmpeg.wait()
-
-
-thread_ffmpeg = threading.Thread(target=ffmpeg_process)
 
 def get_sound():
     print_verbose(args.sound_flag_given)
@@ -266,22 +247,56 @@ def chafa_process(f, i):
 
         # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
         # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
-    if i == 0: 
-        HEIGHT = len(frame.splitlines())
-        frames.append(frame) # dont question this, I need frames to have at least a single item
+    HEIGHT = len(frame.splitlines())
+    frames.append(frame) # dont question this, I need frames to have at least a single item
 
-def chafa_files():
+code = [str]
+def chafa_files(code):
     threads = []
     animation_files = os.listdir(BASE_PATH / "video")
-    for i, f in enumerate(animation_files):
-        thread_chafa = threading.Thread(target=chafa_process, args=(f, i, ))
-
-        thread_chafa.start()
-        threads.append(thread_chafa)
-        print_verbose("Launching chafa threads")
+    print_verbose("checking dir for changes")
+    while len(animation_files) == 0:
+        animation_files = os.listdir(BASE_PATH / "video")
+    # for i, f in enumerate(animation_files):
+    i = 1
+    # sleep_time = args.framerate / 1000
+    while len(code) == 1:
+        # time.sleep(sleep_time)
+        f = str(i) + ".png"
+        path = BASE_PATH / "video" / f
+        if os.path.exists(path):
+            last_f = f
+            thread_chafa = threading.Thread(target=chafa_process, args=(f, i, ))
+            thread_chafa.start()
+            threads.append(thread_chafa)
+            print_verbose("Launching chafa threads")
+            i = i + 1
+            
 
     for i in enumerate(threads):
         thread_chafa.join()
+thread_files = threading.Thread(target=chafa_files, args=(code, ))
+
+def ffmpeg_process():
+    stdout = None if args.verbose else subprocess.DEVNULL
+    stderr = None if args.verbose else subprocess.STDOUT
+    ffmpeg = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-i",
+            f"{args.filename}",
+            "-vf",
+            f"fps={args.framerate},format=rgba",
+            str(BASE_PATH / "video/%d.png"),
+        ],
+        stdout=stdout,
+        stderr=stderr,
+    )
+    ffmpeg.wait()
+    code.append("done")
+
+
+thread_ffmpeg = threading.Thread(target=ffmpeg_process)
 
 # cache is invalid, re-render
 if should_update:
@@ -297,18 +312,18 @@ if should_update:
 
     print_verbose("Emptied the output folder.")
 
-    thread_sound.start()
+    thread_files.start()
 
     thread_ffmpeg.start()
-   
+
+    thread_sound.start()
+
+
     thread_ffmpeg.join()
 
     thread_sound.join()
-    
-    chafa_files()
 
-
-
+    thread_files.join()
 
 
     # get the frames
