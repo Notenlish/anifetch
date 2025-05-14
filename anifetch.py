@@ -258,7 +258,6 @@ def chafa_files(code):
         f = str(i) + ".png"
         path = BASE_PATH / "video" / f
         if os.path.exists(path):
-            last_f = f
             thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
             thread_chafa.start()
             threads.append(thread_chafa)
