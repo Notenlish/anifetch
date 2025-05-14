@@ -253,8 +253,11 @@ def chafa_files(code):
         animation_files = os.listdir(BASE_PATH / "video")
     i = 1
     sleep_time = 2 / 100
-    while len(code) == 1:
+    chafa_files = os.listdir(BASE_PATH / "output")
+    while len(code) == 1 or len(animation_files) != len(chafa_files):
+        animation_files = os.listdir(BASE_PATH / "video")
         time.sleep(sleep_time)
+        chafa_files = os.listdir(BASE_PATH / "output")
         f = str(i) + ".png"
         path = BASE_PATH / "video" / f
         if os.path.exists(path):
