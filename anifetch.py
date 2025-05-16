@@ -133,7 +133,7 @@ parser.add_argument(
     "--chroma",
     required=False,
     nargs="?",
-    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg e.g. '--chroma 0xc82044:0.1:0.1'",
+    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
     type=str,
 )
 args = parser.parse_args()
@@ -160,7 +160,9 @@ if args.sound_flag_given:
         codec = check_codec_of_file(args.filename)
         ext = get_ext_from_codec(codec)
         args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
-
+if args.chroma_flag_given:
+    if args.chroma.startswith("#"):
+        sys.exit("Color for hex code starts with an '0x'! Not a '#'")
 
 # check cache
 old_filename = ""
