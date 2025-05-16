@@ -1,5 +1,6 @@
-bad-apple.mp4
-bad-apple.mp3
+.wakatime-project
+.ruff_cache/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

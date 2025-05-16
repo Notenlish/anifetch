@@ -50,6 +50,11 @@ def check_sound_flag():
         return True
     return False
 
+def check_chroma_flag():
+    if "--chroma" in sys.argv:
+        return True
+    return False
+
 
 
 st = time.time()
@@ -124,8 +129,16 @@ parser.add_argument(
     help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
     action="store_true",
 )
+parser.add_argument( 
+    "--chroma",
+    required=False,
+    nargs="?",
+    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg e.g. '--chroma 0xc82044:0.1:0.1'",
+    type=str,
+)
 args = parser.parse_args()
 args.sound_flag_given = check_sound_flag()  # adding this to the args so that it considers whether the flag was given or not and if the flag is given what the sound file was.
+args.chroma_flag_given = check_chroma_flag()
 
 
 BASE_PATH = get_data_path()
@@ -191,7 +204,6 @@ HEIGHT = args.height
 
 # put cached frames here
 frames: list[str] = []
-
 
 def get_sound():
     print_verbose(args.sound_flag_given)
@@ -275,18 +287,32 @@ thread_files = threading.Thread(target=chafa_files, args=(code, ))
 def ffmpeg_process():
     stdout = None if args.verbose else subprocess.DEVNULL
     stderr = None if args.verbose else subprocess.STDOUT
-    ffmpeg = subprocess.Popen(
-        [
-            "ffmpeg",
-            "-i",
-            f"{args.filename}",
-            "-vf",
-            f"fps={args.framerate},format=rgba",
-            str(BASE_PATH / "video/%d.png"),
-        ],
-        stdout=stdout,
-        stderr=stderr,
-    )
+    if args.chroma_flag_given:
+        ffmpeg = subprocess.Popen(
+            [
+                "ffmpeg",
+                "-i",
+                f"{args.filename}",
+                "-vf",
+                f"fps={args.framerate},format=rgba,chromakey={args.chroma}",
+                str(BASE_PATH / "video/%d.png"),
+            ],
+            stdout=stdout,
+            stderr=stderr,
+        )
+    else:
+        ffmpeg = subprocess.Popen(
+            [
+                "ffmpeg",
+                "-i",
+                f"{args.filename}",
+                "-vf",
+                f"fps={args.framerate},format=rgba",
+                str(BASE_PATH / "video/%d.png"),
+            ],
+            stdout=stdout,
+            stderr=stderr,
+        )
     ffmpeg.wait()
     code.append("done")
 
@@ -405,7 +431,9 @@ RIGHT = WIDTH + PAD_LEFT
 BOTTOM = HEIGHT  # + TOP
 
 script_dir = os.path.dirname(__file__)
-script_path = os.path.join(script_dir, "loop.sh")
+script_path = os.path.join(script_dir, "loop-anifetch.sh")
+if not os.path.exists(script_path):
+    script_path = "loop-anifetch.sh"
 
 
 RIGHT = WIDTH + PAD_LEFT
