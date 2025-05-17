@@ -12,9 +12,6 @@ if [[[ $# -ne 5 ] || [ $# -ne 6 ]]]; then
   exit 1
 fi
 
-#if [ $# -ne 5 ]; then
-#fi
-
 framerate=$1
 top=$2
 left=$3
