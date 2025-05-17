@@ -6,6 +6,9 @@
   loop = pkgs.writeShellScriptBin "loop-anifetch.sh" ''
     ${(builtins.readFile ../../loop-anifetch.sh)}
   '';
+  resize = pkgs.writeShellScriptBin "anifetch-static-resize2.sh" ''
+    ${(builtins.readFile ../../anifetch-static-resize2.sh)}
+  '';
   anifetch-unwrapped = pkgs.writers.writePython3Bin "anifetch.py" {doCheck = false;} (builtins.readFile ../../anifetch.py);
 in
   python3Packages.buildPythonPackage {
@@ -21,6 +24,7 @@ in
       pkgs.chafa
       pkgs.ffmpeg
       loop
+      resize
     ];
     preBuild = ''
       cat > setup.py << EOF
