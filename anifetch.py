@@ -429,9 +429,6 @@ for y, fetch_line in enumerate(fetch_output):
     max_width = shutil.get_terminal_size().columns + output_width
     #print(f"max_width: '{max_width}'")
 
-    width_for_safe_space = 4 # max_width - len(output)
-    #print(f"I have no idea what this is(something): '{width_for_safe_space}'")
-
     cleaned_line = (output)[:max_width] + "\n"
     #print(f"cleaned_line: '{cleaned_line}'")
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
