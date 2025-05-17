@@ -393,7 +393,7 @@ for y, fetch_line in enumerate(fetch_output):
     #print(f"output: '{output}'")
     #print(f"output_width: {output_width}")
     #print(f"output_width_with_color: {output_width_with_color}")
-    max_width = shutil.get_terminal_size().columns
+    max_width = shutil.get_terminal_size().columns - output_width
     #print(f"max_width: '{max_width}'")
 
     width_for_safe_space = 4 # max_width - len(output)
