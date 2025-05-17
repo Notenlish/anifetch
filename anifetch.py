@@ -381,28 +381,29 @@ for y, fetch_line in enumerate(fetch_output):
 
     width_to_offset = GAP + WIDTH
 
-    print("------------------ No fucking idea whats happening here tbh")
+    # print("------------------ No idea whats happening here tbh")
+    
     # Removing the dust that may appear with a padding
     output = (
         f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
     ).rstrip()
     output_width_with_color = len(output)
     output_width = get_text_length_of_formatted_text(output)
-    print(f"fetch_line: '{fetch_line}'")
-    print(f"output: '{output}'")
-    print(f"output_width: {output_width}")
-    print(f"output_width_with_color: {output_width_with_color}")
+    #print(f"fetch_line: '{fetch_line}'")
+    #print(f"output: '{output}'")
+    #print(f"output_width: {output_width}")
+    #print(f"output_width_with_color: {output_width_with_color}")
     max_width = shutil.get_terminal_size().columns
-    print(f"max_width: '{max_width}'")
+    #print(f"max_width: '{max_width}'")
 
     width_for_safe_space = 4 # max_width - len(output)
-    print(f"I have no idea what this is(something): '{width_for_safe_space}'")
+    #print(f"I have no idea what this is(something): '{width_for_safe_space}'")
 
     cleaned_line = (output + " " * width_for_safe_space)[:max_width] + "\n"
-    print(f"cleaned_line: '{cleaned_line}'")
+    #print(f"cleaned_line: '{cleaned_line}'")
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
-    with open("debug.txt", "w") as f:
+    """with open("debug.txt", "w") as f:
         f.writelines(
             [
                 "fetch_line:\n",
@@ -426,8 +427,8 @@ for y, fetch_line in enumerate(fetch_output):
                 "cleaned_line:\n",
                 cleaned_line,
             ]
-        )
-    print(y)
+        )"""
+    # print(y)
     
     #if y == 1:
     #    raise SystemExit
