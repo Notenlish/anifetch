@@ -86,6 +86,11 @@ def check_sound_flag():
         return True
     return False
 
+def check_chroma_flag():
+    if "--chroma" in sys.argv:
+        return True
+    return False
+
 
 st = time.time()
 
@@ -168,8 +173,16 @@ parser.add_argument(
     help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
     action="store_true",
 )
+parser.add_argument( 
+    "--chroma",
+    required=False,
+    nargs="?",
+    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
+    type=str,
+)
 args = parser.parse_args()
 args.sound_flag_given = check_sound_flag()  # adding this to the args so that it considers whether the flag was given or not and if the flag is given what the sound file was.
+args.chroma_flag_given = check_chroma_flag()
 
 
 BASE_PATH = get_data_path()
@@ -191,6 +204,12 @@ if args.sound_flag_given:
         codec = check_codec_of_file(args.filename)
         ext = get_ext_from_codec(codec)
         args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
+
+if args.chroma_flag_given:
+    if args.chroma.startswith("#"):
+        sys.exit("Color for hex code starts with an '0x'! Not a '#'")
+
+
 
 
 # check cache
@@ -247,18 +266,32 @@ if should_update:
     stdout = None if args.verbose else subprocess.DEVNULL
     stderr = None if args.verbose else subprocess.STDOUT
 
-    subprocess.call(
-        [
-            "ffmpeg",
-            "-i",
-            f"{args.filename}",
-            "-vf",
-            f"fps={args.framerate},format=rgba",
-            str(BASE_PATH / "video/%05d.png"),
-        ],
-        stdout=stdout,
-        stderr=stderr,
-    )
+    if args.chroma_flag_given:
+        subprocess.call(
+            [
+                "ffmpeg",
+                "-i",
+                f"{args.filename}",
+                "-vf",
+                f"fps={args.framerate},format=rgba,chromakey={args.chroma}",
+                str(BASE_PATH / "video/%05d.png"),
+            ],
+            stdout=stdout,
+            stderr=stderr,
+        )
+    else:
+        subprocess.call(
+            [
+                "ffmpeg",
+                "-i",
+                f"{args.filename}",
+                "-vf",
+                f"fps={args.framerate},format=rgba",
+                str(BASE_PATH / "video/%05d.png"),
+            ],
+            stdout=stdout,
+            stderr=stderr,
+        )
 
     print_verbose(args.sound_flag_given)
 
