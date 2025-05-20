@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -12,7 +13,18 @@ def print_verbose(*msg):
     if args.verbose:
         print(*msg)
 
-def get_ext_from_codec(codec:str):
+
+def strip_ansi(text):
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return ansi_escape.sub("", text)
+
+
+def get_text_length_of_formatted_text(text: str):
+    text = strip_ansi(text)
+    return len(text)
+
+
+def get_ext_from_codec(codec: str):
     codec_extension_map = {
         "aac": "m4a",
         "mp3": "mp3",
@@ -20,20 +32,45 @@ def get_ext_from_codec(codec:str):
         "vorbis": "ogg",
         "pcm_s16le": "wav",
         "flac": "flac",
-        "alac": "m4a"
+        "alac": "m4a",
     }
-    return codec_extension_map.get(codec,"bin")
+    return codec_extension_map.get(codec, "bin")
 
-def check_codec_of_file(file:str):
-    ffprobe_cmd = ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_name", "-of", "default=nokey=1:noprint_wrappers=1", file]
+
+def check_codec_of_file(file: str):
+    ffprobe_cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_entries",
+        "stream=codec_name",
+        "-of",
+        "default=nokey=1:noprint_wrappers=1",
+        file,
+    ]
     codec = str(subprocess.check_output(ffprobe_cmd, text=True).strip())
     return codec
 
-def extract_audio_from_file(file:str, extension):
+
+def extract_audio_from_file(file: str, extension):
     audio_file = BASE_PATH / f"output_audio.{extension}"
-    extract_cmd = ["ffmpeg", "-i", file, "-y", "-vn", "-c:a", "copy", "-loglevel","quiet", audio_file]
+    extract_cmd = [
+        "ffmpeg",
+        "-i",
+        file,
+        "-y",
+        "-vn",
+        "-c:a",
+        "copy",
+        "-loglevel",
+        "quiet",
+        audio_file,
+    ]
     subprocess.call(extract_cmd)
     return audio_file
+
 
 def get_data_path():
     xdg_data_home = os.environ.get(
@@ -53,7 +90,6 @@ def check_chroma_flag():
     if "--chroma" in sys.argv:
         return True
     return False
-
 
 
 st = time.time()
@@ -81,10 +117,19 @@ parser.add_argument(
     type=str,
 )
 parser.add_argument(
-    "-w", "-W", "--width", default=40, help="Width of the chafa animation.", type=int
+    "-w",
+    "-W",
+    "--width",
+    default=40,
+    help="Width of the chafa animation.",
+    type=int,
 )
 parser.add_argument(
-    "-H", "--height", default=20, help="Height of the chafa animation.", type=int
+    "-H",
+    "--height",
+    default=20,
+    help="Height of the chafa animation.",
+    type=int,
 )
 parser.add_argument("-v", "--verbose", default=False, action="store_true")
 parser.add_argument(
@@ -189,7 +234,7 @@ try:
                     "verbose",
                     "fast_fetch",
                     "benchmark",
-                    "force_render"
+                    "force_render",
                 ):  # These arguments don't invalidate the cache.
                     print_verbose(
                         f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
@@ -201,7 +246,6 @@ except FileNotFoundError:
 
 if should_update:
     print("Caching...")
-
 
 
 WIDTH = args.width
@@ -253,13 +297,15 @@ if should_update:
 
     if args.sound_flag_given:
         if args.sound:  # sound file given
-            print_verbose("Sound file to use:",args.sound)
+            print_verbose("Sound file to use:", args.sound)
             source = pathlib.Path(args.sound)
             dest = BASE_PATH / source.with_name(f"output_audio{source.suffix}")
             shutil.copy(source, dest)
             args.sound_saved_path = str(dest)
         else:
-            print_verbose("No sound file specified, will attempt to extract it from video.")
+            print_verbose(
+                "No sound file specified, will attempt to extract it from video."
+            )
             codec = check_codec_of_file(args.filename)
             ext = get_ext_from_codec(codec)
             audio_file = extract_audio_from_file(args.filename, ext)
@@ -268,7 +314,6 @@ if should_update:
             args.sound_saved_path = str(audio_file)
 
         print_verbose(args.sound_saved_path)
-
 
     # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames. Empty the directory to fix this.
     shutil.rmtree(BASE_PATH / "output")
@@ -280,9 +325,6 @@ if should_update:
     animation_files = os.listdir(BASE_PATH / "video")
     animation_files.sort()
     for i, f in enumerate(animation_files):
-        # TODO: REMOVE THIS
-        #print_verbose(f"- Frame: {f}")
-
         # f = 00001.png
         chafa_args = args.chafa_arguments.strip()
         chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
@@ -307,7 +349,10 @@ if should_update:
         # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
         if i == 0:
             HEIGHT = len(frame.splitlines())
-            frames.append(frame) # dont question this, I need frames to have at least a single item
+            # dont question this, I need frames to have at least a single item
+            frames.append(
+                frame
+            )
 else:
     # just use cached
     for filename in os.listdir(BASE_PATH / "output"):
@@ -337,7 +382,6 @@ with open(BASE_PATH / "cache.json", "w") as f:
     json.dump(args_dict, f, indent=2)
 
 
-
 # Get the fetch output(neofetch/fastfetch)
 if not args.fast_fetch:
     # Get Neofetch Output
@@ -357,7 +401,7 @@ else:
         ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
     ).splitlines()
 
-
+template_actual_width=None
 # modifying template to account for the width of the chafa animation.
 chafa_rows = frames[0].splitlines()
 template = []
@@ -370,10 +414,57 @@ for y, fetch_line in enumerate(fetch_output):
 
     width_to_offset = GAP + WIDTH
 
+    # print("------------------ No idea whats happening here tbh")
+    
     # Removing the dust that may appear with a padding
-    output = f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
-    max_width = shutil.get_terminal_size().columns
-    cleaned_line = (output.rstrip() + ' ' * (max_width - len(output.rstrip())))[:max_width] + '\n'
+    output = (
+        f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
+    ).rstrip()
+    output_width_with_color = len(output)
+    output_width = get_text_length_of_formatted_text(output)
+    #print(f"fetch_line: '{fetch_line}'")
+    #print(f"output: '{output}'")
+    #print(f"output_width: {output_width}")
+    #print(f"output_width_with_color: {output_width_with_color}")
+    max_width = shutil.get_terminal_size().columns + output_width
+    #print(f"max_width: '{max_width}'")
+
+    cleaned_line = (output)[:max_width] + "\n"
+    #print(f"cleaned_line: '{cleaned_line}'")
+    template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
+
+    """with open("debug.txt", "w") as f:
+        f.writelines(
+            [
+                "fetch_line:\n",
+                fetch_line,
+                "\n--------\n",
+                "output:\n",
+                output,
+                "\n--------\n",
+                "output_width:\n",
+                str(output_width),
+                "\n--------\n",
+                "output_width_with_color:\n",
+                str(output_width_with_color),
+                "\n--------\n",
+                "I have no idea what this is(something):\n",
+                str(width_for_safe_space),
+                "\n--------\n",
+                "max_width:\n",
+                str(max_width),
+                "\n--------\n",
+                "cleaned_line:\n",
+                cleaned_line,
+            ]
+        )"""
+    # print(y)
+    
+    #if y == 1:
+    #    raise SystemExit
+    # 
+    # 
+    # 
     template.append(cleaned_line)
 
 # writing the tempate to a file.
@@ -391,9 +482,11 @@ RIGHT = WIDTH + PAD_LEFT
 BOTTOM = HEIGHT  # + TOP
 
 script_dir = os.path.dirname(__file__)
-script_path = os.path.join(script_dir, "loop-anifetch.sh")
+bash_script_name = "loop-anifetch.sh"
+bash_script_name = "anifetch-static-resize2.sh"
+script_path = os.path.join(script_dir, bash_script_name)
 if not os.path.exists(script_path):
-    script_path = "loop-anifetch.sh"
+    script_path = bash_script_name
 
 
 RIGHT = WIDTH + PAD_LEFT
@@ -402,10 +495,11 @@ BOTTOM = HEIGHT  # + TOP
 
 if not args.benchmark:
     try:
-
         framerate_to_use = args.playback_rate
         if args.sound_flag_given:
-            framerate_to_use = args.framerate  # ignore wanted playback rate so that desync doesn't happen
+            framerate_to_use = (
+                args.framerate
+            )  # ignore wanted playback rate so that desync doesn't happen
 
         script_args = [
             "bash",
@@ -415,6 +509,7 @@ if not args.benchmark:
             str(LEFT),
             str(RIGHT),
             str(BOTTOM),
+            str(template_actual_width)
         ]
         if args.sound_flag_given:  # if user requested for sound to be played
             script_args.append(str(args.sound_saved_path))
