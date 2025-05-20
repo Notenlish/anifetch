@@ -57,9 +57,10 @@ process_template() {
 
     # Process each line and store in buffer
     local line_num=0
+		local truncate_size=$((term_width + template_actual_width))
     while IFS= read -r line || [ -n "$line" ]; do
       # Process the line and store in buffer
-      template_buffer[$line_num]=$(truncate_line "$line" "$term_width")
+      template_buffer[$line_num]=$(truncate_line "$line" "$truncate_size")
       ((line_num++))
     done < "$STATIC_TEMPLATE_FILE"
 
