@@ -24,5 +24,23 @@
     overlays = import ./nix/overlays;
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+    devShells = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      default = pkgs.mkShell {
+        packages = [
+          (pkgs.python3.withPackages (python-pkgs: [
+            python-pkgs.pillow
+          ]))
+          pkgs.neofetch
+          pkgs.fastfetch
+          pkgs.chafa
+          pkgs.bc
+          (pkgs.callPackage ./nix/packages/anifetch.nix {})
+        ];
+        shellHook = ''
+        '';
+      };
+    });
   };
 }
