@@ -7,7 +7,14 @@ import subprocess
 import sys
 import time
 import threading
+from PIL import Image
 
+def is_valid_image(file_path):
+    try:
+        Image.open(file_path)
+        return True
+    except:
+        return False
 
 def print_verbose(*msg):
     if args.verbose:
@@ -274,11 +281,8 @@ def chafa_files(code):
         path = BASE_PATH / "video" / f
         
         if os.path.exists(path):
-            statfile = os.stat(path)
-            filesize = statfile.st_size
-            while filesize == 0:
-                statfile = os.stat(path)
-                filesize = statfile.st_size
+            while is_valid_image(path) == False:
+                is_valid_image(path)
             thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
             thread_chafa.start()
             threads.append(thread_chafa)
