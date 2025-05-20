@@ -10,10 +10,14 @@ import threading
 from PIL import Image
 
 def is_valid_image(file_path):
-    try:
-        Image.open(file_path)
-        return True
-    except:
+    if os.path.exists(file_path):
+        try:
+            im = Image.open(file_path)
+            im.verify()
+            return True
+        except Exception or IOError:
+            return False
+    else:
         return False
 
 def print_verbose(*msg):
