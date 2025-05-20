@@ -266,15 +266,19 @@ def chafa_files(code):
     while len(animation_files) == 0:
         animation_files = os.listdir(BASE_PATH / "video")
     i = 1
-    sleep_time = 2 / 100
     chafa_files = os.listdir(BASE_PATH / "output")
     while len(code) == 1 or len(animation_files) != len(chafa_files):
         animation_files = os.listdir(BASE_PATH / "video")
-        time.sleep(sleep_time)
         chafa_files = os.listdir(BASE_PATH / "output")
         f = str(i) + ".png"
         path = BASE_PATH / "video" / f
+        
         if os.path.exists(path):
+            statfile = os.stat(path)
+            filesize = statfile.st_size
+            while filesize == 0:
+                statfile = os.stat(path)
+                filesize = statfile.st_size
             thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
             thread_chafa.start()
             threads.append(thread_chafa)
