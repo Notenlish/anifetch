@@ -31,6 +31,7 @@
         packages = [
           (pkgs.python3.withPackages (python-pkgs: [
             python-pkgs.pillow
+            python-pkgs.numpy
           ]))
           pkgs.neofetch
           pkgs.fastfetch

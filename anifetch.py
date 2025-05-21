@@ -8,17 +8,18 @@ import sys
 import time
 import threading
 from PIL import Image
+import numpy as np
 
-def is_valid_image(file_path):
-    if os.path.exists(file_path):
-        try:
-            im = Image.open(file_path)
-            im.verify()
-            return True
-        except Exception or IOError:
-            return False
-    else:
-        return False
+# def is_valid_image(file_path):
+#     if os.path.exists(file_path):
+#         try:
+#             im = Image.open(file_path)
+#             im.verify()
+#             return True
+#         except Exception or IOError:
+#             return False
+#     else:
+#         return False
 
 def print_verbose(*msg):
     if args.verbose:
@@ -40,6 +41,16 @@ def check_codec_of_file(file:str):
     ffprobe_cmd = ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_name", "-of", "default=nokey=1:noprint_wrappers=1", file]
     codec = str(subprocess.check_output(ffprobe_cmd, text=True).strip())
     return codec
+
+def get_width_of_video(file:str):
+    ffprobe_cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width", "-of", "default=nw=1:nk=1", file]
+    vid_width = int(subprocess.check_output(ffprobe_cmd, text=True))
+    return vid_width
+
+def get_height_of_video(file:str):
+    ffprobe_cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "default=nw=1:nk=1", file]
+    vid_height = int(subprocess.check_output(ffprobe_cmd, text=True))
+    return vid_height
 
 def extract_audio_from_file(file:str, extension):
     audio_file = BASE_PATH / f"output_audio.{extension}"
@@ -241,7 +252,7 @@ def get_sound():
 
 thread_sound = threading.Thread(target=get_sound)
 
-def chafa_process(f):
+def chafa_process(f, ffmpeg_frame):
     WIDTH = args.width
     HEIGHT = args.height
 
@@ -249,6 +260,8 @@ def chafa_process(f):
     chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
     path = BASE_PATH / "video" / f
+    im = Image.fromarray(ffmpeg_frame)
+    im.save(path, compress_level=0)
     chafa_cmd = [
         "chafa",
         *chafa_args.split(" "),
@@ -269,65 +282,61 @@ def chafa_process(f):
     HEIGHT = len(frame.splitlines())
     frames.append(frame) # dont question this, I need frames to have at least a single item
 
-code = [str]
-def chafa_files(code):
+def ffmpeg_process():
     threads = []
-    animation_files = os.listdir(BASE_PATH / "video")
-    print_verbose("checking dir for changes")
-    while len(animation_files) == 0:
-        animation_files = os.listdir(BASE_PATH / "video")
-    i = 1
-    chafa_files = os.listdir(BASE_PATH / "output")
-    while len(code) == 1 or len(animation_files) != len(chafa_files):
-        animation_files = os.listdir(BASE_PATH / "video")
-        chafa_files = os.listdir(BASE_PATH / "output")
+    stderr = None if args.verbose else subprocess.PIPE
+    vid_width = get_width_of_video(args.filename)     
+    vid_height = get_height_of_video(args.filename)     
+    if args.chroma_flag_given:
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-i",
+            f"{args.filename}",
+            "-f",
+            "image2pipe",
+            "-vf",
+            f"fps={args.framerate},chromakey={args.chroma}",
+            "-pix_fmt",
+            "rgb24",
+            "-vcodec",
+            "rawvideo",
+            "-",
+        ]
+    else:
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-i",
+            f"{args.filename}",
+            "-f",
+            "image2pipe",
+            "-vf",
+            f"fps={args.framerate}",
+            "-pix_fmt",
+            "rgb24",
+            "-vcodec",
+            "rawvideo",
+            "-",
+        ]
+    print_verbose(vid_width)
+    print_verbose(vid_height)
+    proc = subprocess.Popen(ffmpeg_cmd, stdout = subprocess.PIPE, stderr = stderr, bufsize=10**8)
+    frame_size = vid_width * vid_height * 3
+    i=1
+    while True:
+        raw_frame = proc.stdout.read(frame_size)
+        if not raw_frame:
+            break
+        ffmpeg_frame = np.frombuffer(raw_frame, np.uint8).reshape((vid_height, vid_width, 3))
         f = str(i) + ".png"
-        path = BASE_PATH / "video" / f
-        
-        if is_valid_image(path):
-            thread_chafa = threading.Thread(target=chafa_process, args=(f, ))
-            thread_chafa.start()
-            threads.append(thread_chafa)
-            print_verbose("Launching chafa threads")
-            i = i + 1
-            
+        thread_chafa = threading.Thread(target=chafa_process, args=(f, ffmpeg_frame ))
+        thread_chafa.start()
+        threads.append(thread_chafa)
+        print_verbose("Launching chafa thread")
+        i=i+1
+
 
     for i in enumerate(threads):
         thread_chafa.join()
-thread_files = threading.Thread(target=chafa_files, args=(code, ))
-
-def ffmpeg_process():
-    stdout = None if args.verbose else subprocess.DEVNULL
-    stderr = None if args.verbose else subprocess.STDOUT
-    if args.chroma_flag_given:
-        ffmpeg = subprocess.Popen(
-            [
-                "ffmpeg",
-                "-i",
-                f"{args.filename}",
-                "-vf",
-                f"fps={args.framerate},format=rgba,chromakey={args.chroma}",
-                str(BASE_PATH / "video/%d.png"),
-            ],
-            stdout=stdout,
-            stderr=stderr,
-        )
-    else:
-        ffmpeg = subprocess.Popen(
-            [
-                "ffmpeg",
-                "-i",
-                f"{args.filename}",
-                "-vf",
-                f"fps={args.framerate},format=rgba",
-                str(BASE_PATH / "video/%d.png"),
-            ],
-            stdout=stdout,
-            stderr=stderr,
-        )
-    ffmpeg.wait()
-    code.append("done")
-
 
 thread_ffmpeg = threading.Thread(target=ffmpeg_process)
 
@@ -345,8 +354,6 @@ if should_update:
 
     print_verbose("Emptied the output folder.")
 
-    thread_files.start()
-
     thread_ffmpeg.start()
 
     thread_sound.start()
@@ -355,9 +362,6 @@ if should_update:
     thread_ffmpeg.join()
 
     thread_sound.join()
-
-    thread_files.join()
-
 
     # get the frames
 else:
