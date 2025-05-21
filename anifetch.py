@@ -10,17 +10,6 @@ import threading
 from PIL import Image
 import numpy as np
 
-# def is_valid_image(file_path):
-#     if os.path.exists(file_path):
-#         try:
-#             im = Image.open(file_path)
-#             im.verify()
-#             return True
-#         except Exception or IOError:
-#             return False
-#     else:
-#         return False
-
 def print_verbose(*msg):
     if args.verbose:
         print(*msg)
@@ -357,7 +346,6 @@ if should_update:
     thread_ffmpeg.start()
 
     thread_sound.start()
-
 
     thread_ffmpeg.join()
 
