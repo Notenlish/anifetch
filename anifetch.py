@@ -316,6 +316,7 @@ def ffmpeg_process():
         if not raw_frame:
             break
         ffmpeg_frame = np.frombuffer(raw_frame, np.uint8).reshape((vid_height, vid_width, 3))
+        proc.stdout.flush()
         f = str(i) + ".png"
         thread_chafa = threading.Thread(target=chafa_process, args=(f, ffmpeg_frame ))
         thread_chafa.start()
