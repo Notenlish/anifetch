@@ -1,19 +1,12 @@
 #!/bin/bash
 
-# attempt at making rendering faster by only updating the parts where there is an animation.
-
 FRAME_DIR="$HOME/.local/share/anifetch/output"
-
-#trap "echo -e '\nExiting...'; exit 0" SIGINT
 
 # Check for FRAMERATE input
 if [[[ $# -ne 5 ] || [ $# -ne 6 ]]]; then
   echo "Usage: <framerate> <top> <left> <right> <bottom>"
   exit 1
 fi
-
-#if [ $# -ne 5 ]; then
-#fi
 
 framerate=$1
 top=$2
@@ -23,12 +16,6 @@ bottom=$5
 soundname=$6
 
 num_lines=$((bottom - top))
-
-# Compute 1 / FRAMERATE using bc
-sleep_time=$(echo "scale=4; 1 / $framerate" | bc)
-
-# Adjust sleep time based on number of lines
-adjusted_sleep_time=$(echo "$sleep_time / $num_lines" | bc -l)
 
 # Hide cursor
 tput civis
