@@ -73,11 +73,10 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
-    "-f",
-    "--filename",
-    "--file",
-    required=True,
-    help="Specify a file via this argument.",
+    "filename",
+    nargs="?",  # <--filename> is optional
+    default=str(pathlib.Path.home() / "anifetch/example.mp4"),
+    help="Video file to use (default: ~/anifetch/example.mp4)",
     type=str,
 )
 parser.add_argument(
