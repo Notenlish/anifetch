@@ -121,13 +121,6 @@ parser.add_argument(
     default="--symbols ascii --fg-only",
     help="Specify the arguments to give to chafa. For more informations, use 'chafa --help'",
 )
-parser.add_argument(
-    "-ff",
-    "--fast-fetch",
-    default=False,
-    help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
-    action="store_true",
-)
 parser.add_argument( 
     "--chroma",
     required=False,
@@ -187,7 +180,6 @@ try:
                 if key not in (
                     "playback_rate",
                     "verbose",
-                    "fast_fetch",
                     "benchmark",
                     "force_render"
                 ):  # These arguments don't invalidate the cache.
@@ -338,22 +330,8 @@ with open(BASE_PATH / "cache.json", "w") as f:
 
 
 
-# Get the fetch output(neofetch/fastfetch)
-if not args.fast_fetch:
-    # Get Neofetch Output
-    fetch_output = subprocess.check_output(
-        ["neofetch"], shell=True, text=True
-    ).splitlines()
-    for i, line in enumerate(fetch_output):
-        line = line[4:]  # i forgot what this does, but its important iirc.
-        fetch_output[i] = line
-
-    fetch_output.pop(0)
-    fetch_output.pop(0)
-    fetch_output.pop(0)
-    fetch_output.pop(-1)
-else:
-    fetch_output = subprocess.check_output(
+# Get the fetch output(fastfetch only)
+fetch_output = subprocess.check_output(
         ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
     ).splitlines()
 
@@ -363,18 +341,13 @@ chafa_rows = frames[0].splitlines()
 template = []
 for y, fetch_line in enumerate(fetch_output):
     output = ""
-    try:
-        chafa_line = chafa_rows[y]
-    except IndexError:
-        chafa_line = ""
 
     width_to_offset = GAP + WIDTH
 
-    # Removing the dust that may appear with a padding
+    # Output padding
     output = f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
     max_width = shutil.get_terminal_size().columns
-    cleaned_line = (output.rstrip() + ' ' * (max_width - len(output.rstrip())))[:max_width] + '\n'
-    template.append(cleaned_line)
+    template.append(output)
 
 # writing the tempate to a file.
 with open(BASE_PATH / "template.txt", "w") as f:
