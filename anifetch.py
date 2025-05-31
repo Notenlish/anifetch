@@ -208,8 +208,22 @@ WIDTH = args.width
 HEIGHT = args.height
 
 
-# get the fetch output (fastfetch only)
-fetch_output = subprocess.check_output(
+# Get the fetch output(neofetch/fastfetch)
+if not args.fast_fetch:
+    # Get Neofetch Output
+    fetch_output = subprocess.check_output(
+        ["neofetch"], shell=True, text=True
+    ).splitlines()
+    for i, line in enumerate(fetch_output):
+        line = line[4:]  # i forgot what this does, but its important iirc.
+        fetch_output[i] = line
+
+    fetch_output.pop(0)
+    fetch_output.pop(0)
+    fetch_output.pop(0)
+    fetch_output.pop(-1)
+else:
+    fetch_output = subprocess.check_output(
         ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
     ).splitlines()
 
