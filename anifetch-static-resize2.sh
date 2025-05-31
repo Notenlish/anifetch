@@ -3,7 +3,7 @@
 FRAME_DIR="$HOME/.local/share/anifetch/output"
 STATIC_TEMPLATE_FILE="$HOME/.local/share/anifetch/template.txt"
 
-# Check for correct arguments
+# check for num of args
 if [[ $# -ne 6 && $# -ne 7 ]]; then
   echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
   exit 1
@@ -21,15 +21,15 @@ num_lines=$((bottom - top))
 sleep_time=$(echo "scale=4; 1 / $framerate" | bc)
 adjusted_sleep_time=$(echo "$sleep_time / $num_lines" | bc -l)
 
-# Buffer for storing processed template - we'll only compute this when needed
+# Buffer for storing processed template, only compute when necessary
 declare -a template_buffer
-# Track the terminal width when we last processed the template
+# last terminal width
 last_term_width=0
 
 # Hide cursor
 tput civis
 
-# Clean exit handler
+# exit handler
 cleanup() {
   tput cnorm         # Show cursor
   if [ -t 0 ]; then
@@ -68,28 +68,28 @@ process_template() {
   fi
 }
 
-# Function to truncate a line preserving ANSI codes
+# Function to truncate a line while preserving the ANSI color codes
 truncate_line() {
   local line="$1"
   local max_width="$2"
 
-  # Avoid processing empty lines
+  # Don't process empty lines
   if [ -z "$line" ]; then
     echo -n ""
     return
   fi
 
-  # Remove ANSI codes to measure visible length
+  # Remove ANSI codes to get visible text length
   local stripped=$(printf "%b" "$line" | sed 's/\x1b\[[0-9;]*m//g')
 
-  # Calculate visible length considering Unicode characters
+  # Calculate visible length while also considering Unicode characters
   local visible_length=$(printf "%b" "$stripped" | wc -m)
 
   if [ "$visible_length" -le "$max_width" ]; then
-    # Line is already short enough - add terminal control to prevent wrapping
+    # Line is already short so add terminal control to prevent wrapping
     printf "%b\r" "$line"
   else
-    # Need to truncate - preserve ANSI codes while truncating
+    # keep ANSI codes while truncating
     local result=""
     local current_length=0
     local i=0
@@ -127,15 +127,15 @@ truncate_line() {
       result+="$escape_sequence"
     fi
 
-    # Add reset code at the end to ensure proper termination
+    # Add reset code at the end for proper termination
     result+="\033[0m"
 
-    # Output with carriage return to prevent wrapping
+    # prevent wrapping
     printf "%b\r" "$result"
   fi
 }
 
-# Draw the static template efficiently - all at once
+# Draw the static template
 draw_static_template() {
   # Process template first
   process_template
@@ -144,7 +144,7 @@ draw_static_template() {
   tput clear
   tput cup $top 0
 
-  # Print the buffer in one go - much faster than line-by-line
+  # Print the buffer in one go(faster than one by line)
   for line in "${template_buffer[@]}"; do
     # Clear to end of line before printing to eliminate any potential artifacts
     tput el
@@ -152,26 +152,23 @@ draw_static_template() {
   done
 }
 
-# Improved resize handling with lock and batch processing
 resize_requested=false
 resize_in_progress=false
 resize_delay=0.2  # seconds
 last_resize_time=0
 
 on_resize() {
-  # Just mark that a resize was requested - don't process now
   resize_requested=true
 }
 
 process_resize_if_needed() {
   current_time=$(date +%s.%N)
 
-  # If we're already processing a resize, don't start another one
+  # If we're already processing a resize, don't start working on another one
   if [ "$resize_in_progress" = true ]; then
     return
   fi
 
-  # If no resize is requested, nothing to do
   if [ "$resize_requested" = false ]; then
     return
   fi
@@ -185,19 +182,17 @@ process_resize_if_needed() {
     fi
   fi
 
-  # OK to process the resize now
+  # we can process
   resize_in_progress=true
   resize_requested=false
   last_resize_time=$current_time
 
-  # Get new dimensions
   new_width=$(tput cols)
   new_height=$(tput lines)
 
-  # Process template with new dimensions
+  # calculate the new template
   process_template
 
-  # Clear and redraw
   tput clear
   tput cup $top 0
 
@@ -218,12 +213,11 @@ trap 'on_resize' SIGWINCH
 # Initial draw
 draw_static_template
 
-# Start audio if num of args equals 7(sound is provided)
+# Start audio if sound is provided
 if [ $# -eq 7 ]; then
   ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
 fi
 
-# Main loop
 i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
@@ -244,7 +238,7 @@ while true; do
     
     wanted_epoch=$(echo "$i/$framerate" | bc -l)
 
-    # current time in seconds with fractional part
+    # current time in seconds (with fractional part)
     now=$(date +%s.%N)
 
     # Calculate how long to sleep to stay in sync
@@ -259,5 +253,5 @@ while true; do
     
     process_resize_if_needed
   done
-  sleep 0.005  # Using your preferred faster check interval
+  sleep 0.005
 done

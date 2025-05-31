@@ -282,7 +282,8 @@ if should_update:
 
         print_verbose(args.sound_saved_path)
 
-    # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames. Empty the directory to fix this.
+    # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
+    # Empty the directory to fix this.
     shutil.rmtree(BASE_PATH / "output")
     os.mkdir(BASE_PATH / "output")
 
@@ -340,9 +341,6 @@ else:
 
 print_verbose("-----------")
 
-
-# print_verbose("ARGS FOR SAVING CACHE.JSON", args)
-
 # save the caching arguments
 with open(BASE_PATH / "cache.json", "w") as f:
     args_dict = {key: value for key, value in args._get_kwargs()}
@@ -380,8 +378,6 @@ for y, fetch_line in enumerate(fetch_output):
         chafa_line = ""
 
     width_to_offset = GAP + WIDTH
-
-    # print("------------------ No idea whats happening here tbh")
     
     # Removing the dust that may appear with a padding
     output = (
@@ -389,18 +385,11 @@ for y, fetch_line in enumerate(fetch_output):
     ).rstrip()
     output_width_with_color = len(output)
     output_width = get_text_length_of_formatted_text(output)
-    #print(f"fetch_line: '{fetch_line}'")
-    #print(f"output: '{output}'")
-    #print(f"output_width: {output_width}")
-    #print(f"output_width_with_color: {output_width_with_color}")
     max_width = shutil.get_terminal_size().columns
-    #print(f"max_width: '{max_width}'")
 
     width_for_safe_space = 4 # max_width - len(output)
-    #print(f"I have no idea what this is(something): '{width_for_safe_space}'")
 
     cleaned_line = (output + " " * width_for_safe_space)[:max_width] + "\n"
-    #print(f"cleaned_line: '{cleaned_line}'")
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     """with open("debug.txt", "w") as f:
@@ -428,13 +417,6 @@ for y, fetch_line in enumerate(fetch_output):
                 cleaned_line,
             ]
         )"""
-    # print(y)
-    
-    #if y == 1:
-    #    raise SystemExit
-    # 
-    # 
-    # 
     template.append(cleaned_line)
 
 # writing the tempate to a file.
@@ -449,7 +431,7 @@ print_verbose("Template updated")
 TOP = 2
 LEFT = PAD_LEFT
 RIGHT = WIDTH + PAD_LEFT
-BOTTOM = HEIGHT  # + TOP
+BOTTOM = HEIGHT
 
 script_dir = os.path.dirname(__file__)
 bash_script_name = "loop-anifetch.sh"
@@ -460,7 +442,7 @@ if not os.path.exists(script_path):
 
 
 RIGHT = WIDTH + PAD_LEFT
-BOTTOM = HEIGHT  # + TOP
+BOTTOM = HEIGHT
 
 
 if not args.benchmark:
