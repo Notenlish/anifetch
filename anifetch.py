@@ -58,7 +58,7 @@ def check_chroma_flag():
 
 st = time.time()
 
-GAP = 2
+GAP = 4
 PAD_LEFT = 4
 
 parser = argparse.ArgumentParser(
@@ -200,8 +200,17 @@ WIDTH = args.width
 HEIGHT = args.height
 
 
+# get the fetch output (fastfetch only)
+fetch_output = subprocess.check_output(
+        ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
+    ).splitlines()
+
 # put cached frames here
 frames: list[str] = []
+
+# copy the fetch output to the fetch_lines variable
+fetch_lines = fetch_output[:]
+len_fetch = len(fetch_lines)
 
 # cache is invalid, re-render
 if should_update:
@@ -292,14 +301,34 @@ if should_update:
             text=True,
         )
 
+        chafa_lines = frame.splitlines()
+
+        # centering the fetch output or the chafa animation if needed.
+        len_chafa = len(chafa_lines)
+
+        if len_chafa < len_fetch:   # if the chafa animation is shorter than the fetch output
+            pad = (len_fetch - len_chafa) // 2
+            remind = (len_fetch - len_chafa) % 2
+            chafa_lines.pop() # don't ask me why, the last lign always seems to be empty
+            chafa_lines = [' ' * WIDTH] * pad + chafa_lines + [' ' * WIDTH] * (pad + remind)
+
+        elif len_fetch < len_chafa:    # if the chafa animation is longer than the fetch output
+            pad = (len_chafa - len_fetch) // 2
+            remind = (len_chafa - len_fetch) % 2
+            fetch_lines = [' ' * WIDTH] * pad + fetch_output +[' ' * WIDTH] * (pad + remind)
+
+        if i == 0:
+            # updating the HEIGHT variable from the first frame
+            HEIGHT = len(chafa_lines)
+        
+        frames.append('\n'.join(chafa_lines))
+
         with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
-            file.write(frame)
+            file.write('\n'.join(chafa_lines))
 
         # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
         # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
-        if i == 0:
-            HEIGHT = len(frame.splitlines())
-            frames.append(frame) # dont question this, I need frames to have at least a single item
+
 else:
     # just use cached
     for filename in os.listdir(BASE_PATH / "output"):
@@ -307,9 +336,11 @@ else:
         with open(path, "r") as file:
             frame = file.read()
             frames.append(frame)
-        break  # dont question this, I just need frames to have a single item
+        break  # first frame used for the template and the height
+
     HEIGHT = len(frames[0].splitlines())
 
+    # reloarding the cached output
     with open(BASE_PATH / "cache.json", "r") as f:
         data = json.load(f)
 
@@ -328,40 +359,22 @@ with open(BASE_PATH / "cache.json", "w") as f:
     args_dict = {key: value for key, value in args._get_kwargs()}
     json.dump(args_dict, f, indent=2)
 
-
-
-# Get the fetch output(fastfetch only)
-fetch_output = subprocess.check_output(
-        ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
-    ).splitlines()
-
-
-# modifying template to account for the width of the chafa animation.
-chafa_rows = frames[0].splitlines()
 template = []
-for y, fetch_line in enumerate(fetch_output):
-    output = ""
+for fetch_line in fetch_lines:
+    output = f"{' ' * PAD_LEFT}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
+    template.append(output + '\n')
 
-    width_to_offset = GAP + WIDTH
-
-    # Output padding
-    output = f"{(PAD_LEFT + (GAP * 2)) * ' '}{' ' * width_to_offset}{fetch_line}\n"
-    max_width = shutil.get_terminal_size().columns
-    template.append(output)
 
 # writing the tempate to a file.
 with open(BASE_PATH / "template.txt", "w") as f:
     f.writelines(template)
-    # I just need to move this down, and also apply that padding thingy(for lines that dont have chafa anim)
-    # so basically repeat what I have done but this time its for layout.
-    # If I do this then I can get rid of the layout padding code on the last part. because the layout will already be fixed.
 print_verbose("Template updated")
 
 # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
 TOP = 2
 LEFT = PAD_LEFT
 RIGHT = WIDTH + PAD_LEFT
-BOTTOM = HEIGHT  # + TOP
+BOTTOM = HEIGHT # + TOP
 
 script_dir = os.path.dirname(__file__)
 script_path = os.path.join(script_dir, "loop-anifetch.sh")
