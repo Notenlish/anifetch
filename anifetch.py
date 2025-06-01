@@ -54,6 +54,17 @@ def check_chroma_flag():
         return True
     return False
 
+def get_neofetch_status():  # will still save the rendered chafa in cache in any case
+    try:
+        # check the result of running neofetch with --version
+        result = subprocess.run(["neofetch", "--version"], capture_output=True, text=True)
+        output = result.stdout + result.stderr
+        if "fastfetch" in output.lower(): # if the output contains "fastfetch", return wrapper
+            return "wrapper"
+        else:
+            return "neofetch"  # neofetch works
+    except FileNotFoundError:
+        return "uninstalled"  # neofetch is not installed
 
 
 st = time.time()
@@ -119,6 +130,12 @@ parser.add_argument(
     "--chafa-arguments",
     default="--symbols ascii --fg-only",
     help="Specify the arguments to give to chafa. For more informations, use 'chafa --help'",
+)
+parser.add_argument(
+    "--force",
+    default=False,
+    help="Add this argument if you want to use neofetch even if it is deprecated.",
+    action="store_true",
 )
 parser.add_argument(
     "-ff",
@@ -339,18 +356,28 @@ with open(BASE_PATH / "cache.json", "w") as f:
 
 # Get the fetch output(neofetch/fastfetch)
 if not args.fast_fetch:
-    # Get Neofetch Output
-    fetch_output = subprocess.check_output(
-        ["neofetch"], shell=True, text=True
-    ).splitlines()
-    for i, line in enumerate(fetch_output):
-        line = line[4:]  # i forgot what this does, but its important iirc.
-        fetch_output[i] = line
 
-    fetch_output.pop(0)
-    fetch_output.pop(0)
-    fetch_output.pop(0)
-    fetch_output.pop(-1)
+    if (get_neofetch_status() == "wrapper" and args.force) or get_neofetch_status() == "neofetch":
+        # Get Neofetch Output
+        fetch_output = subprocess.check_output(
+            ["neofetch"], shell=True, text=True
+        ).splitlines()
+        for i, line in enumerate(fetch_output):
+            line = line[4:]  # i forgot what this does, but its important iirc.
+            fetch_output[i] = line
+        fetch_output.pop(0)
+        fetch_output.pop(0)
+        fetch_output.pop(0)
+        fetch_output.pop(-1)
+
+    elif get_neofetch_status() == "uninstalled":
+            print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
+            sys.exit(1)
+    
+    else:
+        print("Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.", file=sys.stderr)
+        sys.exit
+
 else:
     fetch_output = subprocess.check_output(
         ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
