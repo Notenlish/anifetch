@@ -58,7 +58,7 @@ def check_chroma_flag():
 
 st = time.time()
 
-GAP = 4
+GAP = 2
 PAD_LEFT = 4
 
 parser = argparse.ArgumentParser(
@@ -114,6 +114,13 @@ parser.add_argument(
     default=False,
     action="store_true",
     help="Disabled by default. Anifetch saves the filename to check if the file has changed, if the name is same, it won't render it again. If enabled, the video will be forcefully rendered, whether it has the same name or not. Please note that it only checks for filename, if you changed the framerate then you'll need to force render.",
+)
+parser.add_argument(
+    "-C",
+    "--center-mode",
+    default=False,
+    action="store_true",
+    help="Disabled by default. Use this argument to center the animation relative to the fetch output. Note that centering may slow down the execution.",
 )
 parser.add_argument(
     "-c",
@@ -187,6 +194,7 @@ try:
                 if key not in (
                     "playback_rate",
                     "verbose",
+                    "center-mode",
                     "fast_fetch",
                     "benchmark",
                     "force_render"
@@ -324,25 +332,34 @@ if should_update:
         )
 
         chafa_lines = frame.splitlines()
-
-        # centering the fetch output or the chafa animation if needed.
-        len_chafa = len(chafa_lines)
-
-        if len_chafa < len_fetch:   # if the chafa animation is shorter than the fetch output
-            pad = (len_fetch - len_chafa) // 2
-            remind = (len_fetch - len_chafa) % 2
-            chafa_lines.pop() # don't ask me why, the last lign always seems to be empty
-            chafa_lines = [' ' * WIDTH] * pad + chafa_lines + [' ' * WIDTH] * (pad + remind)
-
-        elif len_fetch < len_chafa:    # if the chafa animation is longer than the fetch output
-            pad = (len_chafa - len_fetch) // 2
-            remind = (len_chafa - len_fetch) % 2
-            fetch_lines = [' ' * WIDTH] * pad + fetch_output +[' ' * WIDTH] * (pad + remind)
-
-        if i == 0:
-            # updating the HEIGHT variable from the first frame
-            HEIGHT = len(chafa_lines)
         
+        if args.center_mode:
+            # centering the fetch output or the chafa animation if needed.
+            len_chafa = len(chafa_lines)
+
+            if len_chafa < len_fetch:   # if the chafa animation is shorter than the fetch output
+                pad = (len_fetch - len_chafa) // 2
+                remind = (len_fetch - len_chafa) % 2
+                chafa_lines.pop() # don't ask me why, the last line always seems to be empty
+                chafa_lines = [' ' * WIDTH] * pad + chafa_lines + [' ' * WIDTH] * (pad + remind)
+
+            elif len_fetch < len_chafa:    # if the chafa animation is longer than the fetch output
+                pad = (len_chafa - len_fetch) // 2
+                remind = (len_chafa - len_fetch) % 2
+                fetch_lines = [' ' * WIDTH] * pad + fetch_output +[' ' * WIDTH] * (pad + remind)
+
+            if i == 0:
+            # updating the HEIGHT variable from the first frame
+                HEIGHT = len(chafa_lines)
+        else:
+            if i == 0:
+                len_chafa = len(chafa_lines)
+                pad = abs(len_fetch - len_chafa) // 2
+                remind = abs(len_fetch - len_chafa) % 2
+                HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH 
+
+        
+
         frames.append('\n'.join(chafa_lines))
 
         with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
@@ -383,7 +400,7 @@ with open(BASE_PATH / "cache.json", "w") as f:
 
 template = []
 for fetch_line in fetch_lines:
-    output = f"{' ' * PAD_LEFT}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
+    output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
     template.append(output + '\n')
 
 
