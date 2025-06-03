@@ -373,7 +373,7 @@ def run_anifetch(args):
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
 
-            print(script_args)
+            print_verbose(script_args)
             #raise SystemExit
             subprocess.call(
                 script_args,

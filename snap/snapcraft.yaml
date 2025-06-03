@@ -1,0 +1,27 @@
+name: anifetch
+base: core22
+version: "1.0"
+summary: Animation terminale basée sur une vidéo
+description: |
+  Anifetch affiche une animation dans le terminal avec des options vidéo/audio.
+
+grade: stable
+confinement: strict
+
+apps:
+  anifetch:
+    command: bin/anifetch
+    plugs:
+      - home
+      - audio-playback
+      - removable-media
+
+parts:
+  anifetch:
+    plugin: python
+    source: .
+    stage-packages:
+      - ffmpeg
+      - chafa
+      - neofetch
+      - fastfetch
