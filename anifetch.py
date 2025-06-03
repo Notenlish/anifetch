@@ -430,6 +430,13 @@ else:
             frame = file.read()
             frames.append(frame)
         break  # first frame used for the template and the height
+    
+    if args.center_mode:
+        len_chafa = len(frame.splitlines())
+        if len_fetch < len_chafa:
+            pad = (len_chafa - len_fetch) // 2
+            remind = (len_chafa - len_fetch) % 2
+            fetch_lines = [' ' * WIDTH] * pad + fetch_output + [' ' * WIDTH] * (pad + remind)
 
     HEIGHT = len(frames[0].splitlines())
 
