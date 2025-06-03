@@ -396,10 +396,7 @@ else:
             frame = file.read()
             frames.append(frame)
         break  # first frame used for the template and the height
-
-    with open(BASE_PATH / "frame.txt", "w") as f:
-        f.writelines(frames)
-
+    
     if args.center_mode:
         len_chafa = len(frame.splitlines())
         if len_fetch < len_chafa:
