@@ -4,6 +4,7 @@
     Anifetch utility module for common functions used across the application.
 '''
 
+
 import os
 import pathlib
 import re
