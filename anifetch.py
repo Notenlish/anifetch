@@ -54,6 +54,20 @@ def check_chroma_flag():
         return True
     return False
 
+def get_video_dimensions(filename):
+    cmd = [
+        "ffprobe",
+        "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=width,height",
+        "-of", "csv=s=x:p=0",
+        filename
+    ]
+    output = subprocess.check_output(cmd, text=True).strip()
+    width_str, height_str = output.split('x')
+    return int(width_str), int(height_str)
+
+
 
 
 st = time.time()
@@ -213,7 +227,13 @@ if should_update:
 
 
 WIDTH = args.width
-HEIGHT = args.height
+# automatically calculate height if not given
+if not "--height" in sys.argv and not "-H" in sys.argv:
+    vid_w, vid_h = get_video_dimensions(args.filename)
+    ratio = vid_h / vid_w
+    HEIGHT = round(args.width * ratio)
+else:
+    HEIGHT = args.height
 
 
 # Get the fetch output(neofetch/fastfetch)
@@ -376,6 +396,16 @@ else:
             frame = file.read()
             frames.append(frame)
         break  # first frame used for the template and the height
+
+    with open(BASE_PATH / "frame.txt", "w") as f:
+        f.writelines(frames)
+
+    if args.center_mode:
+        len_chafa = len(frame.splitlines())
+        if len_fetch < len_chafa:
+            pad = (len_chafa - len_fetch) // 2
+            remind = (len_chafa - len_fetch) % 2
+            fetch_lines = [' ' * WIDTH] * pad + fetch_output + [' ' * WIDTH] * (pad + remind)
 
     HEIGHT = len(frames[0].splitlines())
 
