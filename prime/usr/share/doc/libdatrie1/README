@@ -1,0 +1,33 @@
+datrie - Double-Array Trie Library
+==================================
+
+This is an implementation of double-array structure for representing trie, 
+as proposed by Junichi Aoe [1].
+
+Trie is a kind of digital search tree, an efficient indexing method in which
+search time is independent of database size. It only takes O(m) search time,
+where m is the length of the search string. Comparably as efficient as hashing,
+trie also provides flexibility on incremental matching and key spelling
+manipulation. This makes it ideal for lexical analyzers, as well as spelling
+dictionaries.
+
+See the details of the implementation at [2]:
+  https://linux.thai.net/~thep/datrie/datrie.html
+
+Historically, this was first implemented as C++ classes in a library called
+midatrie [2], but later simplified and rewritten from scratch in C.
+
+--
+Theppitak Karoonboonyanan.
+September 2006.
+
+References
+----------
+
+[1] Aoe, J. "An Efficient Digital Search Algorithm by Using a Double-Array 
+    Structure". IEEE Transactions on Software Engineering. Vol. 15, 9 
+    (Sep 1989). pp. 1066-1077.
+
+[2] Karoonboonyanan, T. "An Implementation of Double-Array Trie".
+    https://linux.thai.net/~thep/datrie/datrie.html
+

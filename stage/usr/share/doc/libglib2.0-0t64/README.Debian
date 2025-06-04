@@ -1,0 +1,37 @@
+GLib Debian packaging
+=====================
+
+Choosing a terminal emulator for Terminal=true applications
+-----------------------------------------------------------
+
+When a GLib-based application launches a .desktop file with Terminal=true,
+such as /usr/share/applications/mutt.desktop, GLib must choose a terminal
+emulator that will be used to display the command-line application. This
+version of GLib aims to provide reasonable defaults for users of common
+desktop environments, while allowing advanced users to override those
+defaults on a system-wide or per-user basis.
+
+If the xdg-terminal-exec package is installed, this version of GLib will
+use it by default. xdg-terminal-exec has not been standardized and is not
+intended to be included in Debian 12, but will hopefully be included in
+Debian 13.
+
+Otherwise, this version of GLib will prefer to use a GTK-based terminal
+emulator, even if the x-terminal-emulator alternative points to something
+different. This is intentional, to avoid having GTK applications in a
+GTK-based desktop environment launch some other desktop environment's
+preferred terminal emulator on machines that are shared with a user of
+a different desktop environment.
+
+To override GLib's choice of terminal emulator, users can add a directory
+such as $HOME/bin to their PATH environment variable, and place a script
+named "xdg-terminal-exec" in that directory, with contents similar to:
+
+#!/bin/sh
+exec x-terminal-emulator -e "$@"
+
+replacing "x-terminal-emulator -e" with their preferred terminal and
+whatever arguments it requires before the command to be executed.
+
+This configuration can be applied system-wide, if desired, by placing
+a similar script in /usr/local/bin.

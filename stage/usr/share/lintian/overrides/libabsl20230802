@@ -1,0 +1,46 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+libabsl20230802: hardening-no-fortify-functions [usr/lib/*/libabsl_base.so*]
+libabsl20230802: hardening-no-fortify-functions [usr/lib/*/libabsl_debugging_internal.so*]
+libabsl20230802: hardening-no-fortify-functions [usr/lib/*/libabsl_random_internal_seed_material.so*]
+libabsl20230802: hardening-no-fortify-functions [usr/lib/*/libabsl_time_zone.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_bad_any_cast_impl.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_bad_optional_access.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_bad_variant_access.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_cordz_functions.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_cordz_sample_token.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_exponential_biased.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_flags_commandlineflag.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_flags_commandlineflag_internal.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_hash.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_log_initialize.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_log_internal_conditions.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_log_severity.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_log_sink.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_periodic_sampler.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_random_internal_randen.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_random_internal_randen_hwaes_impl.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_random_internal_randen_slow.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_random_seed_gen_exception.so*]
+libabsl20230802: library-not-linked-against-libc [usr/lib/*/libabsl_throw_delegate.so*]
+libabsl20230802: no-symbols-control-file usr/lib/*/libabsl_*
+libabsl20230802: package-name-doesnt-match-sonames libabsl-*
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_city.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_leak_check.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_log_entry.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_log_internal_nullguard.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_low_level_hash.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_random_internal_platform.so*]
+libabsl20230802: shared-library-lacks-prerequisites [usr/lib/*/libabsl_random_internal_randen_hwaes.so*]

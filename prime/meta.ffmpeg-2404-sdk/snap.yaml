@@ -1,0 +1,26 @@
+name: ffmpeg-2404-sdk
+title: FFmpeg SDK for Snaps
+version: 7.1.1
+summary: SDK for ffmpeg-2404
+description: SDK to build ffmpeg-2404 content snap
+license: MIT
+architectures:
+- amd64
+base: core24
+confinement: strict
+grade: stable
+environment:
+  LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/usr/lib:$SNAP/usr/lib/x86_64-linux-gnu
+  PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH
+links:
+  contact:
+  - soumyadghosh+ffmpeg@ubuntu.com
+  issues:
+  - https://github.com/snapcrafters/ffmpeg-sdk/issues
+  source-code:
+  - https://github.com/FFmpeg/FFmpeg
+  - https://git.ffmpeg.org/ffmpeg.git
+  - https://github.com/snapcrafters/ffmpeg-sdk
+  website:
+  - https://snapcrafters.org/
+  - https://ffmpeg.org

@@ -1,0 +1,1992 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Unified system</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Shared MIME-info Database"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Shared MIME-info Database"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="Contributors"
+HREF="x500.html"></HEAD
+><BODY
+CLASS="sect1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Shared MIME-info Database</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x500.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="AEN34"
+>2. Unified system</A
+></H1
+><P
+>&#13;In discussions about the previous systems used by GNOME, KDE and ROX (see the
+"History and related systems" document), it was clear that the differences
+between the databases were simply a result of them being separate, and not due
+to any fundamental disagreements between developers. Everyone is keen to see
+them merged.
+	</P
+><P
+>&#13;This specification proposes:
+
+		<P
+></P
+><UL
+><LI
+><P
+>&#13;A standard way for applications to install new MIME related information.
+			</P
+></LI
+><LI
+><P
+>&#13;A standard way of getting the MIME type for a file.
+			</P
+></LI
+><LI
+><P
+>&#13;A standard way of getting information about a MIME type.
+			</P
+></LI
+><LI
+><P
+>&#13;Standard locations for all the files, and methods of resolving conflicts.
+			</P
+></LI
+></UL
+>
+Further, the existing databases have been merged into a single package
+[<SPAN
+CLASS="citation"
+>SharedMIME</SPAN
+>].
+	</P
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="s2_layout"
+>2.1. Directory layout</A
+></H2
+><P
+>&#13;There are two important requirements for the way the MIME database is stored:
+			<P
+></P
+><UL
+><LI
+><P
+>&#13;Applications must be able to extend the database in any way when they are installed,
+to add both new rules for determining type, and new information about specific types.
+				</P
+></LI
+><LI
+><P
+>&#13;It must be possible to install applications in /usr, /usr/local and the user's home directory
+(in the normal Unix way) and have the MIME information used.
+				</P
+></LI
+></UL
+>
+		</P
+><P
+>&#13;This specification uses the XDG Base Directory Specification[<SPAN
+CLASS="citation"
+>BaseDir</SPAN
+>] to
+define the prefixes below which the database is stored.
+In the rest of this document, paths shown with the prefix
+<TT
+CLASS="filename"
+>&#60;MIME&#62;</TT
+> indicate the files should be loaded from
+the <TT
+CLASS="filename"
+>mime</TT
+> subdirectory of every directory in
+<CODE
+CLASS="envar"
+>XDG_DATA_HOME</CODE
+>:<CODE
+CLASS="envar"
+>XDG_DATA_DIRS</CODE
+>.
+		</P
+><P
+>&#13;For example, when using the default paths, <SPAN
+CLASS="QUOTE"
+>"Load all the
+<TT
+CLASS="filename"
+>&#60;MIME&#62;/text/html.xml</TT
+> files"</SPAN
+> means to
+load <TT
+CLASS="filename"
+>/usr/share/mime/text/html.xml</TT
+>,
+<TT
+CLASS="filename"
+>/usr/local/share/mime/text/html.xml</TT
+>, and
+<TT
+CLASS="filename"
+>~/.local/share/mime/text/html.xml</TT
+> (if they exist, and in this order).
+Information found in a directory is added to the information found in previous
+directories, except when <KBD
+CLASS="userinput"
+>glob-deleteall</KBD
+> or <KBD
+CLASS="userinput"
+>magic-deleteall</KBD
+>
+is used to overwrite parts of a mimetype definition.
+		</P
+><P
+>&#13;Each application that wishes to contribute to the MIME database will install a
+single XML file, named after the application, into one of the three
+<TT
+CLASS="filename"
+>&#60;MIME&#62;/packages/</TT
+> directories (depending on where the user requested
+the application be installed). After installing, uninstalling or modifying this
+file, the application MUST run the <B
+CLASS="command"
+>update-mime-database</B
+> command,
+which is provided by the freedesktop.org shared database[<SPAN
+CLASS="citation"
+>SharedMIME</SPAN
+>].
+		</P
+><P
+>&#13;<B
+CLASS="command"
+>update-mime-database</B
+> is passed the <TT
+CLASS="filename"
+>mime</TT
+>
+directory containing the <TT
+CLASS="filename"
+>packages</TT
+> subdirectory which was
+modified as its only argument. It scans all the XML files in the <TT
+CLASS="filename"
+>packages</TT
+>
+subdirectory, combines the information in them, and creates a number of output files.
+		</P
+><P
+>&#13;Where the information from these files is conflicting, information from directories
+lower in the list takes precedence.
+Any file named <TT
+CLASS="filename"
+>Override.xml</TT
+> takes precedence over all other files in
+the same <TT
+CLASS="filename"
+>packages</TT
+> directory. This can be used by
+tools which let the user edit the database to ensure that the user's
+changes take effect.
+		</P
+><P
+>&#13;The files created by <B
+CLASS="command"
+>update-mime-database</B
+> are:
+			<P
+></P
+><UL
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/globs</TT
+> (contains a mapping from names to MIME types) [deprecated for globs2]
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/globs2</TT
+> (contains a mapping from names to MIME types and glob weight)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/magic</TT
+> (contains a mapping from file contents to MIME types)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/subclasses</TT
+> (contains a mapping from MIME types to types they inherit from)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/aliases</TT
+> (contains a mapping from aliases to MIME types)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/icons</TT
+> (contains a mapping from MIME types to icons)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/generic-icons</TT
+> (contains a mapping from MIME types to generic icons)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/XMLnamespaces</TT
+> (contains a mapping from XML
+(namespaceURI, localName) pairs to MIME types)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/MEDIA/SUBTYPE.xml</TT
+> (one file for each MIME
+type, giving details about the type, including comment, icon and generic-icon)
+				</P
+></LI
+><LI
+><P
+>&#13;<TT
+CLASS="filename"
+>&#60;MIME&#62;/mime.cache</TT
+> (contains the same information as the <TT
+CLASS="filename"
+>globs2</TT
+>,
+<TT
+CLASS="filename"
+>magic</TT
+>, <TT
+CLASS="filename"
+>subclasses</TT
+>, <TT
+CLASS="filename"
+>aliases</TT
+>,
+<TT
+CLASS="filename"
+>icons</TT
+>, <TT
+CLASS="filename"
+>generic-icons</TT
+> and <TT
+CLASS="filename"
+>XMLnamespaces</TT
+> files,
+in a binary, mmappable format)
+				</P
+></LI
+></UL
+>
+The format of these generated files and the source files in <TT
+CLASS="filename"
+>packages</TT
+>
+are explained in the following sections. This step serves several purposes. First, it allows
+applications to quickly get the data they need without parsing all the source XML files (the
+base package alone is over 700K). Second, it allows the database to be used for other
+purposes (such as creating the <TT
+CLASS="filename"
+>/etc/mime.types</TT
+> file if
+desired). Third, it allows validation to be performed on the input data,
+and removes the need for other applications to carefully check the input for
+errors themselves.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN124"
+>2.2. The source XML files</A
+></H2
+><P
+>&#13;Each application provides only a single XML source file, which is installed in the
+<TT
+CLASS="filename"
+>packages</TT
+> directory as described above. This file is an XML file
+whose document element is named <KBD
+CLASS="userinput"
+>mime-info</KBD
+> and whose namespace URI
+is <A
+HREF="http://www.freedesktop.org/standards/shared-mime-info"
+TARGET="_top"
+>http://www.freedesktop.org/standards/shared-mime-info</A
+>. All elements
+described in this specification MUST have this namespace too.
+		</P
+><P
+>&#13;The document element may contain zero or more <KBD
+CLASS="userinput"
+>mime-type</KBD
+> child nodes,
+in any order, each describing a single MIME type. Each element has a <KBD
+CLASS="userinput"
+>type</KBD
+>
+attribute giving the MIME type that it describes.
+		</P
+><P
+>&#13;Each <KBD
+CLASS="userinput"
+>mime-type</KBD
+> node may contain any combination of the following elements,
+and in any order:
+			<P
+></P
+><UL
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>glob</KBD
+> elements have a <KBD
+CLASS="userinput"
+>pattern</KBD
+> attribute. Any file
+whose name matches this pattern will be given this MIME type (subject to conflicting rules in
+other files, of course). There is also an optional <KBD
+CLASS="userinput"
+>weight</KBD
+> attribute which
+is used when resolving conflicts with other glob matches. The default weight value is 50, and
+the maximum is 100.
+		</P
+><P
+>&#13;KDE's glob system replaces GNOME's and ROX's ext/regex fields, since it
+is trivial to detect a pattern in the form '*.ext' and store it in an
+extension hash table internally. The full power of regular expressions was
+not being used by either desktop, and glob patterns are more suitable for
+filename matching anyway.
+		</P
+><P
+>&#13;The first glob element represents the "main" extension for the file type.
+While this doesn't affect the mimetype matching algorithm, this information can be useful
+when a single main extension is needed for a mimetype, for instance so that applications
+can choose an appropriate extension when saving a file.
+				</P
+></LI
+><LI
+><P
+>&#13;A <KBD
+CLASS="userinput"
+>glob-deleteall</KBD
+> element, which indicates that patterns from
+previously parsed directories must be discarded. The patterns defined in this file
+(if any) are used instead.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>magic</KBD
+> elements contain a list of
+<KBD
+CLASS="userinput"
+>match</KBD
+> elements, any of which may match, and an optional
+<KBD
+CLASS="userinput"
+>priority</KBD
+> attribute for all of the contained rules. Low
+numbers should be used for more generic types (such as 'gzip compressed data')
+and higher values for specific subtypes (such as a word processor format that
+happens to use gzip to compress the file). The default priority value is 50, and
+the maximum is 100.
+				</P
+><P
+>&#13;Each <KBD
+CLASS="userinput"
+>match</KBD
+> element has a number of attributes:
+
+<DIV
+CLASS="informaltable"
+><P
+></P
+><A
+NAME="AEN153"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>Attribute</TH
+><TH
+>Required?</TH
+><TH
+>Value</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>type</TD
+><TD
+>Yes</TD
+><TD
+>&#13;<KBD
+CLASS="userinput"
+>string</KBD
+>, <KBD
+CLASS="userinput"
+>host16</KBD
+>,
+<KBD
+CLASS="userinput"
+>host32</KBD
+>, <KBD
+CLASS="userinput"
+>big16</KBD
+>,
+<KBD
+CLASS="userinput"
+>big32</KBD
+>, <KBD
+CLASS="userinput"
+>little16</KBD
+>,
+<KBD
+CLASS="userinput"
+>little32</KBD
+> or <KBD
+CLASS="userinput"
+>byte</KBD
+>.
+	</TD
+></TR
+><TR
+><TD
+>offset</TD
+><TD
+>Yes</TD
+><TD
+>The byte offset(s)
+	in the file to check. This may be a single number or a range in the
+	form `start:end', indicating that all offsets in the range should be
+	checked. The range is inclusive.</TD
+></TR
+><TR
+><TD
+>value</TD
+><TD
+>Yes</TD
+><TD
+>&#13;	The value to compare the file contents with, in the format indicated by the type
+	attribute. The string type supports the C character escapes (\0, \t, \n, \r, \xAB for hex, \777 for octal).
+	</TD
+></TR
+><TR
+><TD
+>mask</TD
+><TD
+>No</TD
+><TD
+>&#13;	The number to AND the value in the file with before comparing it to
+	`value'. Masks for numerical types can be any number, while masks for strings
+	must be in base 16, and start with 0x.
+	</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+Each element corresponds to one line of
+<SPAN
+CLASS="citerefentry"
+><SPAN
+CLASS="refentrytitle"
+>file</SPAN
+>(1)</SPAN
+>'s <TT
+CLASS="filename"
+>magic.mime</TT
+> file.
+They can be nested in the same way to provide the equivalent of continuation
+lines. That is, &#60;a&#62;&#60;b/&#62;&#60;c/&#62;&#60;/a&#62; means 'a and (b or c)'.
+				</P
+></LI
+><LI
+><P
+>&#13;A <KBD
+CLASS="userinput"
+>magic-deleteall</KBD
+> element, which indicates that magic matches from
+previously parsed directories must be discarded. The magic defined in this file
+(if any) is used instead.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>alias</KBD
+> elements indicate that the type is also sometimes
+known by another name, given by the <KBD
+CLASS="userinput"
+>type</KBD
+> attribute. For
+example, <KBD
+CLASS="userinput"
+>audio/midi</KBD
+> has an alias of
+<KBD
+CLASS="userinput"
+>audio/x-midi</KBD
+>. Note that there should not be a
+<KBD
+CLASS="userinput"
+>mime-type</KBD
+> element defining each alias; a single
+element defines the canonical name for the type and lists all its aliases.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>sub-class-of</KBD
+> elements indicate that any data of this
+type is also some other type, given by the <KBD
+CLASS="userinput"
+>type</KBD
+>
+attribute. See <A
+HREF="x34.html#subclassing"
+>Section 2.11</A
+>.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>comment</KBD
+> elements give a human-readable textual description of the MIME
+type, usually composed of an acronym of the file name extension and a short description, like
+"ODS spreadsheet".
+There may be many of these elements with different <KBD
+CLASS="userinput"
+>xml:lang</KBD
+> attributes
+to provide the text in multiple languages.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>acronym</KBD
+> elements give experienced users a terse idea of the document contents.
+for example "ODS", "GEDCOM", "JPEG" and "XML".
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>expanded-acronym</KBD
+> elements are the expanded versions of the acronym elements,
+for example "OpenDocument Spreadsheet", "GEnealogical Data COMmunication", and "eXtensible Markup Language".
+The purpose of these elements is to provide users a way to look up information on various MIME types or
+file formats in third-party resources.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>icon</KBD
+> elements specify the icon to be used for this particular mime-type, given
+by the <KBD
+CLASS="userinput"
+>name</KBD
+> attribute. Generally the icon used for a mimetype is created
+based on the mime-type by mapping "/" characters to "-", but users can override this by using
+the <KBD
+CLASS="userinput"
+>icon</KBD
+> element to customize the icon for a particular mimetype.
+This element is not used in the system database, but only used in the user overridden database.
+Only one <KBD
+CLASS="userinput"
+>icon</KBD
+> element is allowed.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>generic-icon</KBD
+> elements specify the icon to use as a generic icon for this
+particular mime-type, given by the <KBD
+CLASS="userinput"
+>name</KBD
+> attribute. This is used if there
+is no specific icon (see <KBD
+CLASS="userinput"
+>icon</KBD
+> for how these are found). These are
+used for categories of similar types (like spreadsheets or archives) that can use a common icon.
+The Icon Naming Specification lists a set of such icon names. If this element is not specified
+then the mimetype is used to generate the generic icon by using the top-level media type (e.g.
+"video" in "video/ogg") and appending "-x-generic" (i.e. "video-x-generic" in the previous example).
+Only one <KBD
+CLASS="userinput"
+>generic-icon</KBD
+> element is allowed.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>root-XML</KBD
+> elements have <KBD
+CLASS="userinput"
+>namespaceURI</KBD
+>
+and <KBD
+CLASS="userinput"
+>localName</KBD
+> attributes. If a file is identified as being an XML file,
+these rules allow a more specific MIME type to be chosen based on the namespace and localname
+of the document element.
+				</P
+><P
+>&#13;If <KBD
+CLASS="userinput"
+>localName</KBD
+> is present but empty then the document element may have
+any name, but the namespace must still match.
+				</P
+><P
+>&#13;If <KBD
+CLASS="userinput"
+>namespaceURI</KBD
+> is present but empty then the match is done entirely on
+the document element's local name and any namespace URI present in the document is ignored.
+				</P
+><P
+>&#13;Both attributes must be specified, and at least one of them must be non-empty.
+				</P
+></LI
+><LI
+><P
+>&#13;<KBD
+CLASS="userinput"
+>treemagic</KBD
+> elements contain a list of <KBD
+CLASS="userinput"
+>treematch</KBD
+> elements,
+any of which may match, and an optional <KBD
+CLASS="userinput"
+>priority</KBD
+> attribute for all of the
+contained rules. The default priority value is 50, and the maximum is 100.
+				</P
+><P
+>&#13;Each <KBD
+CLASS="userinput"
+>treematch</KBD
+> element has a number of attributes:
+
+<DIV
+CLASS="informaltable"
+><P
+></P
+><A
+NAME="AEN243"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>Attribute</TH
+><TH
+>Required?</TH
+><TH
+>Value</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>path</TD
+><TD
+>Yes</TD
+><TD
+>A path that must be present on the mounted volume/filesystem. The path is interpreted as a relative path starting at the root of the tested volume/filesystem</TD
+></TR
+><TR
+><TD
+>type</TD
+><TD
+>No</TD
+><TD
+>The type of path. Possible values: <KBD
+CLASS="userinput"
+>file</KBD
+>, <KBD
+CLASS="userinput"
+>directory</KBD
+>, <KBD
+CLASS="userinput"
+>link</KBD
+></TD
+></TR
+><TR
+><TD
+>match-case</TD
+><TD
+>No</TD
+><TD
+>Whether path should be matched case-sensitively. Possible values: <KBD
+CLASS="userinput"
+>true</KBD
+>, <KBD
+CLASS="userinput"
+>false</KBD
+></TD
+></TR
+><TR
+><TD
+>executable</TD
+><TD
+>No</TD
+><TD
+>Whether the file must be executable. Possible values: <KBD
+CLASS="userinput"
+>true</KBD
+>, <KBD
+CLASS="userinput"
+>false</KBD
+></TD
+></TR
+><TR
+><TD
+>non-empty</TD
+><TD
+>No</TD
+><TD
+>Whether the directory must be non-empty. Possible values: <KBD
+CLASS="userinput"
+>true</KBD
+>, <KBD
+CLASS="userinput"
+>false</KBD
+></TD
+></TR
+><TR
+><TD
+>mimetype</TD
+><TD
+>No</TD
+><TD
+>The mimetype for the file at path</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+<KBD
+CLASS="userinput"
+>treematch</KBD
+> elements can be nested, meaning that both the outer and the inner <KBD
+CLASS="userinput"
+>treematch</KBD
+>
+must be satisfied for a "match".
+				</P
+></LI
+></UL
+>
+Applications may also define their own elements, provided they are namespaced to prevent collisions.
+Unknown elements are copied directly to the output XML files like <KBD
+CLASS="userinput"
+>comment</KBD
+>
+elements. A typical use for this would be to indicate the default handler
+application for a particular desktop
+("Galeon is the GNOME default text/html browser"). Note that this doesn't
+indicate the user's preferred application, only the (fixed) default.
+		</P
+><P
+>&#13;Here is an example source file, named <TT
+CLASS="filename"
+>diff.xml</TT
+>:
+		<PRE
+CLASS="programlisting"
+>&#13;&#60;?xml version="1.0"?&#62;
+&#60;mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'&#62;
+  &#60;mime-type type="text/x-diff"&#62;
+    &#60;comment&#62;Differences between files&#60;/comment&#62;
+    &#60;comment xml:lang="af"&#62;verskille tussen lêers&#60;/comment&#62;
+    ...
+    &#60;magic priority="50"&#62;
+      &#60;match type="string" offset="0" value="diff\t"/&#62;
+      &#60;match type="string" offset="0" value="***\t"/&#62;
+      &#60;match type="string" offset="0" value="Common subdirectories: "/&#62;
+    &#60;/magic&#62;
+    &#60;glob pattern="*.diff"/&#62;
+    &#60;glob pattern="*.patch"/&#62;
+  &#60;/mime-type&#62;
+&#60;/mime-info&#62;
+</PRE
+>
+		</P
+><P
+>&#13;In practice, common types such as text/x-diff are provided by the freedesktop.org shared
+database. Also, only new information needs to be provided, since this information will be merged
+with other information about the same type.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN291"
+>2.3. The MEDIA/SUBTYPE.xml files</A
+></H2
+><P
+>&#13;These files have a <KBD
+CLASS="userinput"
+>mime-type</KBD
+> element as the root node. The format is
+as described above. They are created by merging all the <KBD
+CLASS="userinput"
+>mime-type</KBD
+>
+elements from the source files and creating one output file per MIME type. Each file may contain
+information from multiple source files. The <KBD
+CLASS="userinput"
+>magic</KBD
+>,
+<KBD
+CLASS="userinput"
+>glob</KBD
+> and <KBD
+CLASS="userinput"
+>root-XML</KBD
+> elements will
+have been removed.
+		</P
+><P
+>&#13;The example source file given above would (on its own) create an output file called
+<TT
+CLASS="filename"
+>&#60;MIME&#62;/text/x-diff.xml</TT
+> containing the following:
+			<PRE
+CLASS="programlisting"
+>&#13;&#60;?xml version="1.0" encoding="utf-8"?&#62;
+&#60;mime-type xmlns="http://www.freedesktop.org/standards/shared-mime-info" type="text/x-diff"&#62;
+&#60;!--Created automatically by update-mime-database. DO NOT EDIT!--&#62;
+  &#60;comment&#62;Differences between files&#60;/comment&#62;
+  &#60;comment xml:lang="af"&#62;verskille tussen lêers&#60;/comment&#62;
+  ...
+&#60;/mime-type&#62;
+
+</PRE
+>
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN302"
+>2.4. The glob files</A
+></H2
+><P
+>&#13;The globs2 file is a simple list of lines containing weight, MIME type and pattern, separated by a colon.
+The lines are ordered by glob weight.
+For example:
+			<PRE
+CLASS="programlisting"
+>&#13;# This file was automatically generated by the
+# update-mime-database command. DO NOT EDIT!
+...
+55:text/x-diff:*.patch
+50:text/x-diff:*.diff
+50:text/x-c++src:*.C:cs
+...
+</PRE
+>
+		</P
+><P
+>&#13;The glob file is a simple list of lines containing a MIME type and pattern, separated by a colon. It is
+deprecated in favour of the globs2 file which also lists the weight of the glob rule.
+The lines are ordered by glob weight.
+For example:
+			<PRE
+CLASS="programlisting"
+>&#13;# This file was automatically generated by the
+# update-mime-database command. DO NOT EDIT!
+...
+text/x-diff:*.patch
+text/x-diff:*.diff
+...
+</PRE
+>
+		</P
+><P
+>&#13;Applications MUST match globs case-insensitively, except when the case-sensitive attribute
+is set to true.
+This is so that e.g. <TT
+CLASS="filename"
+>main.C</TT
+> will be seen as a C++ file,
+but <TT
+CLASS="filename"
+>IMAGE.GIF</TT
+> will still use the *.gif pattern.
+		</P
+><P
+>&#13;If several patterns of the same weight match then the longest pattern SHOULD be used.
+In particular, files with multiple extensions (such as
+<TT
+CLASS="filename"
+>Data.tar.gz</TT
+>) MUST match the longest sequence of extensions
+(eg '*.tar.gz' in preference to '*.gz'). Literal patterns (eg, 'Makefile') must
+be matched before all others. It is suggested that patterns beginning with `*.'
+and containing no other special characters (`*?[') should be placed in a hash
+table for efficient lookup, since this covers the majority of the patterns. Thus,
+patterns of this form should be matched before other wildcarded patterns.
+		</P
+><P
+>&#13;If a matching pattern is provided by two or more MIME types, applications
+SHOULD not rely on one of them. They are instead supposed to use magic data
+(see below) to detect the actual MIME type. This is for instance required to
+deal with container formats like Ogg or AVI, that map various video and/or
+audio-encoded data to one extension.
+		</P
+><P
+>&#13;There may be several rules mapping to the same type. They should all be merged.
+If the same pattern is defined twice, then they MUST be ordered by the
+directory the rule came from, as described above.
+		</P
+><P
+>&#13;The <KBD
+CLASS="userinput"
+>glob-deleteall</KBD
+> element, which means that implementations
+SHOULD discard information from previous directories, is written out into the globs2 file using
+__NOGLOBS__ as the pattern. For instance:
+			<PRE
+CLASS="programlisting"
+>&#13;0:text/x-diff:__NOGLOBS__
+50:text/x-diff:*.diff
+...
+</PRE
+>
+		</P
+><P
+>&#13;In the above example, the mimetype text/x-diff is redefined (for instance in a user's
+~/.local/share/mime) to only be associated with the pattern *.diff, so the other patterns
+like *.patch were removed. The weight in front of the __NOGLOBS__ line is ignored.
+In a given globs2 file, the __NOGLOBS__ line for a given mimetype is always written
+out before any other globs for this mimetype.
+		</P
+><P
+>&#13;Lines beginning with `#' are comments and should be ignored. Everything from
+the `:' character to the newline is part of the pattern; spaces should not be
+stripped. The file is in the UTF-8 encoding. The format of the glob pattern
+is as for fnmatch(3). The format does not allow a pattern to contain a literal
+newline character, but this is not expected to be a problem.
+		</P
+><P
+>&#13;Common types (such as MS Word Documents) will be provided in the X Desktop
+Group's package, which MUST be required by all applications using this
+specification. Since each application will then only be providing information
+about its own types, conflicts should be rare.
+		</P
+><P
+>&#13;The fourth field ("cs" in the first globs2 example) contains a list of comma-separated flags.
+The flags currently defined are: cs (for case-sensitive). Implementations should ignore
+unknown flags.
+		</P
+><P
+>&#13;Implementations should also ignore further fields, so that the syntax of the globs2 file
+can be extended in the future. Example: "50:text/x-c++src:*.C:cs,newflag:newfeature:somethingelse"
+should currently be parsed as "50:text/x-c++src:*.C:cs".
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN323"
+>2.5. The magic files</A
+></H2
+><P
+>&#13;The magic data is stored in a binary format for ease of parsing. The old magic database
+had complex escaping rules; these are now handled by <B
+CLASS="command"
+>update-mime-database</B
+>.
+		</P
+><P
+>&#13;The file starts with the magic string "MIME-Magic\0\n".
+There is no version number in the file. Incompatible changes will be handled by
+creating both the current `magic' file and a newer `magic2' in the new format.
+Where possible, compatible changes only will be made.
+All numbers are big-endian, so need to be byte-swapped on little-endian machines.
+		</P
+><P
+>&#13;The rest of the file is made up of a sequence of small sections.
+Each section is introduced by giving the priority and type in brackets, followed by
+a newline character. Higher priority entries come first. Example:
+<PRE
+CLASS="screen"
+>[50:text/x-diff]\n</PRE
+>
+Each line in the section takes the form:
+<PRE
+CLASS="screen"
+>[ indent ] "&#62;" start-offset "=" value
+[ "&#38;" mask ] [ "~" word-size ] [ "+" range-length ] "\n"</PRE
+>
+<DIV
+CLASS="informaltable"
+><P
+></P
+><A
+NAME="AEN331"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>Part</TH
+><TH
+>Example</TH
+><TH
+>Meaning</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>indent</TD
+><TD
+>1</TD
+><TD
+>The nesting
+	depth of the rule, corresponding to the number of '&#62;' characters in the traditional file format.</TD
+></TR
+><TR
+><TD
+>"&#62;" start-offset</TD
+><TD
+>&#62;4</TD
+><TD
+>The offset into the
+	file to look for a match.</TD
+></TR
+><TR
+><TD
+>"=" value</TD
+><TD
+>=\0x0\0x2\0x55\0x40</TD
+><TD
+>&#13;	Two bytes giving the (big-endian) length of the value, followed by the value itself.
+	</TD
+></TR
+><TR
+><TD
+>"&#38;" mask</TD
+><TD
+>&#38;\0xff\0xf0</TD
+><TD
+>&#13;	The mask, which (if present) is exactly the same length as the value.
+	</TD
+></TR
+><TR
+><TD
+>"~" word-size</TD
+><TD
+>~2</TD
+><TD
+>On little-endian machines, the
+	size of each group to byte-swap.</TD
+></TR
+><TR
+><TD
+>"+" range-length</TD
+><TD
+>+8</TD
+><TD
+>The length of the region
+	in the file to check.
+	</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+		</P
+><P
+>&#13;Note that the value, value length and mask are all binary, whereas everything
+else is textual. Each of the elements begins with a single character to
+identify it, except for the indent level.
+		</P
+><P
+>&#13;The word size is used for byte-swapping. Little-endian systems should reverse
+the order of groups of bytes in the value and mask if this is greater than one.
+This only affects `host' matches (`big32' entries still have a word size of 1,
+for example, because no swapping is necessary, whereas `host32' has a word size
+of 4).
+		</P
+><P
+>&#13;The indent, range-length, word-size and mask components are optional. If
+missing, indent defaults to 0, range-length to 1, the word-size to 1, and the
+mask to all 'one' bits.
+		</P
+><P
+>&#13;Indent corresponds to the nesting depth of the rule. Top-level rules have an
+indent of zero. The parent of an entry is the preceding entry with an indent
+one less than the entry.
+		</P
+><P
+>&#13;If an unknown character is found where a newline is expected then the whole
+line should be ignored (there will be no binary data after the new
+character, so the next line starts after the next "\n" character). This is for
+future extensions.
+		</P
+><P
+>&#13;The text/x-diff above example would (on its own) create this magic file:
+			<PRE
+CLASS="programlisting"
+>&#13;00000000  4d 49 4d 45 2d 4d 61 67  69 63 00 0a 5b 35 30 3a  |MIME-Magic..[50:|
+00000010  74 65 78 74 2f 78 2d 64  69 66 66 5d 0a 3e 30 3d  |text/x-diff].&#62;0=|
+00000020  00 05 64 69 66 66 09 0a  3e 30 3d 00 04 2a 2a 2a  |..diff..&#62;0=..***|
+00000030  09 0a 3e 30 3d 00 17 43  6f 6d 6d 6f 6e 20 73 75  |..&#62;0=..Common su|
+00000040  62 64 69 72 65 63 74 6f  72 69 65 73 3a 20 0a     |bdirectories: .|
+</PRE
+>
+		</P
+><P
+>&#13;The <KBD
+CLASS="userinput"
+>magic-deleteall</KBD
+> attribute, which means that implementations
+SHOULD discard information from previous directories, is written out into the magic file using
+__NOMAGIC__ as the value:
+<PRE
+CLASS="screen"
+>&#62;0=__NOMAGIC__\n</PRE
+>
+This can be followed by other magic rules for the mimetype.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN373"
+>2.6. The XMLnamespaces files</A
+></H2
+><P
+>&#13;Each <TT
+CLASS="filename"
+>XMLnamespaces</TT
+> file is a list of lines in the form:
+<PRE
+CLASS="screen"
+>namespaceURI " " localName " " MIME-Type "\n"</PRE
+>
+For example:
+<PRE
+CLASS="screen"
+>&#13;http://www.w3.org/1999/xhtml html application/xhtml+xml
+</PRE
+>
+The lines are sorted (using strcmp in the C locale) and there are no lines with the same namespaceURI and
+localName in one file. If the localName was empty then there will be two spaces following
+the namespaceURI.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN379"
+>2.7. The icon files</A
+></H2
+><P
+>&#13;The <TT
+CLASS="filename"
+>icons</TT
+> and <TT
+CLASS="filename"
+>generic-icons</TT
+> files are list of lines in the form:
+<PRE
+CLASS="screen"
+>MIME-Type ":" icon-name "\n"</PRE
+>
+For example:
+<PRE
+CLASS="screen"
+>&#13;application/msword:x-office-document
+</PRE
+>
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN386"
+>2.8. The treemagic files</A
+></H2
+><P
+>&#13;The tree magic data is stored in a file with a format that is very similar to the magic file format.
+		</P
+><P
+>&#13;The file starts with the magic string "MIME-TreeMagic\0\n". There is no version number in the file.
+Incompatible changes will be handled by creating both the current `treemagic' and a newer `treemagic2'
+in the new format. Where possible, changes will be made in a compatible fashion.
+		</P
+><P
+>&#13;The rest of the file is made up of a sequence of small sections. Each section is introduced by giving
+the priority and type in brackets, followed by a newline character. Higher priority entries come
+first. Example:
+<PRE
+CLASS="screen"
+>[50:x-content/image-dcf]\n</PRE
+>
+Each line in the section takes the form:
+<PRE
+CLASS="screen"
+>[ indent ] "&#62;" "\"" path "\"" "=" type [ "," option ]* "\n"</PRE
+>
+<DIV
+CLASS="informaltable"
+><P
+></P
+><A
+NAME="AEN393"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>Part</TH
+><TH
+>Meaning</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>indent</TD
+><TD
+>The nesting depth of the rule.</TD
+></TR
+><TR
+><TD
+>path</TD
+><TD
+>The path to match.</TD
+></TR
+><TR
+><TD
+>type</TD
+><TD
+>The required file type, one of "file", "directory", "link" or "any"</TD
+></TR
+><TR
+><TD
+>option</TD
+><TD
+>Optional for the optional attributes of <KBD
+CLASS="userinput"
+>treematch</KBD
+> elements.
+Possible values are "executable", "match-case", "non-empty", or a MIME type</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+		</P
+><P
+>&#13;		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN414"
+>2.9. The mime.cache files</A
+></H2
+><P
+>&#13;The <TT
+CLASS="filename"
+>mime.cache</TT
+> files contain the same information as the
+<TT
+CLASS="filename"
+>globs2</TT
+>, <TT
+CLASS="filename"
+>magic</TT
+>, <TT
+CLASS="filename"
+>subclasses</TT
+>,
+<TT
+CLASS="filename"
+>aliases</TT
+> and <TT
+CLASS="filename"
+>XMLnamespaces</TT
+> files, in a binary,
+mmappable format:
+</P
+><PRE
+CLASS="programlisting"
+>&#13;Header:
+2			CARD16		MAJOR_VERSION	1
+2			CARD16		MINOR_VERSION	2
+4			CARD32		ALIAS_LIST_OFFSET
+4			CARD32		PARENT_LIST_OFFSET
+4			CARD32		LITERAL_LIST_OFFSET
+4			CARD32		REVERSE_SUFFIX_TREE_OFFSET
+4			CARD32		GLOB_LIST_OFFSET
+4			CARD32		MAGIC_LIST_OFFSET
+4			CARD32		NAMESPACE_LIST_OFFSET
+4			CARD32		ICONS_LIST_OFFSET
+4			CARD32		GENERIC_ICONS_LIST_OFFSET
+
+AliasList:
+4			CARD32		N_ALIASES
+8*N_ALIASES		AliasListEntry
+
+AliasListEntry:
+4			CARD32		ALIAS_OFFSET
+4			CARD32		MIME_TYPE_OFFSET
+
+ParentList:
+4			CARD32		N_ENTRIES
+8*N_ENTRIES		ParentListEntry
+
+ParentListEntry:
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		PARENTS_OFFSET
+
+Parents:
+4			CARD32		N_PARENTS
+4*N_PARENTS		CARD32		MIME_TYPE_OFFSET
+
+LiteralList:
+4			CARD32		N_LITERALS
+12*N_LITERALS		LiteralEntry
+
+LiteralEntry:
+4			CARD32		LITERAL_OFFSET
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		WEIGHT in lower 8 bits
+                                        FLAGS in rest:
+                                        0x100 = case-sensitive
+
+
+GlobList:
+4			CARD32		N_GLOBS
+12*N_GLOBS		GlobEntry
+
+GlobEntry:
+4			CARD32		GLOB_OFFSET
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		WEIGHT in lower 8 bits
+                                        FLAGS in rest:
+                                        0x100 = case-sensitive
+
+ReverseSuffixTree:
+4			CARD32		N_ROOTS
+4	 		CARD32		FIRST_ROOT_OFFSET
+
+ReverseSuffixTreeNode:
+4			CARD32		CHARACTER
+4			CARD32		N_CHILDREN
+4			CARD32		FIRST_CHILD_OFFSET
+
+ReverseSuffixTreeLeafNode:
+4			CARD32		0
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		WEIGHT in lower 8 bits
+                                        FLAGS in rest:
+                                        0x100 = case-sensitive
+
+MagicList:
+4			CARD32		N_MATCHES
+4			CARD32		MAX_EXTENT
+4			CARD32		FIRST_MATCH_OFFSET
+
+Match:
+4			CARD32		PRIORITY
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		N_MATCHLETS
+4			CARD32		FIRST_MATCHLET_OFFSET
+
+Matchlet:
+4			CARD32		RANGE_START
+4			CARD32		RANGE_LENGTH
+4			CARD32		WORD_SIZE
+4			CARD32		VALUE_LENGTH
+4			CARD32		VALUE_OFFSET
+4			CARD32		MASK_OFFSET (0 if no mask)
+4			CARD32		N_CHILDREN
+4			CARD32		FIRST_CHILD_OFFSET
+
+NamespaceList:
+4			CARD32		N_NAMESPACES
+12*N_NAMESPACES		NamespaceEntry
+
+NamespaceEntry:
+4			CARD32		NAMESPACE_URI_OFFSET
+4			CARD32		LOCAL_NAME_OFFSET
+4			CARD32		MIME_TYPE_OFFSET
+
+GenericIconsList:
+IconsList:
+4			CARD32		N_ICONS
+8*N_ICONS		IconListEntry
+
+IconListEntry:
+4			CARD32		MIME_TYPE_OFFSET
+4			CARD32		ICON_NAME_OFFSET
+</PRE
+><P
+>&#13;Lists in the file are sorted, to enable binary searching. The list of
+aliases is sorted by alias, the list of literal globs is sorted by the
+literal. The SuffixTreeNode siblings are sorted by character.
+The list of namespaces is sorted by namespace uri. The list of icons
+is sorted by mimetype.
+</P
+><P
+>&#13;Mimetypes are stored in the suffix tree by appending suffix
+tree leaf nodes with '\0' as character. These nodes appear at the
+beginning of the list of children.
+</P
+><P
+>&#13;All offsets are in bytes from the beginning of the file.
+</P
+><P
+>&#13;Strings are zero-terminated.
+</P
+><P
+>&#13;All numbers are in network (big-endian) order. This is necessary because the data will be stored in
+arch-independent directories like <TT
+CLASS="filename"
+>/usr/share/mime</TT
+> or even in user's home directories.
+</P
+><P
+>&#13;Cache files have to be written atomically - write to a temporary name, then move over the old file - so
+that clients that have the old cache file open and mmap'ed won't get corrupt data.
+</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN431"
+>2.10. Storing the MIME type using Extended Attributes</A
+></H2
+><P
+>&#13;An implementation MAY also get a file's MIME type from the
+<KBD
+CLASS="userinput"
+>user.mime_type</KBD
+> extended attribute.  The type given here should normally be used in
+preference to any guessed type, since the user is able to set it explicitly.
+Applications MAY choose to set the type when saving files. Since many
+applications and filesystems do not support extended attributes,
+implementations MUST NOT rely on this method being available.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="subclassing"
+>2.11. Subclassing</A
+></H2
+><P
+>&#13;A type is a subclass of another type if any instance of the first type is
+also an instance of the second. For example, all image/svg+xml files are also
+application/xml, text/plain and application/octet-stream files. Subclassing is about
+the format, rather than the category of the data (for example, there is no
+'generic spreadsheet' class that all spreadsheets inherit from).
+		</P
+><P
+>&#13;Some subclass rules are implicit:
+			<P
+></P
+><UL
+><LI
+><P
+>All text/* types are subclasses of text/plain.</P
+></LI
+><LI
+><P
+>All streamable types (ie, everything except the inode/* types)
+are subclasses of application/octet-stream.</P
+></LI
+></UL
+>
+In addition to these rules, explicit subclass information may be given using
+the <KBD
+CLASS="userinput"
+>sub-class-of</KBD
+> element.
+		</P
+><P
+>&#13;Note that some file formats are also compressed files (application/x-jar files
+are also application/zip files). However, this is different to a case such as a
+compressed postscript file, which is not a valid postscript file itself (so
+application/x-gzpostscript does not inherit from application/postscript,
+because an application that can handle the latter may not cope with the
+former).
+		</P
+><P
+>&#13;Some types may or may not be instances of other types. For example, a
+spreadsheet file may be compressed or not. It is a valid spreadsheet file
+either way, but only inherits from application/gzip in one case. This
+information cannot be represented statically; instead an application
+interested in this information should run all of the magic rules, and
+use the list of types returned as the subclasses.
+		</P
+><P
+>&#13;Note that it is possible for a mime-type to be a <KBD
+CLASS="userinput"
+>sub-class-of</KBD
+>
+an alias, for example if a temporary vendor mime-type is replaced by an official IANA
+mime-type.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN449"
+>2.12. Recommended checking order</A
+></H2
+><P
+>&#13;Because different applications have different requirements, they may choose to
+use the various methods provided by this specification in any order. However, the
+RECOMMENDED order to perform the checks is:
+			<P
+></P
+><UL
+><LI
+><P
+>&#13;If a MIME type is provided explicitly (eg, by a ContentType HTTP header, a MIME
+email attachment, an extended attribute or some other means) then that should
+be used instead of guessing.
+				</P
+></LI
+><LI
+><P
+>&#13;Otherwise, start by doing a glob match of the filename. Keep only globs with the biggest weight.
+If the patterns are different, keep only globs with the longest pattern, as previously discussed.
+If after this, there is one or more matching glob, and all the matching globs
+result in the same mimetype, use that mimetype as the result.
+				</P
+></LI
+><LI
+><P
+>&#13;If the glob matching fails or results in multiple conflicting mimetypes, read the
+contents of the file and do magic sniffing on it. If no magic rule matches the data (or if
+the content is not available), use the default type of application/octet-stream for
+binary data, or text/plain for textual data. If there was no glob match, use the magic match
+as the result.
+				</P
+><P
+>&#13;Note: Checking the first 128 bytes of the file for ASCII control characters is
+a good way to guess whether a file is binary or text, but note that files with high-bit-set
+characters should still be treated as text since these can appear in UTF-8 text,
+unlike control characters.
+				</P
+></LI
+><LI
+><P
+>&#13;If any of the mimetypes resulting from a glob match is equal to or a subclass of
+the result from the magic sniffing, use this as the result. This allows us for example to
+distinguish text files called "foo.doc" from MS-Word files with the same name, as the
+magic match for the MS-Word file would be application/x-ole-storage which the MS-Word type
+inherits.
+				</P
+></LI
+><LI
+><P
+>&#13;Otherwise use the result of the glob match that has the highest weight.
+				</P
+></LI
+></UL
+>
+		</P
+><P
+>&#13;There are several reasons for checking the glob patterns before the magic.
+First of all doing magic sniffing is very expensive as reading the contents of the files
+causes a lot of seeks, which is very expensive. Secondly, some applications don't check
+the magic at all (sometimes the content is not available or too slow to read), and this
+makes it more likely that both will get the same type.
+		</P
+><P
+>&#13;Also, users can easily understand why calling their
+text file <TT
+CLASS="filename"
+>README.mp3</TT
+> makes the system think it's an MP3,
+whereas they have trouble understanding why their computer thinks
+<TT
+CLASS="filename"
+>README.txt</TT
+> is a PostScript file. If the system guesses wrongly,
+the user can often rename the file to fix the problem.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN468"
+>2.13. Non-regular files</A
+></H2
+><P
+>&#13;Sometimes it is useful to assign MIME types to other objects in the filesystem,
+such as directories, sockets and device files. This could be useful when looking up
+an icon for a type, or for providing a textual description of one of these objects.
+The media type 'inode' is provided for this purpose, with the following types corresponding
+to the standard types of object found in a Unix filesystem:
+		</P
+><P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+>inode/blockdevice</TD
+></TR
+><TR
+><TD
+>inode/chardevice</TD
+></TR
+><TR
+><TD
+>inode/directory</TD
+></TR
+><TR
+><TD
+>inode/fifo</TD
+></TR
+><TR
+><TD
+>inode/mount-point</TD
+></TR
+><TR
+><TD
+>inode/socket</TD
+></TR
+><TR
+><TD
+>inode/symlink</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+><P
+>&#13;An inode/mount-point is a subclass of inode/directory. It can be useful when adding extra
+actions for these directories, such as 'mount' or 'eject'. Mounted directories can be
+detected by comparing the 'st_dev' of a directory with that of its parent. If
+they differ, they are from different devices and the directory is a mount
+point.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN480"
+>2.14. Content types for volumes</A
+></H2
+><P
+>&#13;Traditional MIME types apply to individual files or bytestreams. It is often useful
+to apply the same methodologies when classifying the content of mountable volumes or
+filesystems. The x-content type has been introduced for this purpose. Typical examples
+are x-content/audio-dvd, x-content/blank-cd or x-content/image-dcf.
+		</P
+><P
+>&#13;Matching of content types works with <KBD
+CLASS="userinput"
+>treemagic</KBD
+> elements, which
+are analogous to the <KBD
+CLASS="userinput"
+>magic</KBD
+> elements used for MIME type matching.
+Instead of looking for byte sequences in files, <KBD
+CLASS="userinput"
+>treemagic</KBD
+> elements
+allow to look for files with certain names, permissions or mime types in a directory
+hierarchy.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN487"
+>2.15. URI scheme handlers</A
+></H2
+><P
+>&#13;URI scheme handling (such as a movie player handling mms:// URIs, or a Podcast program
+handling feed:// URIs) are handled through applications handling the x-scheme-handler/foo
+mime-type, where foo is the URI scheme in question.
+		</P
+><P
+>&#13;This scheme allows URI scheme handling to enjoy the same benefits as mime-type handlers,
+such as the ability to change the default handler, the cross-desktop support, and
+easier application launching.
+		</P
+><P
+>&#13;Note that this virtual mime-type is not for listing URI schemes that an application
+can load files from. For example, a movie player would not list x-scheme-handler/http
+in its supported mime-types, but it would list x-scheme-handler/rtsp if it supported
+playing back from RTSP locations.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN492"
+>2.16. Security implications</A
+></H2
+><P
+>&#13;The system described in this document is intended to allow different programs
+to see the same file as having the same type. This is to help interoperability.
+The type determined in this way is only a guess, and an application MUST NOT
+trust a file based simply on its MIME type. For example, a downloader should
+not pass a file directly to a launcher application without confirmation simply
+because the type looks `harmless' (eg, text/plain).
+		</P
+><P
+>&#13;Do not rely on two applications getting the same type for the same file, even
+if they both use this system. The spec allows some leeway in implementation,
+and in any case the programs may be following different versions of the spec.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN496"
+>2.17. User modification</A
+></H2
+><P
+>&#13;The MIME database is NOT intended to store user preferences. Users should never
+edit the database. If they wish to make corrections or provide MIME entries for
+software that doesn't provide these itself, they should do so by means of the
+Override.xml mentioned in <A
+HREF="x34.html#s2_layout"
+>Section 2.1</A
+>. Information such as
+"text/html files need to be opened with Mozilla" should NOT go in the database.
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x500.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Shared MIME-info Database</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Contributors</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

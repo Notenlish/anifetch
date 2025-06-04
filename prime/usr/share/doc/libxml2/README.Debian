@@ -1,0 +1,12 @@
+Notes about libxml2
+-------------------
+While libxml2 is trying to fit at best the XML, XPath, XIncludes, etc.
+standards, it is likely to contain implementation bugs which tend to
+disappear with newer versions.
+For this reason, if you are using libxml2 libraries or tools for standard
+conforming development, it's suggested to upgrade libxml2 with newer
+packages from either testing or unstable Debian repositories.
+If you're using libxml2 in Gnome context, or similar case (ie. xml usage
+not requiring heavy standards compliance), you don't need such upgrade.
+
+-- Mike Hommey <glandium@debian.org>, Sat Oct 16 14:29:43 JST 2004

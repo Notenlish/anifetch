@@ -1,0 +1,463 @@
+name: ffmpeg-2404-sdk
+title: FFmpeg SDK for Snaps
+summary: SDK for ffmpeg-2404
+description: SDK to build ffmpeg-2404 content snap
+version: '7.1.1'
+base: core24
+grade: stable
+confinement: strict
+compression: lzo
+license: MIT
+contact: soumyadghosh+ffmpeg@ubuntu.com
+source-code:
+  - https://github.com/FFmpeg/FFmpeg
+  - https://git.ffmpeg.org/ffmpeg.git
+  - https://github.com/snapcrafters/ffmpeg-sdk
+website:
+  - https://snapcrafters.org/
+  - https://ffmpeg.org
+issues: https://github.com/snapcrafters/ffmpeg-sdk/issues
+lint:
+  ignore:
+    - classic
+    - library
+platforms:
+  amd64:
+    build-on: amd64
+parts:
+  nv-codec-headers:
+    plugin: make
+    source: https://github.com/FFmpeg/nv-codec-headers.git
+    source-tag: 'n13.0.19.0'
+    source-depth: 1
+    make-parameters:
+      - PREFIX=/usr
+      - LIBDIR=lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+    build-packages:
+      - pkg-config
+  srt:
+    plugin: cmake
+    source: https://github.com/Haivision/srt.git
+    source-tag: 'v1.5.4'
+    source-depth: 1
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_C_FLAGS_RELEASE=-s
+      - -DCMAKE_CXX_FLAGS_RELEASE=-s
+      - -DENABLE_LOGGING=OFF
+      - -DENABLE_STATIC=OFF
+    build-packages:
+      - libssl-dev
+  avisynth-plus:
+    plugin: cmake
+    source: https://github.com/AviSynth/AviSynthPlus.git
+    source-tag: 'v3.7.5'
+    source-depth: 1
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_C_FLAGS_RELEASE=-s
+      - -DCMAKE_CXX_FLAGS_RELEASE=-s
+  x264:
+    plugin: autotools
+    source: https://code.videolan.org/videolan/x264.git
+    source-branch: 'stable'
+    source-depth: 1
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --libdir=/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
+      - --disable-cli
+      - --enable-shared
+      - --enable-strip
+    build-packages:
+      - libva-dev
+      - nasm
+  dav1d:
+    plugin: meson
+    source: https://code.videolan.org/videolan/dav1d.git
+    source-tag: '1.5.1'
+    source-depth: 1
+    meson-parameters:
+      - --prefix=/usr
+      - --buildtype=release
+      - --strip
+      - -Denable_tools=false
+      - -Denable_tests=false
+    build-packages:
+      - libxxhash-dev
+      - meson
+      - ninja-build
+  zimg:
+    plugin: autotools
+    source: https://github.com/sekrit-twc/zimg.git
+    source-tag: 'release-3.0.5'
+    source-depth: 1
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --libdir=/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
+    prime:
+      - -usr/share
+  vulkan-headers:
+    source: https://github.com/KhronosGroup/Vulkan-Headers.git
+    source-tag: 'v1.3.281'
+    source-depth: 1
+    plugin: cmake
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_TESTS=OFF
+    build-packages:
+      - libx11-dev
+      - libxcb1-dev
+      - libxrandr-dev
+      - pkg-config
+  vulkan-loaders:
+    after: [vulkan-headers]
+    source: https://github.com/KhronosGroup/Vulkan-Loader.git
+    source-tag: 'v1.3.281'
+    source-depth: 1
+    plugin: cmake
+    build-environment:
+      - CMAKE_PREFIX_PATH: $CRAFT_STAGE/usr
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_PREFIX_PATH=$CRAFT_STAGE/
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_LIBDIR=/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+      - -DLOADER_CODEGEN=ON
+      - -DBUILD_TESTS=OFF
+    build-packages:
+      - libx11-dev
+      - libxcb1-dev
+      - libxrandr-dev
+      - pkg-config
+  ffmpeg:
+    after:
+      - avisynth-plus
+      - dav1d
+      - nv-codec-headers
+      - srt
+      - x264
+      - zimg
+      - vulkan-loaders
+    plugin: autotools
+    source: https://git.ffmpeg.org/ffmpeg.git
+    source-tag: 'n$SNAPCRAFT_PROJECT_VERSION'
+    source-depth: 1
+    build-packages:
+      - libaom-dev
+      - flite1-dev
+      - libass-dev
+      - libbs2b-dev
+      - libbluray-dev
+      - libbz2-dev
+      - libcaca-dev
+      - libcdio-paranoia-dev
+      - libcodec2-dev
+      - libdc1394-dev
+      - libdrm-dev
+      - libfribidi-dev
+      - libgme-dev
+      - libgnutls28-dev
+      - libgsm1-dev
+      - liblzma-dev
+      - libmp3lame-dev
+      - libomxil-bellagio-dev
+      - libopenal-dev
+      - libopencore-amrnb-dev
+      - libopencore-amrwb-dev
+      - libopenjp2-7-dev
+      - libopenmpt-dev
+      - libopus-dev
+      - libpulse-dev
+      - librsvg2-dev
+      - librubberband-dev
+      - libsctp-dev
+      - libsdl2-dev
+      - libshine-dev
+      - libsnappy-dev
+      - libsoxr-dev
+      - libspeex-dev
+      - libssh-gcrypt-dev
+      - libtesseract-dev
+      - libtheora-dev
+      - libtwolame-dev
+      - libva-dev
+      - libv4l-dev
+      - libvdpau-dev
+      - libvo-amrwbenc-dev
+      - libvorbis-dev
+      - libvpx-dev
+      - libvulkan-dev
+      - libwavpack-dev
+      - libwebp-dev
+      - libx265-dev
+      - libxcb-shape0-dev
+      - libxcb-shm0-dev
+      - libxcb-xfixes0-dev
+      - libxml2-dev
+      - libxv-dev
+      - libxvidcore-dev
+      - libzmq3-dev
+      - libzvbi-dev
+      - ocl-icd-opencl-dev
+      - opencl-headers
+      - pkg-config
+      - yasm
+      #- on amd64:
+      #- libcrystalhd-dev
+      # TODO: re-enable `nvidia-cuda*` if we can determine that we can ship non-free
+      # - nvidia-cuda-dev
+      # - nvidia-cuda-toolkit
+      #- on i386:
+      #- libcrystalhd-dev
+    override-build: |
+      if [ "$CRAFT_ARCH_BUILD_FOR" = "amd64" ]; then
+        # TODO: re-enable `--enable-cuda-sdk --enable-cuda --enable-libnpp` if we can determine that we can ship non-free
+        EXTRA="--enable-vdpau --enable-nvenc --enable-cuvid"
+      elif [ "$CRAFT_ARCH_BUILD_FOR" = "i386" ]; then
+        EXTRA="--enable-vdpau --enable-nvenc"
+      elif [ "$CRAFT_ARCH_BUILD_FOR" = "armhf" ]; then
+        EXTRA="--disable-vdpau --enable-neon"
+      elif [ "$CRAFT_ARCH_BUILD_FOR" = "arm64" ]; then
+        EXTRA="--disable-vdpau"
+      else
+        EXTRA=""
+      fi
+      ./configure \
+      --prefix=/usr \
+      --libdir=/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR} \
+      --disable-debug \
+      --disable-doc \
+      --disable-htmlpages \
+      --disable-manpages \
+      --disable-podpages \
+      --disable-txtpages \
+      --disable-static \
+      --enable-libaom \
+      --enable-avisynth \
+      --enable-libdav1d \
+      --enable-ffplay \
+      --enable-gnutls \
+      --enable-gpl \
+      --enable-libass \
+      --enable-libbluray \
+      --enable-libbs2b \
+      --enable-libcaca \
+      --enable-libcdio \
+      --enable-libcodec2 \
+      --enable-libdc1394 \
+      --enable-libdrm \
+      --enable-libflite \
+      --enable-libfontconfig \
+      --enable-libfribidi \
+      --enable-libfreetype \
+      --enable-libgme \
+      --enable-libgsm \
+      --enable-libmp3lame \
+      --enable-libopencore_amrnb \
+      --enable-libopencore_amrwb \
+      --enable-libopenjpeg \
+      --enable-libopenmpt \
+      --enable-libopus \
+      --enable-libpulse \
+      --enable-librsvg \
+      --enable-librubberband \
+      --enable-libshine \
+      --enable-libsnappy \
+      --enable-libsoxr \
+      --enable-libspeex \
+      --enable-libsrt \
+      --enable-libssh \
+      --enable-libtesseract \
+      --enable-libtheora \
+      --enable-libtwolame \
+      --enable-libv4l2 \
+      --enable-libvo_amrwbenc \
+      --enable-libvorbis \
+      --enable-libvpx \
+      --enable-libwebp \
+      --enable-libx264 \
+      --enable-libx265 \
+      --enable-libxcb \
+      --enable-libxml2 \
+      --enable-libxvid \
+      --enable-libzimg \
+      --enable-libzmq \
+      --enable-libzvbi \
+      --enable-omx \
+      --enable-openal \
+      --enable-opencl \
+      --enable-opengl \
+      --enable-runtime-cpudetect \
+      --enable-sdl2 \
+      --enable-shared \
+      --enable-vaapi \
+      --enable-version3 \
+      --enable-vulkan \
+      --enable-xlib ${EXTRA}
+
+      # TODO: re-enable `--enable-nonfree \` if we can determine the legality/licensing issues are ok.
+
+      # TODO: re-enable vulkan
+
+      make -j $(nproc)
+      make DESTDIR="$CRAFT_PART_INSTALL" install
+    prime:
+      - -usr/share
+  prefix-fix:
+    after: [ffmpeg]
+    plugin: nil
+    build-packages:
+      - execstack
+    override-prime: |
+      set -eux
+      for PC in $(find . -path "*/pkgconfig/*.pc")
+      do
+        sed -i '1cprefix=/snap/ffmpeg-2404-sdk/current/usr' $PC
+        sed -i 's#libdir=/usr#libdir=${prefix}#' $PC
+        sed -i 's#exec_prefix=/usr#exec_prefix=${prefix}#' $PC
+        sed -i 's#includedir=/usr#includedir=${prefix}#' $PC
+      done
+      if [ "$CRAFT_ARCH_TRIPLET_BUILD_FOR" == "arm-linux-gnueabihf" ]; then
+        execstack --clear-execstack usr/lib/arm-linux-gnueabihf/libx264.so.164
+      fi
+  deps:
+    after: [ffmpeg, prefix-fix]
+    plugin: nil
+    stage-packages:
+      - libaom3
+      - libass9
+      - libbluray2
+      - libbs2b0
+      - libcdio-paranoia2t64
+      - libcodec2-1.2
+      - libdc1394-25
+      - libflite1
+      - libgme0
+      - libgsm1
+      - libmp3lame0
+      - libopenal1
+      - libopencore-amrnb0
+      - libopencore-amrwb0
+      - libopenmpt0t64
+      - libopus0
+      - librubberband2
+      - libsdl2-2.0-0
+      - libshine3
+      - libsnappy1v5
+      - libsoxr0
+      - libssh-gcrypt-4
+      - libtesseract5
+      - libtwolame0
+      - libusb-1.0-0
+      - libv4l-0t64
+      - libv4l2rds0t64
+      - libvdpau-va-gl1
+      - libvo-amrwbenc0
+      - libvpx9
+      - libx265-199
+      - libxau6
+      - libxcb-shape0
+      - libxdmcp6
+      - libxv1
+      - libxvidcore4
+      - libxxhash0
+      - libzmq5
+      - libzvbi0t64
+      - mesa-vdpau-drivers
+      - ocl-icd-libopencl1
+      - on amd64:
+          - mesa-va-drivers
+          #- libcrystalhd3
+          # TODO: re-enable `libnpp*` if we can determine that we can ship non-free
+          # - libnppig10
+          # - libnppicc10
+          # - libnppidei10
+    stage:
+      - -usr/share
+      - -etc
+      - -var
+      - -usr/bin/fc*
+      - -usr/bin/X11
+      - -usr/include/X11
+      - -usr/lib/X11
+      - -usr/lib/*/caca
+      - -usr/lib/*/dri
+      - -usr/lib/*/gdk*
+      - -usr/lib/*/pulseaudio
+      - -usr/lib/*/libv4l
+      - -usr/lib/*/libv4lc*
+      - -usr/lib/*/libv4l1*
+      - -usr/lib/*/libv4l2.so*
+      - -usr/lib/*/libv4l-m*
+      - -usr/lib/*/libarchive*
+      - -usr/lib/*/libasound*
+      - -usr/lib/*/libasync*
+      - -usr/lib/*/libcairo*
+      - -usr/lib/*/libdatrie*
+      - -usr/lib/*/libdeflate*
+      - -usr/lib/*/libdrm*
+      - -usr/lib/*/libFLAC*
+      - -usr/lib/*/libfontconfig*
+      - -usr/lib/*/libgbm*
+      - -usr/lib/*/libgdk*
+      - -usr/lib/*/libGL*
+      - -usr/lib/*/libglapi*
+      - -usr/lib/*/libgomp*
+      - -usr/lib/*/libgraphite*
+      - -usr/lib/*/libharfbuzz*
+      - -usr/lib/*/libicu*
+      - -usr/lib/*/libjbig*
+      - -usr/lib/*/libjpeg*
+      - -usr/lib/*/liblber*
+      - -usr/lib/*/libldap*
+      - -usr/lib/*/libLLVM*
+      - -usr/lib/*/libmpg*
+      - -usr/lib/*/libogg*
+      - -usr/lib/*/libopenjp*
+      - -usr/lib/*/libopus*
+      - -usr/lib/*/libpango*
+      - -usr/lib/*/libpixman*
+      - -usr/lib/*/libpulse*
+      - -usr/lib/*/libraw*
+      - -usr/lib/*/librsvg*
+      - -usr/lib/*/libsensor*
+      - -usr/lib/*/libsndfile*
+      - -usr/lib/*/libthai*
+      - -usr/lib/*/libtiff*
+      - -usr/lib/*/libtwolame*
+      - -usr/lib/*/libva*
+      - -usr/lib/*/libvdpau*
+      - -usr/lib/*/libvpx*
+      - -usr/lib/*/libvulkan.so*
+      - -usr/lib/*/libwayland*
+      - -usr/lib/*/libwebp*
+      - -usr/lib/*/libX11*
+      - -usr/lib/*/libXau*
+      - -usr/lib/*/libXc*
+      - -usr/lib/*/libXd*
+      - -usr/lib/*/libXe*
+      - -usr/lib/*/libXf*
+      - -usr/lib/*/libXi*
+      - -usr/lib/*/libXr*
+      - -usr/lib/*/libXx*
+      - -usr/lib/*/libxcb.so*
+      - -usr/lib/*/libxcb-shm.so*
+      - -usr/lib/*/libxcb-glx.so*
+      - -usr/lib/*/libxcb-dri*.so*
+      - -usr/lib/*/libxcb-r*.so*
+      - -usr/lib/*/libxcb-sync.so*
+      - -usr/lib/*/libxcb-x*.so*
+      - -usr/lib/*/libxcb-p*.so*
+      - -usr/lib/*/libxkb*
+  cleanup:
+    plugin: nil
+    source: https://github.com/canonical/gpu-snap.git
+    source-depth: 1
+    after: [deps]
+    override-prime: |
+      craftctl default
+      sed -i "\\|usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/libvulkan.so.1\\*|d" ${CRAFT_PART_SRC}/lists/*.${CRAFT_ARCH_BUILD_FOR}.list
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404 nvidia-2404

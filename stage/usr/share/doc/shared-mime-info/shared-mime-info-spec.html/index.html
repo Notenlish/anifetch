@@ -1,0 +1,342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Shared MIME-info Database</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="NEXT"
+TITLE="Unified system"
+HREF="x34.html"></HEAD
+><BODY
+CLASS="article"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="ARTICLE"
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="title"
+><A
+NAME="AEN2"
+>Shared MIME-info Database</A
+></H1
+><DIV
+CLASS="authorgroup"
+><A
+NAME="AEN3"
+></A
+><H3
+CLASS="corpauthor"
+>&#13;			<A
+HREF="http://www.freedesktop.org"
+TARGET="_top"
+>&#13;			X Desktop Group
+			</A
+>
+		</H3
+><H3
+CLASS="author"
+><A
+NAME="AEN6"
+>Thomas Leonard</A
+></H3
+><DIV
+CLASS="affiliation"
+><DIV
+CLASS="address"
+><P
+CLASS="address"
+><CODE
+CLASS="email"
+>&#60;<A
+HREF="mailto:tal197 at users.sf.net"
+>tal197 at users.sf.net</A
+>&#62;</CODE
+></P
+></DIV
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="index.html#AEN14"
+>Introduction</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="index.html#AEN16"
+>Version</A
+></DT
+><DT
+>1.2. <A
+HREF="index.html#AEN19"
+>What is this spec?</A
+></DT
+><DT
+>1.3. <A
+HREF="index.html#AEN30"
+>Language used in this specification</A
+></DT
+></DL
+></DD
+><DT
+>2. <A
+HREF="x34.html"
+>Unified system</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="x34.html#s2_layout"
+>Directory layout</A
+></DT
+><DT
+>2.2. <A
+HREF="x34.html#AEN124"
+>The source XML files</A
+></DT
+><DT
+>2.3. <A
+HREF="x34.html#AEN291"
+>The MEDIA/SUBTYPE.xml files</A
+></DT
+><DT
+>2.4. <A
+HREF="x34.html#AEN302"
+>The glob files</A
+></DT
+><DT
+>2.5. <A
+HREF="x34.html#AEN323"
+>The magic files</A
+></DT
+><DT
+>2.6. <A
+HREF="x34.html#AEN373"
+>The XMLnamespaces files</A
+></DT
+><DT
+>2.7. <A
+HREF="x34.html#AEN379"
+>The icon files</A
+></DT
+><DT
+>2.8. <A
+HREF="x34.html#AEN386"
+>The treemagic files</A
+></DT
+><DT
+>2.9. <A
+HREF="x34.html#AEN414"
+>The mime.cache files</A
+></DT
+><DT
+>2.10. <A
+HREF="x34.html#AEN431"
+>Storing the MIME type using Extended Attributes</A
+></DT
+><DT
+>2.11. <A
+HREF="x34.html#subclassing"
+>Subclassing</A
+></DT
+><DT
+>2.12. <A
+HREF="x34.html#AEN449"
+>Recommended checking order</A
+></DT
+><DT
+>2.13. <A
+HREF="x34.html#AEN468"
+>Non-regular files</A
+></DT
+><DT
+>2.14. <A
+HREF="x34.html#AEN480"
+>Content types for volumes</A
+></DT
+><DT
+>2.15. <A
+HREF="x34.html#AEN487"
+>URI scheme handlers</A
+></DT
+><DT
+>2.16. <A
+HREF="x34.html#AEN492"
+>Security implications</A
+></DT
+><DT
+>2.17. <A
+HREF="x34.html#AEN496"
+>User modification</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="x500.html"
+>Contributors</A
+></DT
+><DT
+><A
+HREF="b521.html"
+>References</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="sect1"
+><H1
+CLASS="sect1"
+><A
+NAME="AEN14"
+>1. Introduction</A
+></H1
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN16"
+>1.1. Version</A
+></H2
+><P
+>&#13;This is version 0.21 of the Shared MIME-info Database specification, last updated 2 October 2018.</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN19"
+>1.2. What is this spec?</A
+></H2
+><P
+>&#13;Many programs and desktops use the MIME system[<SPAN
+CLASS="citation"
+>MIME</SPAN
+>]
+to represent the types of files. Frequently, it is necessary to work out the
+correct MIME type for a file. This is generally done by examining the file's
+name or contents, and looking up the correct MIME type in a database.
+		</P
+><P
+>&#13;It is also useful to store information about each type, such as a textual
+description of it, or a list of applications that can be used to view or edit
+files of that type.
+		</P
+><P
+>&#13;For interoperability, it is useful for different programs to use the same
+database so that different programs agree on the type of a file and
+information is not duplicated. It is also helpful for application authors to
+only have to install new information in one place.
+		</P
+><P
+>&#13;This specification attempts to unify the MIME database systems currently in
+use by GNOME[<SPAN
+CLASS="citation"
+>GNOME</SPAN
+>], KDE[<SPAN
+CLASS="citation"
+>KDE</SPAN
+>] and
+ROX[<SPAN
+CLASS="citation"
+>ROX</SPAN
+>], and provide room for future extensibility.
+		</P
+><P
+>&#13;The MIME database does NOT store user preferences (such as a user's preferred
+application for handling files of a particular type). It may be used to store
+static information, such as that files of a certain type may be viewed with
+a particular application.
+		</P
+></DIV
+><DIV
+CLASS="sect2"
+><H2
+CLASS="sect2"
+><A
+NAME="AEN30"
+>1.3. Language used in this specification</A
+></H2
+><P
+>&#13;The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be
+interpreted as described in RFC 2119[<SPAN
+CLASS="citation"
+>RFC-2119</SPAN
+>].
+		</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x34.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Unified system</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
