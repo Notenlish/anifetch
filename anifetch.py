@@ -358,18 +358,13 @@ with open(BASE_PATH / "cache.json", "w") as f:
 # Get the fetch output(neofetch/fastfetch)
 if not args.fast_fetch:
 
-    if (get_neofetch_status() == "wrapper" and args.force) or get_neofetch_status() == "neofetch":
+    status = get_neofetch_status()
+    
+    if (status == "wrapper" and args.force) or status == "neofetch":
         # Get Neofetch Output
-        fetch_output = subprocess.check_output(
-            ["neofetch"], shell=True, text=True
-        ).splitlines()
-        for i, line in enumerate(fetch_output):
-            line = line[4:]  # i forgot what this does, but its important iirc.
-            fetch_output[i] = line
-        fetch_output.pop(0)
-        fetch_output.pop(0)
-        fetch_output.pop(0)
-        fetch_output.pop(-1)
+        fetch_output = subprocess.check_output(["neofetch", "--stdout"], text=True).splitlines()
+        print("Neofetch output retrieved.")
+
 
     elif get_neofetch_status() == "uninstalled":
             print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
@@ -377,7 +372,7 @@ if not args.fast_fetch:
     
     else:
         print("Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.", file=sys.stderr)
-        sys.exit
+        sys.exit(1)
 
 else:
     fetch_output = subprocess.check_output(
