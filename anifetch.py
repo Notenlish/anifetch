@@ -362,13 +362,14 @@ if not args.fast_fetch:
     
     if (status == "wrapper" and args.force) or status == "neofetch":
         # Get Neofetch Output
-        fetch_output = subprocess.check_output(["neofetch", "--stdout"], text=True).splitlines()
-        print("Neofetch output retrieved.")
+        fetch_output = subprocess.check_output(
+            ["neofetch", "--stdout"], text=True
+        ).splitlines()
 
 
     elif get_neofetch_status() == "uninstalled":
-            print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
-            sys.exit(1)
+        print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
+        sys.exit(1)
     
     else:
         print("Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.", file=sys.stderr)
