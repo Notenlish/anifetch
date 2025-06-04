@@ -83,6 +83,17 @@ def get_data_path():
     os.makedirs(data_path, exist_ok=True)
     return pathlib.Path(data_path)
 
+def get_asset_path(filename):
+    if 'SNAP' in os.environ:
+        # Snapcraft: fichiers placés dans $SNAP/lib/anifetch/assets
+        base_path = os.path.join(os.environ['SNAP'], 'lib', 'anifetch', 'assets')
+    elif getattr(sys, 'frozen', False):
+        # PyInstaller ou exécutable "gelé"
+        base_path = os.path.join(sys.prefix, 'assets')  # ou sys.prefix selon le cas
+    else:
+        # Mode développement : assets dans ../assets depuis __file__
+        base_path = os.path.join(os.path.dirname(__file__), '..', 'assets')
+    return os.path.join(base_path, filename)
 
 def check_sound_flag():
     if "--sound" in sys.argv or "-s" in sys.argv:

@@ -7,6 +7,7 @@
 
 import argparse
 import pathlib
+from .utils import get_asset_path
 
 
 def parse_args():
@@ -24,8 +25,8 @@ def parse_args():
     parser.add_argument(
         "filename",
         nargs="?",  # <--filename> is optional
-        default=str(pathlib.Path.home() / "anifetch/assets/example.mp4"),
-        help="Video file to use (default: ~/anifetch/example.mp4)",
+        default=str(get_asset_path("example.mp4")),
+        help="Video file to use (default: example.mp4)",
         type=str,
     )
     parser.add_argument(
