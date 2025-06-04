@@ -16,8 +16,8 @@ confinement: strict
 apps:
   anifetch:
     command: bin/anifetch
-    command-chain:
-      - command-chain/ffmpeg-env.sh
+    # command-chain:
+    #   - command-chain/ffmpeg-env.sh
     plugs:
       - home
       - audio-playback
@@ -31,20 +31,19 @@ parts:
       craftctl default
       mkdir -p $CRAFT_PART_INSTALL/lib/anifetch/assets
       cp -r assets/* $CRAFT_PART_INSTALL/lib/anifetch/assets
-      install -Dm755 scripts/ffmpeg-env.sh $SNAPCRAFT_PART_INSTALL/command-chain/ffmpeg-env.sh
-
+    #   install -Dm755 scripts/ffmpeg-env.sh $SNAPCRAFT_PART_INSTALL/command-chain/ffmpeg-env.sh
     stage-packages:
       - ffmpeg
-    #   - chafa
-    #   - neofetch
-  ffmpeg-deps:
-    plugin: nil
-    stage-packages:
-      - ffmpeg
-      - libpulse0
-      - libpulse-mainloop-glib0
-      - libblas3
-    prime:
-      - -usr/share/doc
-      - -usr/share/man
-      - -usr/share/locale
+      - chafa
+      - neofetch
+  # ffmpeg-deps:
+  #   plugin: nil
+  #   stage-packages:
+  #     - ffmpeg
+  #     - libpulse0
+  #     - libpulse-mainloop-glib0
+  #     - libblas3
+  #   prime:
+  #     - -usr/share/doc
+  #     - -usr/share/man
+  #     - -usr/share/locale

@@ -10,7 +10,7 @@ authors = [{name = "Gallophostrix", email = "gallophostrix@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
-  # ajoute ici tes dépendances Python réelles, sinon laisse vide
+  # add python dependencies
 ]
 
 [project.scripts]
