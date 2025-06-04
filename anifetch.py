@@ -6,7 +6,76 @@ import shutil
 import subprocess
 import sys
 import time
+from copy import deepcopy
+from hashlib import sha256
 
+
+# TODO: add an argument for resetting the cache, like completely.
+
+def make_sure_dir_exists(path:str | pathlib.Path):
+    if isinstance(path, str):
+        path = pathlib.Path(path)
+    
+    if not (path).exists():
+        os.mkdir(path)
+
+def clean_cache_args(cache_args:dict) -> dict:
+    """Removes unimportant caching args that don't matter when caching/checking caches. Returns the cleaned dict."""
+    args_to_remove = (
+        "playback_rate",
+        "verbose",
+        "fast_fetch",
+        "benchmark",
+        "force_render"
+    )
+    cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
+    for key in args_to_remove:
+        if key in cleaned:
+            del cleaned[key]
+    return cleaned
+
+def check_args_same(args1:dict, args2:dict):
+    for a in (args1, args2):
+        if a.get("hash",None) is None:
+            raise KeyError(f"{args1} doesn't have a hash!")
+    if args1["hash"] == args2["hash"]:
+        return True
+    return False
+    
+    ######
+    same=True
+    for key, value in args1.items():
+        try:
+            cached_value = args2[key]
+        except KeyError:
+            same = False
+            break
+        if value != cached_value:  # check if all options match
+            same = False
+    return same
+
+def find_corresponding_cache(args:dict, all_saved_caches_list:list[dict]):
+    corresponding = None
+    for saved_cache_dict in all_saved_caches_list:
+        if check_args_same(args, saved_cache_dict):
+            corresponding = saved_cache_dict
+    if corresponding is None:
+        raise LookupError("Couldn't find corresponding dict in all saved caches.")
+    return corresponding
+
+def hash_dict(d:dict):
+    json_str = json.dumps(d, sort_keys=True, ensure_ascii=False)
+    encoded = json_str.encode("utf-8")
+    hashed = sha256(encoded)
+    return hashed.hexdigest()
+
+def hash_of_cache_args(args:dict):
+    """Takes in the cleaned dictionary consisting of all the arguments for caching and generates an hash. If a 'hash' key already exists raises an KeyError."""
+    if "hash" in args.keys():
+        raise KeyError("Hash already exists for this cache args dictionary.")
+    
+    hash = hash_dict(args)
+    return hash
 
 def print_verbose(*msg):
     if args.verbose:
@@ -36,6 +105,7 @@ def extract_audio_from_file(file:str, extension):
     return audio_file
 
 def get_data_path():
+    # TODO: add support for windows(& macOS too if it doesnt work with this)
     xdg_data_home = os.environ.get(
         "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
     )
@@ -43,6 +113,7 @@ def get_data_path():
     os.makedirs(data_path, exist_ok=True)
     return pathlib.Path(data_path)
 
+BASE_PATH = get_data_path()
 
 def check_sound_flag():
     if "--sound" in sys.argv or "-s" in sys.argv:
@@ -139,12 +210,19 @@ args.sound_flag_given = check_sound_flag()  # adding this to the args so that it
 args.chroma_flag_given = check_chroma_flag()
 
 
-BASE_PATH = get_data_path()
+args_dict = {key: value for key, value in args._get_kwargs()}
+cleaned = clean_cache_args(args_dict)
+cleaned["hash"] = hash_of_cache_args(cleaned)
 
-if not (BASE_PATH / "video").exists():
-    os.mkdir(BASE_PATH / "video")
-if not (BASE_PATH / "output").exists():
-    os.mkdir(BASE_PATH / "output")
+#print(args_dict,"\n")
+#print(f"cleaned_no_hash:\n{clean_cache_args(args_dict)}\n")
+#print(f"cleaned:\n{cleaned}\n")
+#raise SystemExit
+
+
+
+make_sure_dir_exists(BASE_PATH / "video")
+make_sure_dir_exists(BASE_PATH / "output")
 
 if not pathlib.Path(args.filename).exists():
     print("Couldn't find file", pathlib.Path(args.filename))
@@ -160,7 +238,7 @@ if args.sound_flag_given:
         args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
 
 if args.chroma_flag_given:
-    if args.chroma.startswith("#"):
+    if args.chroma.startswith("#"):  # TODO: maybe just convert the #RRGGBB into 0xRRGGBB, instead of raising an error.
         sys.exit("Color for hex code starts with an '0x'! Not a '#'")
 
 
@@ -170,30 +248,20 @@ if args.chroma_flag_given:
 old_filename = ""
 should_update = False
 try:
-    args_dict = {key: value for key, value in args._get_kwargs()}
     if args.force_render:
         should_update = True
     else:
-        with open(BASE_PATH / "cache.json", "r") as f:
-            data = json.load(f)
-        for key, value in args_dict.items():
-            try:
-                cached_value = data[key]
-            except KeyError:
-                should_update = True
-                break
-            if value != cached_value:  # check if all options match
-                if key not in (
-                    "playback_rate",
-                    "verbose",
-                    "fast_fetch",
-                    "benchmark",
-                    "force_render"
-                ):  # These arguments don't invalidate the cache.
-                    print_verbose(
-                        f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
-                    )
-                    should_update = True
+        with open(BASE_PATH / "caches.json", "r") as f:
+            all_caches:list[dict] = json.load(f)
+        is_same = False
+        for cache_args in all_caches:
+            if check_args_same(cache_args, cleaned):
+                is_same = True
+        if not is_same:
+            print_verbose(
+                f"Couldn't find a corresponding cache! Will cache it.",
+            )
+        should_update = True
 except FileNotFoundError:
     should_update = True
 
@@ -316,21 +384,23 @@ else:
         break  # dont question this, I just need frames to have a single item
     HEIGHT = len(frames[0].splitlines())
 
-    with open(BASE_PATH / "cache.json", "r") as f:
-        data = json.load(f)
+    with open(BASE_PATH / "caches.json", "r") as f:
+        all_saved_caches = json.load(f)
+    corresponding_cache = find_corresponding_cache(cleaned, all_saved_caches)
 
     if args.sound_flag_given:
-        args.sound_saved_path = data["sound_saved_path"]
+        args.sound_saved_path = corresponding_cache["sound_saved_path"]
     else:
         args.sound_saved_path = None
 
 print_verbose("-----------")
 
 
-# print_verbose("ARGS FOR SAVING CACHE.JSON", args)
+# print_verbose("ARGS FOR SAVING CACHES.JSON", args)
 
 # save the caching arguments
-with open(BASE_PATH / "cache.json", "w") as f:
+
+with open(BASE_PATH / "caches.json", "w") as f:
     args_dict = {key: value for key, value in args._get_kwargs()}
     json.dump(args_dict, f, indent=2)
 
