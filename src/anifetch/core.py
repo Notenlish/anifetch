@@ -95,7 +95,6 @@ def run_anifetch(args):
                             f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
                         )
                         should_update = True
-                        print_verbose("Cache invalid, will cache again.")
     except FileNotFoundError:
         should_update = True
 
@@ -124,15 +123,10 @@ def run_anifetch(args):
         if (neofetch_status == "wrapper" and args.force) or neofetch_status == "neofetch":
             # Get Neofetch Output
             fetch_output = subprocess.check_output(
-                ["neofetch"], shell=True, text=True
+                ["neofetch", "--off"], text=True
             ).splitlines()
             for i, line in enumerate(fetch_output):
-                line = line[4:]  # i forgot what this does, but its important iirc.
                 fetch_output[i] = line
-            fetch_output.pop(0)
-            fetch_output.pop(0)
-            fetch_output.pop(0)
-            fetch_output.pop(-1)
 
         elif neofetch_status == "uninstalled":
                 print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
