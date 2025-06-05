@@ -30,7 +30,7 @@ Simply place your video/gif file in the project folder. There's an already inclu
 
 Then run `python3 anifetch.py -f [filename] --framerate 10 --width 40 --height 20 -c "[add optional chafa arguments if you want]"`.
 
-Here's an example command: `python3 anifetch.py "example.mp4" -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"`
+Here's an example command: `python3 anifetch.py "example.mp4" -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"`.
 
 Run `python3 anifetch.py --help` if you need help.
 
