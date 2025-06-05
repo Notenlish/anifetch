@@ -123,10 +123,8 @@ def run_anifetch(args):
         if (neofetch_status == "wrapper" and args.force) or neofetch_status == "neofetch":
             # Get Neofetch Output
             fetch_output = subprocess.check_output(
-                ["neofetch", "--off"], text=True
+                ["neofetch", "--stdout"], text=True
             ).splitlines()
-            for i, line in enumerate(fetch_output):
-                fetch_output[i] = line
 
         elif neofetch_status == "uninstalled":
                 print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
