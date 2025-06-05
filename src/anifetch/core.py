@@ -13,8 +13,6 @@ import subprocess
 import sys
 import time
 from .utils import (
-    check_sound_flag,
-    check_chroma_flag,
     check_codec_of_file,
     extract_audio_from_file,
     get_text_length_of_formatted_text,
@@ -22,6 +20,7 @@ from .utils import (
     get_data_path,
     get_video_dimensions,
     get_neofetch_status,
+    render_frame,
     print_verbose,
 )
 
@@ -33,47 +32,49 @@ PAD_LEFT = 4
 def run_anifetch(args):
     st = time.time()
 
-
-    args.sound_flag_given = check_sound_flag()  # adding this to the args so that it considers whether the flag was given or not and if the flag is given what the sound file was.
-    args.chroma_flag_given = check_chroma_flag()
-
+    args.sound_flag_given = bool(args.sound)
+    args.chroma_flag_given = args.chroma is not None
+    neofetch_status = get_neofetch_status()
 
     BASE_PATH = get_data_path()
 
-    if not (BASE_PATH / "video").exists():
-        os.mkdir(BASE_PATH / "video")
-    if not (BASE_PATH / "output").exists():
-        os.mkdir(BASE_PATH / "output")
+    VIDEO_DIR = BASE_PATH / "video"
+    OUTPUT_DIR = BASE_PATH / "output"
+    CACHE_PATH = BASE_PATH / "cache.json"
+
+    (VIDEO_DIR).mkdir(exist_ok=True)
+    (OUTPUT_DIR).mkdir(exist_ok=True)
+
 
     if not pathlib.Path(args.filename).exists():
-        print("Couldn't find file", pathlib.Path(args.filename))
-        raise FileNotFoundError(args.filename)
-
+        print(f"[ERROR] File not found: {args.filename}", file=sys.stderr)
+        sys.exit(1)
 
     if args.sound_flag_given:
         if args.sound:
             pass
         else:
             codec = check_codec_of_file(args.filename)
-            ext = get_ext_from_codec(codec)
+            try:
+                ext = get_ext_from_codec(codec)
+            except ValueError as e:
+                print(f"[ERROR] {e}")
+                sys.exit(1)
+
             args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
 
-    if args.chroma_flag_given:
-        if args.chroma.startswith("#"):
-            sys.exit("Color for hex code starts with an '0x'! Not a '#'")
-
-
-
+    if args.chroma and args.chroma.startswith("#"):
+        print("[ERROR] Use '0x' prefix for chroma color, not '#'.", file=sys.stderr)
+        sys.exit(1)
 
     # check cache
-    old_filename = ""
     should_update = False
     try:
         args_dict = {key: value for key, value in args._get_kwargs()}
         if args.force_render:
             should_update = True
         else:
-            with open(BASE_PATH / "cache.json", "r") as f:
+            with open(CACHE_PATH, "r") as f:
                 data = json.load(f)
             for key, value in args_dict.items():
                 try:
@@ -105,7 +106,12 @@ def run_anifetch(args):
     WIDTH = args.width
     # automatically calculate height if not given
     if not "--height" in sys.argv and not "-H" in sys.argv:
-        vid_w, vid_h = get_video_dimensions(args.filename)
+        try:
+            vid_w, vid_h = get_video_dimensions(args.filename)
+        except RuntimeError as e:
+            print(f"[ERROR] {e}")
+            sys.exit(1)
+
         ratio = vid_h / vid_w
         HEIGHT = round(args.width * ratio)
     else:
@@ -115,7 +121,7 @@ def run_anifetch(args):
     # Get the fetch output(neofetch/fastfetch)
     if not args.fast_fetch:
 
-        if (get_neofetch_status() == "wrapper" and args.force) or get_neofetch_status() == "neofetch":
+        if (neofetch_status == "wrapper" and args.force) or neofetch_status == "neofetch":
             # Get Neofetch Output
             fetch_output = subprocess.check_output(
                 ["neofetch"], shell=True, text=True
@@ -128,13 +134,13 @@ def run_anifetch(args):
             fetch_output.pop(0)
             fetch_output.pop(-1)
 
-        elif get_neofetch_status() == "uninstalled":
+        elif neofetch_status == "uninstalled":
                 print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
                 sys.exit(1)
 
         else:
             print("Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.", file=sys.stderr)
-            sys.exit
+            sys.exit(1)
 
     else:
         fetch_output = subprocess.check_output(
@@ -153,13 +159,13 @@ def run_anifetch(args):
         print_verbose("SHOULD RENDER WITH CHAFA")
 
         # delete all old frames
-        shutil.rmtree(BASE_PATH / "video")
-        os.mkdir(BASE_PATH / "video")
+        shutil.rmtree(VIDEO_DIR, ignore_errors=True)
+        (VIDEO_DIR).mkdir(exist_ok=True)
 
         stdout = None if args.verbose else subprocess.DEVNULL
         stderr = None if args.verbose else subprocess.STDOUT
 
-        subprocess.call(
+        result_ffmpeg = subprocess.run(
             [
                 "ffmpeg",
                 "-i",
@@ -170,7 +176,11 @@ def run_anifetch(args):
             ],
             stdout=stdout,
             stderr=stderr,
+            text=True
         )
+        if result_ffmpeg.returncode != 0:
+            print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
+            sys.exit(1)
 
         print_verbose(args.sound_flag_given)
 
@@ -196,31 +206,22 @@ def run_anifetch(args):
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
         # Empty the directory to fix this.
-        shutil.rmtree(BASE_PATH / "output")
-        os.mkdir(BASE_PATH / "output")
+        shutil.rmtree(OUTPUT_DIR)
+        os.mkdir(OUTPUT_DIR)
 
         print_verbose("Emptied the output folder.")
 
         # get the frames
-        animation_files = os.listdir(BASE_PATH / "video")
+        animation_files = os.listdir(VIDEO_DIR)
         animation_files.sort()
         for i, f in enumerate(animation_files):
             # f = 00001.png
             chafa_args = args.chafa_arguments.strip()
             chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
-            path = BASE_PATH / "video" / f
-            chafa_cmd = [
-                "chafa",
-                *chafa_args.split(" "),
-                # "--color-space=rgb",
-                f"--size={WIDTH}x{HEIGHT}",
-                path.as_posix(),
-            ]
-            frame = subprocess.check_output(
-                chafa_cmd,
-                text=True,
-            )
+            path = VIDEO_DIR / f
+            frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
+
 
             chafa_lines = frame.splitlines()
 
@@ -253,15 +254,15 @@ def run_anifetch(args):
 
             frames.append('\n'.join(chafa_lines))
 
-            with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
+            with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
                 file.write('\n'.join(chafa_lines))
 
             # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
             # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
     else:
         # just use cached
-        for filename in os.listdir(BASE_PATH / "output"):
-            path = BASE_PATH / "output" / filename
+        for filename in os.listdir(OUTPUT_DIR):
+            path = OUTPUT_DIR / filename
             with open(path, "r") as file:
                 frame = file.read()
                 frames.append(frame)
@@ -277,17 +278,10 @@ def run_anifetch(args):
         with open(BASE_PATH / "frame.txt", "w") as f:
             f.writelines(frames)
 
-        if args.center_mode:
-            len_chafa = len(frame.splitlines())
-            if len_fetch < len_chafa:
-                pad = (len_chafa - len_fetch) // 2
-                remind = (len_chafa - len_fetch) % 2
-                fetch_lines = [' ' * WIDTH] * pad + fetch_output + [' ' * WIDTH] * (pad + remind)
-
         HEIGHT = len(frames[0].splitlines())
 
         # reloarding the cached output
-        with open(BASE_PATH / "cache.json", "r") as f:
+        with open(CACHE_PATH, "r") as f:
             data = json.load(f)
 
         if args.sound_flag_given:
@@ -298,7 +292,7 @@ def run_anifetch(args):
     print_verbose("-----------")
 
     # save the caching arguments
-    with open(BASE_PATH / "cache.json", "w") as f:
+    with open(CACHE_PATH, "w") as f:
         args_dict = {key: value for key, value in args._get_kwargs()}
         json.dump(args_dict, f, indent=2)
 
@@ -349,7 +343,7 @@ def run_anifetch(args):
     BOTTOM = HEIGHT
 
     bash_script_name = "anifetch-static-resize2.sh"
-    script_dir = pathlib.Path(__file__).parent.parent / "scripts"
+    script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
 
     if not args.benchmark:
@@ -385,5 +379,5 @@ def run_anifetch(args):
     else:
         print(f"It took {time.time() - st} seconds.")
 
-    if pathlib.Path(BASE_PATH / "video").exists():
-        shutil.rmtree(BASE_PATH / "video")  # no need to keep the video frames.
+    if pathlib.Path(VIDEO_DIR).exists():
+        shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

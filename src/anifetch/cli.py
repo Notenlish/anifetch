@@ -6,14 +6,13 @@
 
 
 import argparse
-import pathlib
 from .utils import get_asset_path
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         prog="Anifetch",
-        description="Allows you to use neofetch with video in terminal(using chafa).",
+        description="Allows you to use neofetch with video in terminal (using chafa).",
     )
     parser.add_argument(
         "-b",
@@ -24,7 +23,7 @@ def parse_args():
     )
     parser.add_argument(
         "filename",
-        nargs="?",  # <--filename> is optional
+        nargs="?",
         default=str(get_asset_path("example.mp4")),
         help="Video file to use (default: example.mp4)",
         type=str,
