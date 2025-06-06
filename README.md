@@ -1,46 +1,93 @@
-![anifetch](anifetch.webp)
+![anifetch](docs/anifetch.webp)
 
 # Anifetch - Neofetch but animated.
 
 This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows you to use neofetch or fastfetch while having animations.
 
-## How to Install
+## 🛠️ How to Install
 
-You need `bc` to be installed. For debian/ubuntu it's `apt install bc`. For Arch it's `pacman -S bc`.
+### Prerequisites
 
-You need `chafa` to be installed. For debian/ubuntu it is `apt install chafa`. [Download Instructions](https://hpjansson.org/chafa/download/)
+You need the following tools installed on your system:
 
-if you don't have ffmpeg, download it here: [ffmpeg download](https://www.ffmpeg.org/download.html)
+- `bc`
 
-Clone the git repo.
+  - Debian/Ubuntu: `sudo apt install bc`
+  - Arch: `sudo pacman -S bc`
 
-```cmd
-git clone https://github.com/Notenlish/anifetch
+- `chafa`
+
+  - Debian/Ubuntu: `sudo apt install chafa`
+  - [Other distros – Download Instructions](https://hpjansson.org/chafa/download/)
+
+- `ffmpeg` (for video/audio playback)
+
+  - Debian/Ubuntu: `sudo apt install ffmpeg`
+  - [Other systems – Download](https://www.ffmpeg.org/download.html)
+
+⚠️ Make sure `ffplay` is included in your `ffmpeg` installation (used for optional sound playback).
+
+---
+
+### Installation via `pipx` (recommended)
+
+```bash
+pipx install git+https://github.com/Notenlish/anifetch.git
 ```
 
-You don't need to setup an venv or install any python modules.
+You can now use the `anifetch` command anywhere in your terminal.
 
-Sound functionality is added via `ffplay`. If you install ffmpeg via a package manager like `apt` it should also install it automatically.
+✅ This is the **recommended method**, as it isolates the app in a lightweight environment and avoids dependency conflicts. In this case, make sure `pipx` is installed.
 
-## How to Use It
+---
 
-You don't need to set anything up for fastfetch or neofetch. It will work as long as neofetch or fastfetch already works.
+### Installation via `pip` (not recommended)
 
-Simply place your video/gif file in the project folder. There's an already included test file called `example.mp4`, you can use that if you want.
+```bash
+pip install git+https://github.com/Notenlish/anifetch.git
+```
 
-Then run `python3 anifetch.py -f [filename] --framerate 10 --width 40 --height 20 -c "[add optional chafa arguments if you want]"`.
+⚠️ In some cases, using `pip` directly may lead to import errors if your Python environment is misconfigured or if the `anifetch` command is not added to your `PATH`. We suggest using `pipx` instead for a more robust setup.
 
-Here's an example command: `python3 anifetch.py "example.mp4" -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"`.
+## ▶️ How to Use It
 
-Run `python3 anifetch.py --help` if you need help.
+You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and integrate them automatically.
 
-You can also play a sound via `-s [sound filename]`.
+Place your video or gif file anywhere (e.g. your project folder).
+By default, the included test file `example.mp4` is used (you don't need to add any arguments in this case).
 
-## Creating a Shortcut
+### Example usage:
 
-Just add an shell alias to your `~/.bashrc` file. Example: `alias anifetch='python3 [path-to-anifetch.py] -f [path-to-video-file]'`
+```bash
+anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
+```
 
-## Benchmarks
+### Optional arguments:
+
+- `-f` / `--file`: path to the video file
+- `-s` / `--sound`: optional sound file to play alongside (requires `ffplay`)
+- `-r` / `--framerate`: frame rate of playback
+- `-W` / `--width`: video width
+- `-H` / `--height`: video height (may be automatically fixed with the width)
+- `-c` / `--chafa`: extra arguments to pass to `chafa`
+
+For full help:
+
+```bash
+anifetch --help
+```
+
+## 🎯 Creating a Shortcut (if installed manually)
+
+If you did not use `pipx` and installed manually via `git` (for developpers), you can still create an alias in your shell config (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+alias anifetch='python3 /path/to/anifetch.py -f /path/to/video.mp4'
+```
+
+---
+
+## 📊 Benchmarks
 
 Here's the benchmark from running each cli 10 times. Tested on Linux Mint with Intel I5-12500H.
 
@@ -55,7 +102,7 @@ Here's the benchmark from running each cli 10 times. Tested on Linux Mint with I
 
 As it can be seen, **Anifetch** is quite fast if you cache the animations, especially when paired with fastfetch.
 
-## Notes
+## 📝 Notes
 
 Anifetch attempts to cache the animation so that it doesn't need to render them again when you run it with the same file. However, if the name of the file is the same, but it's contents has changed, it won't re-render it. In that case, you will need to add `--force-render` as an argument to `anifetch.py` so that it re-renders it. You only have to do this only once when you change the file contents.
 
@@ -67,7 +114,7 @@ If you set animation resolution really big it may not be able to keep up with th
 
 Currently only the `symbols` format of chafa is supported, formats like kitty, iterm etc. are not supported. If you try to tell chafa to use iterm, kitty etc. it will just override your format with `symbols` mode.
 
-## What's Next
+## 🚧 What's Next
 
 - [x] Add music support
 
