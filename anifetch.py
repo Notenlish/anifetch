@@ -6,7 +6,76 @@ import shutil
 import subprocess
 import sys
 import time
+from copy import deepcopy
+from hashlib import sha256
 
+
+# TODO: add an argument for resetting the cache, like completely.
+
+def make_sure_dir_exists(path:str | pathlib.Path):
+    if isinstance(path, str):
+        path = pathlib.Path(path)
+    
+    if not (path).exists():
+        os.mkdir(path)
+
+def clean_cache_args(cache_args:dict) -> dict:
+    """Removes unimportant caching args that don't matter when caching/checking caches. Returns the cleaned dict."""
+    args_to_remove = (
+        "playback_rate",
+        "verbose",
+        "fast_fetch",
+        "benchmark",
+        "force_render"
+    )
+    cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
+    for key in args_to_remove:
+        if key in cleaned:
+            del cleaned[key]
+    return cleaned
+
+def check_args_hash_same(args1:dict, args2:dict):
+    for a in (args1, args2):
+        if a.get("hash",None) is None:
+            raise KeyError(f"{args1} doesn't have a hash!")
+    if args1["hash"] == args2["hash"]:
+        return True
+    return False
+    
+    ######
+    same=True
+    for key, value in args1.items():
+        try:
+            cached_value = args2[key]
+        except KeyError:
+            same = False
+            break
+        if value != cached_value:  # check if all options match
+            same = False
+    return same
+
+def find_corresponding_cache(args:dict, all_saved_caches_list:list[dict]):
+    corresponding = None
+    for saved_cache_dict in all_saved_caches_list:
+        if check_args_hash_same(args, saved_cache_dict):
+            corresponding = saved_cache_dict
+    if corresponding is None:
+        raise LookupError("Couldn't find corresponding dict in all saved caches.")
+    return corresponding
+
+def hash_dict(d:dict):
+    json_str = json.dumps(d, sort_keys=True, ensure_ascii=False)
+    encoded = json_str.encode("utf-8")
+    hashed = sha256(encoded)
+    return hashed.hexdigest()
+
+def hash_of_cache_args(args:dict):
+    """Takes in the cleaned dictionary consisting of all the arguments for caching and generates an hash. If a 'hash' key already exists raises an KeyError."""
+    if "hash" in args.keys():
+        raise KeyError("Hash already exists for this cache args dictionary.")
+    
+    hash = hash_dict(args)
+    return hash
 
 def print_verbose(*msg):
     if args.verbose:
@@ -30,12 +99,13 @@ def check_codec_of_file(file:str):
     return codec
 
 def extract_audio_from_file(file:str, extension):
-    audio_file = BASE_PATH / f"output_audio.{extension}"
+    audio_file = CACHE_PATH / f"output_audio.{extension}"
     extract_cmd = ["ffmpeg", "-i", file, "-y", "-vn", "-c:a", "copy", "-loglevel","quiet", audio_file]
     subprocess.call(extract_cmd)
     return audio_file
 
 def get_data_path():
+    # TODO: add support for windows(& macOS too if it doesnt work with this)
     xdg_data_home = os.environ.get(
         "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
     )
@@ -43,6 +113,7 @@ def get_data_path():
     os.makedirs(data_path, exist_ok=True)
     return pathlib.Path(data_path)
 
+BASE_PATH = get_data_path()
 
 def check_sound_flag():
     if "--sound" in sys.argv or "-s" in sys.argv:
@@ -53,6 +124,13 @@ def check_chroma_flag():
     if "--chroma" in sys.argv:
         return True
     return False
+
+def get_caches_json():
+    if (BASE_PATH / "caches.json").exists():
+        with open(BASE_PATH / "caches.json", "r") as f:
+            caches_data:list[dict] = json.load(f)
+        return caches_data
+    return []
 
 
 
@@ -74,8 +152,8 @@ parser.add_argument(
 )
 parser.add_argument(
     "filename",
-    nargs="?",  # <--filename> is optional
-    default=str(pathlib.Path.home() / "anifetch/example.mp4"),
+    # nargs="?",  # <--filename> is optional
+    # default=str(pathlib.Path.home() / "anifetch/example.mp4"), TODO: 
     help="Video file to use (default: ~/anifetch/example.mp4)",
     type=str,
 )
@@ -118,7 +196,7 @@ parser.add_argument(
     "-c",
     "--chafa-arguments",
     default="--symbols ascii --fg-only",
-    help="Specify the arguments to give to chafa. For more informations, use 'chafa --help'",
+    help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
 )
 parser.add_argument(
     "-ff",
@@ -139,17 +217,10 @@ args.sound_flag_given = check_sound_flag()  # adding this to the args so that it
 args.chroma_flag_given = check_chroma_flag()
 
 
-BASE_PATH = get_data_path()
-
-if not (BASE_PATH / "video").exists():
-    os.mkdir(BASE_PATH / "video")
-if not (BASE_PATH / "output").exists():
-    os.mkdir(BASE_PATH / "output")
-
-if not pathlib.Path(args.filename).exists():
-    print("Couldn't find file", pathlib.Path(args.filename))
-    raise FileNotFoundError(args.filename)
-
+args_dict = {key: value for key, value in args._get_kwargs()}
+cleaned = clean_cache_args(args_dict)
+cleaned["hash"] = hash_of_cache_args(cleaned)
+CACHE_PATH = BASE_PATH / cleaned["hash"]
 
 if args.sound_flag_given:
     if args.sound:
@@ -157,50 +228,55 @@ if args.sound_flag_given:
     else:
         codec = check_codec_of_file(args.filename)
         ext = get_ext_from_codec(codec)
-        args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
+        # sound and sound_flag_given will be used for hash calculation.
+        # sound_saved_path is a value that must be kept in the 'cleaned' variable but it shouldnt be used in calculating hash, that's what sound and sound_flag_given are for.
+        args.sound_saved_path = str(CACHE_PATH / f"output_audio.{ext}")
+        cleaned["sound_saved_path"] = args.sound_saved_path
+
+
 
 if args.chroma_flag_given:
-    if args.chroma.startswith("#"):
+    if args.chroma.startswith("#"):  # TODO: maybe just convert the #RRGGBB into 0xRRGGBB, instead of raising an error.
         sys.exit("Color for hex code starts with an '0x'! Not a '#'")
 
 
+
+make_sure_dir_exists(BASE_PATH / "video")
+make_sure_dir_exists(BASE_PATH / "output")
+
+if not pathlib.Path(args.filename).exists():
+    print("Couldn't find file", pathlib.Path(args.filename))
+    raise FileNotFoundError(args.filename)
 
 
 # check cache
 old_filename = ""
 should_update = False
 try:
-    args_dict = {key: value for key, value in args._get_kwargs()}
     if args.force_render:
         should_update = True
     else:
-        with open(BASE_PATH / "cache.json", "r") as f:
-            data = json.load(f)
-        for key, value in args_dict.items():
-            try:
-                cached_value = data[key]
-            except KeyError:
-                should_update = True
-                break
-            if value != cached_value:  # check if all options match
-                if key not in (
-                    "playback_rate",
-                    "verbose",
-                    "fast_fetch",
-                    "benchmark",
-                    "force_render"
-                ):  # These arguments don't invalidate the cache.
-                    print_verbose(
-                        f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
-                    )
-                    should_update = True
+        with open(BASE_PATH / "caches.json", "r") as f:
+            all_caches:list[dict] = json.load(f)
+        
+        is_same = False
+        for cache_args in all_caches:
+            if check_args_hash_same(cache_args, cleaned):
+                is_same = True
+        if not is_same:
+            print_verbose(
+                f"Couldn't find a corresponding cache! Will cache it.",
+            )
+            should_update = True
 except FileNotFoundError:
     should_update = True
 
 if should_update:
     print("Caching...")
-
-
+else:
+    path_of_cache_output=pathlib.Path(CACHE_PATH / "output")
+    if not path_of_cache_output.exists():
+        raise FileNotFoundError(f"Path of cache output doesn't exist: {path_of_cache_output}")
 
 WIDTH = args.width
 HEIGHT = args.height
@@ -214,8 +290,11 @@ if should_update:
     print_verbose("SHOULD RENDER WITH CHAFA")
 
     # delete all old frames
-    shutil.rmtree(BASE_PATH / "video")
-    os.mkdir(BASE_PATH / "video")
+    if CACHE_PATH.exists():
+        shutil.rmtree(CACHE_PATH)
+    os.mkdir(CACHE_PATH)
+    
+    os.mkdir(CACHE_PATH / "video")
 
     stdout = None if args.verbose else subprocess.DEVNULL
     stderr = None if args.verbose else subprocess.STDOUT
@@ -228,7 +307,7 @@ if should_update:
                 f"{args.filename}",
                 "-vf",
                 f"fps={args.framerate},format=rgba,chromakey={args.chroma}",
-                str(BASE_PATH / "video/%05d.png"),
+                str(CACHE_PATH / "video/%05d.png"),
             ],
             stdout=stdout,
             stderr=stderr,
@@ -241,7 +320,7 @@ if should_update:
                 f"{args.filename}",
                 "-vf",
                 f"fps={args.framerate},format=rgba",
-                str(BASE_PATH / "video/%05d.png"),
+                str(CACHE_PATH / f"video/%05d.png"),
             ],
             stdout=stdout,
             stderr=stderr,
@@ -253,9 +332,9 @@ if should_update:
         if args.sound:  # sound file given
             print_verbose("Sound file to use:",args.sound)
             source = pathlib.Path(args.sound)
-            dest = BASE_PATH / source.with_name(f"output_audio{source.suffix}")
+            dest = CACHE_PATH / source.with_name(f"output_audio{source.suffix}")
             shutil.copy(source, dest)
-            args.sound_saved_path = str(dest)
+            args.sound_saved_path = str(dest)  # TODO : why does the same exact thing exist on the lines above? 
         else:
             print_verbose("No sound file specified, will attempt to extract it from video.")
             codec = check_codec_of_file(args.filename)
@@ -264,18 +343,18 @@ if should_update:
             print_verbose("Extracted audio file.")
 
             args.sound_saved_path = str(audio_file)
+        cleaned["sound_saved_path"] = args.sound_saved_path
 
         print_verbose(args.sound_saved_path)
 
 
     # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames. Empty the directory to fix this.
-    shutil.rmtree(BASE_PATH / "output")
-    os.mkdir(BASE_PATH / "output")
+    os.mkdir(CACHE_PATH / "output")
 
     print_verbose("Emptied the output folder.")
 
     # get the frames
-    animation_files = os.listdir(BASE_PATH / "video")
+    animation_files = os.listdir(CACHE_PATH / "video")
     animation_files.sort()
     for i, f in enumerate(animation_files):
         # TODO: REMOVE THIS
@@ -285,7 +364,7 @@ if should_update:
         chafa_args = args.chafa_arguments.strip()
         chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
-        path = BASE_PATH / "video" / f
+        path = CACHE_PATH / "video" / f
         chafa_cmd = [
             "chafa",
             *chafa_args.split(" "),
@@ -298,7 +377,7 @@ if should_update:
             text=True,
         )
 
-        with open((BASE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
+        with open((CACHE_PATH / "output" / f).with_suffix(".txt"), "w") as file:
             file.write(frame)
 
         # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
@@ -308,31 +387,41 @@ if should_update:
             frames.append(frame) # dont question this, I need frames to have at least a single item
 else:
     # just use cached
-    for filename in os.listdir(BASE_PATH / "output"):
-        path = BASE_PATH / "output" / filename
+    for filename in os.listdir(CACHE_PATH / "output"):
+        path = CACHE_PATH / "output" / filename
         with open(path, "r") as file:
             frame = file.read()
             frames.append(frame)
         break  # dont question this, I just need frames to have a single item
     HEIGHT = len(frames[0].splitlines())
 
-    with open(BASE_PATH / "cache.json", "r") as f:
-        data = json.load(f)
+    with open(BASE_PATH / "caches.json", "r") as f:
+        all_saved_caches = json.load(f)
+    corresponding_cache = find_corresponding_cache(cleaned, all_saved_caches)
 
     if args.sound_flag_given:
-        args.sound_saved_path = data["sound_saved_path"]
+        args.sound_saved_path = corresponding_cache["sound_saved_path"]
     else:
         args.sound_saved_path = None
 
 print_verbose("-----------")
 
 
-# print_verbose("ARGS FOR SAVING CACHE.JSON", args)
+print_verbose("ARGS FOR SAVING CACHES.JSON", args)
 
 # save the caching arguments
-with open(BASE_PATH / "cache.json", "w") as f:
-    args_dict = {key: value for key, value in args._get_kwargs()}
-    json.dump(args_dict, f, indent=2)
+caches_data = get_caches_json()
+
+added = False
+for i, cache_dict in enumerate(caches_data):
+    if cache_dict["hash"] == cleaned["hash"]:
+        caches_data[i] = cleaned  # replace the cache with the new one
+        added = True
+if not added:
+    caches_data.append(cleaned)
+
+with open(BASE_PATH / "caches.json", "w") as f:
+    json.dump(caches_data, f, indent=2)
 
 
 
@@ -398,36 +487,38 @@ RIGHT = WIDTH + PAD_LEFT
 BOTTOM = HEIGHT  # + TOP
 
 
-if not args.benchmark:
-    try:
 
-        framerate_to_use = args.playback_rate
-        if args.sound_flag_given:
-            framerate_to_use = args.framerate  # ignore wanted playback rate so that desync doesn't happen
+try:
+    framerate_to_use = args.playback_rate
+    if args.sound_flag_given:
+        framerate_to_use = args.framerate  # ignore wanted playback rate so that desync doesn't happen
 
-        script_args = [
-            "bash",
-            script_path,
-            str(framerate_to_use),
-            str(TOP),
-            str(LEFT),
-            str(RIGHT),
-            str(BOTTOM),
-        ]
-        if args.sound_flag_given:  # if user requested for sound to be played
-            script_args.append(str(args.sound_saved_path))
+    script_args = [
+        "bash",
+        script_path,
+        str(CACHE_PATH / "output"),
+        str(framerate_to_use),
+        str(TOP),
+        str(LEFT),
+        str(RIGHT),
+        str(BOTTOM),
+    ]
+    if args.sound_flag_given:
+        script_args.append(str(args.sound_saved_path))
 
-        print(script_args)
-        #raise SystemExit
-        subprocess.call(
-            script_args,
-            text=True,
-        )
-    except KeyboardInterrupt:
-        # Reset the terminal in case it doesnt render the user inputted text after Ctrl+C
-        subprocess.call(["stty", "sane"])
-else:
+    #print("script args:", script_args)
+    #raise SystemExit
+    
+    subprocess.call(
+        script_args,
+        text=True,
+    )
+except KeyboardInterrupt:
+    # Reset the terminal in case it doesnt render the user inputted text after Ctrl+C
+    subprocess.call(["stty", "sane"])
+
+if args.benchmark:
     print(f"It took {time.time() - st} seconds.")
 
-if pathlib.Path(BASE_PATH / "video").exists():
-    shutil.rmtree(BASE_PATH / "video")  # no need to keep the video frames.
+if pathlib.Path(CACHE_PATH / "video").exists():
+    shutil.rmtree(CACHE_PATH / "video")  # no need to keep the video frames.
