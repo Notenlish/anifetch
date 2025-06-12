@@ -20,6 +20,8 @@ in
       pkgs.bc
       pkgs.chafa
       pkgs.ffmpeg
+      pkgs.python3Packages.pillow
+      pkgs.python3Packages.numpy
       loop
     ];
     preBuild = ''
