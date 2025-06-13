@@ -87,11 +87,10 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
-    "-f",
-    "--filename",
-    "--file",
-    required=True,
-    help="Specify a file via this argument.",
+    "filename",
+    nargs="?",  # <--filename> is optional
+    default=str(pathlib.Path.home() / "anifetch/example.mp4"),
+    help="Video file to use (default: ~/anifetch/example.mp4)",
     type=str,
 )
 parser.add_argument(
@@ -217,7 +216,6 @@ try:
                         f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
                     )
                     should_update = True
-                    print_verbose("Cache invalid, will cache again.")
 except FileNotFoundError:
     should_update = True
 
@@ -235,12 +233,11 @@ if not "--height" in sys.argv and not "-H" in sys.argv:
 else:
     HEIGHT = args.height
 
-
 # Get the fetch output(neofetch/fastfetch)
 if not args.fast_fetch:
     # Get Neofetch Output
     fetch_output = subprocess.check_output(
-        ["neofetch", "--stdout"], text=True
+        ["neofetch", "--off"], text=True
     ).splitlines()
 else:
     fetch_output = subprocess.check_output(
