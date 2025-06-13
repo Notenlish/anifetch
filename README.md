@@ -5,6 +5,7 @@
 This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows you to use neofetch or fastfetch while having animations.
 
 ## How to Install
+
 You need `bc` to be installed. For debian/ubuntu it's `apt install bc`. For Arch it's `pacman -S bc`.
 
 You need `chafa` to be installed. For debian/ubuntu it is `apt install chafa`. [Download Instructions](https://hpjansson.org/chafa/download/)
