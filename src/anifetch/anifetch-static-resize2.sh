@@ -40,6 +40,7 @@ cleanup() {
   exit 0
 }
 trap cleanup SIGINT SIGTERM
+stty -echo  # won't allow ^C to be printed when SIGINT signal comes.
 
 # Process the template once and store in memory buffer
 process_template() {
