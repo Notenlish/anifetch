@@ -1,8 +1,8 @@
 # anifetch/core.py
 
-"""
+'''
     Anifetch core module for running the animation.
-"""
+'''
 
 
 import json

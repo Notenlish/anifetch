@@ -1,68 +1,62 @@
+# tests/benchmark.py
+
+'''
+    Benchmarking script for comparing the performance of Anifetch with Neofetch and Fastfetch.
+'''
+
+
 import subprocess
 import time
+import shlex
 
 
-def time_check_nocache(args, count: int):
-    args = args.split(" ")
-    
-    if args[1] == "anifetch.py":
-        args.append("--force-render")
-    
-    st = time.time()
+def time_check(command: str, count: int, preheat: bool = False) -> tuple[str, float, float]:
+    args = shlex.split(command)
+    if preheat:    # Preheat the cache by running the command once before timing
+        subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    start = time.time()
     for _ in range(count):
-        subprocess.call(args)
-    return time.time() - st
+        subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    total = time.time() - start
+    average = total / count
+    return command, total, average
 
 
-def time_check_cache(args, count: int):
-    args = args.split(" ")
-    subprocess.call(args)  # gen cache
+def run_all():
+    count = 10
+    video = ""  # optionally: "-f example.mp4"
+    common_args = f"{video} -W 60 -r 10 --benchmark"
 
-    st = time.time()
-    for _ in range(count):
-        subprocess.call(args)
-    return time.time() - st
+    tests = [
+        ("Neofetch", "neofetch", True),
+        ("Fastfetch", "fastfetch", True),
+        ("Anifetch (no cache, Neofetch)", f"python3 -m anifetch {common_args} --force-render", False),
+        ("Anifetch (cached, Neofetch)", f"python3 -m anifetch {common_args}", True),
+        ("Anifetch (no cache, Fastfetch)", f"python3 -m anifetch {common_args} -ff --force-render", False),
+        ("Anifetch (cached, Fastfetch)", f"python3 -m anifetch {common_args} -ff", True),
+    ]
 
+    results = []
+    print("Running benchmarks...\n(This may take a moment)\n")
 
-count = 10
-common_args = "-f example.mp4 -W 60 -H 30 -r 10 --benchmark"
+    for name, cmd, preheat in tests:
+        print(f"Running: {name}...", end='', flush=True)
+        try:
+            _, total, avg = time_check(cmd, count, preheat)
+            results.append((name, total, avg))
+            print(" done.")
+        except Exception as e:
+            results.append((name, None, None))
+            print(f" failed: {e}")
 
-print("NEOFETCH")
-
-neofetch = time_check_cache("neofetch", count)
-
-print("FASTFETCH")
-
-fastfetch = time_check_cache("fastfetch --logo none", count)
-
-print("ANIFETCH NOCACHE (Neofetch)")
-
-anifetch_nocache_neo = time_check_nocache(f"python3 anifetch.py {common_args}", count)
-
-print("ANIFETCH CACHED (Neofetch)")
-
-anifetch_cached_neo = time_check_cache(f"python3 anifetch.py {common_args}", count)
-
-print("ANIFETCH NOCACHE (Fastfetch)")
-
-anifetch_nocache_fast = time_check_nocache(f"python3 anifetch.py {common_args} -ff", count)
-
-print("ANIFETCH CACHED (Fastfetch)")
-
-anifetch_cached_fast = time_check_cache(f"python3 anifetch.py {common_args} -ff", count)
+    print("\n=== BENCHMARK RESULTS ===\n")
+    for name, total, avg in results:
+        if total is None:
+            print(f"{name}: failed")
+        else:
+            print(f"{name}:\n  Total time: {total:.2f} sec\n  Avg per run: {avg:.2f} sec\n")
 
 
-print("Neofetch")
-print(neofetch)
-print("Fastfetch")
-print(fastfetch)
-
-print("Anifetch(No Cache)(neofetch)")
-print(anifetch_nocache_neo)
-print("Anifetch(Cached)(neofetch)")
-print(anifetch_cached_neo)
-
-print("Anifetch(No Cache)(fastfetch)")
-print(anifetch_nocache_fast)
-print("Anifetch(Cached)(fastfetch)")
-print(anifetch_cached_fast)
+if __name__ == "__main__":
+    run_all()

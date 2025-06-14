@@ -29,25 +29,50 @@ You need the following tools installed on your system:
 
 ---
 
-### Installation via `pipx` (recommended)
+### ✅ Recommended Installation (for regular users): via `pipx`
 
 ```bash
 pipx install git+https://github.com/Notenlish/anifetch.git
 ```
 
-You can now use the `anifetch` command anywhere in your terminal.
+This installs `anifetch` in an isolated environment, keeping your system Python clean.
+You can then run the `anifetch` command **directly in your terminal**.
 
-✅ This is the **recommended method**, as it isolates the app in a lightweight environment and avoids dependency conflicts. In this case, make sure `pipx` is installed.
+✅ **Benefits**:
+
+- Avoids dependency conflicts.
+- Doesn’t pollute your global Python environment.
+- Behaves like a native CLI tool.
+- Easy updates with `pipx upgrade anifetch`.
+
+🔧 Make sure `pipx` is installed:
+
+```bash
+sudo apt install pipx
+pipx ensurepath
+```
 
 ---
 
-### Installation via `pip` (not recommended)
+### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
 
 ```bash
-pip install git+https://github.com/Notenlish/anifetch.git
+git clone https://github.com/Notenlish/anifetch.git
+cd anifetch
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
 ```
 
-⚠️ In some cases, using `pip` directly may lead to import errors if your Python environment is misconfigured or if the `anifetch` command is not added to your `PATH`. We suggest using `pipx` instead for a more robust setup.
+This installs `anifetch` in **editable mode** within a local virtual environment for development.
+
+You can then run the program in two ways:
+
+- As a CLI: `anifetch`
+- Or as a module: `python3 -m anifetch` (useful for debugging or internal testing)
+
+⚠️ Avoid using `pip install` outside a virtual environment on systems like Ubuntu.
+This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
 
 ## ▶️ How to Use It
 
@@ -64,12 +89,13 @@ anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 
 ### Optional arguments:
 
-- `-f` / `--file`: path to the video file
+- `-f` / `--file`: path to the video file (the path can be added without the `-f` argument)
 - `-s` / `--sound`: optional sound file to play alongside (requires `ffplay`)
 - `-r` / `--framerate`: frame rate of playback
 - `-W` / `--width`: video width
 - `-H` / `--height`: video height (may be automatically fixed with the width)
 - `-c` / `--chafa`: extra arguments to pass to `chafa`
+- `-ff` / `--fast-fetch`: uses `fastfetch` instead of `neofetch` if available
 
 For full help:
 
@@ -151,6 +177,10 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 - [ ] Create an installer bash script to provide an easy installation option for people.
 
 - [ ] Add an option to generate an mp4 with the terminal rendered animation(for putting it as a desktop background)
+
+## 💻 Dev commands
+
+Devs can use additional tools in the `tools` folder in order to test new features from Anifetch.
 
 ## Credits
 
