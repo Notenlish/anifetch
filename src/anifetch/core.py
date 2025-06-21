@@ -10,17 +10,18 @@ import subprocess
 import errno
 import sys
 import time
+from importlib.resources import files
 from .utils import (
     check_codec_of_file,
     extract_audio_from_file,
     get_text_length_of_formatted_text,
     get_ext_from_codec,
     get_data_path,
+    default_asset_presence_check,
     get_video_dimensions,
     get_neofetch_status,
     render_frame,
-    print_verbose,
-    get_asset_path,
+    print_verbose
 )
 
 
@@ -40,13 +41,26 @@ def run_anifetch(args):
     VIDEO_DIR = BASE_PATH / "video"
     OUTPUT_DIR = BASE_PATH / "output"
     CACHE_PATH = BASE_PATH / "cache.json"
+    ASSET_PATH = BASE_PATH / "assets"
 
+    (ASSET_PATH).mkdir(parents=True, exist_ok=True)
     (VIDEO_DIR).mkdir(exist_ok=True)
     (OUTPUT_DIR).mkdir(exist_ok=True)
 
-    if not pathlib.Path(args.filename).exists():
-        print(f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that you are in the correct directory", file=sys.stderr)
-        sys.exit(1)
+    default_asset_presence_check(ASSET_PATH)
+
+    filename = pathlib.Path(args.filename)
+
+    # If the filename is relative, check if it exists in the assets directory.
+    if not filename.exists():
+        candidate = ASSET_PATH / filename
+        if candidate.exists():
+            filename = candidate
+        else:
+            print(f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.", file=sys.stderr)
+            sys.exit(1)
+
+    args.filename = str(filename.resolve())
 
     if args.sound_flag_given:
         if args.sound:
@@ -103,7 +117,7 @@ def run_anifetch(args):
     # automatically calculate height if not given
     if not "--height" in sys.argv and not "-H" in sys.argv:
         try:
-            vid_w, vid_h = get_video_dimensions(get_asset_path(args.filename))
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -164,7 +178,7 @@ def run_anifetch(args):
         (VIDEO_DIR).mkdir(exist_ok=True)
 
         stdout = None if args.verbose else subprocess.DEVNULL
-        stderr = None if args.verbose else subprocess.STDOUT
+        stderr = None if args.verbose else subprocess.PIPE
 
         try:
             result_ffmpeg = subprocess.run(

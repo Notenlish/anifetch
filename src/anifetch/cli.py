@@ -4,7 +4,6 @@
 
 
 import argparse
-from .utils import get_asset_path
 
 
 def parse_args():
@@ -22,7 +21,6 @@ def parse_args():
     parser.add_argument(
         "filename",
         nargs="?",
-        # default=str(get_asset_path("example.mp4")),
         help="Video file to use (default: example.mp4)",
         type=str,
     )
@@ -41,7 +39,12 @@ def parse_args():
         help="Height of the chafa animation.",
         type=int,
     )
-    parser.add_argument("-v", "--verbose", default=False, action="store_true")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        default=False,
+        action="store_true"
+    )
     parser.add_argument(
         "-r",
         "--framerate",
@@ -105,7 +108,5 @@ def parse_args():
     )
     
     args = parser.parse_args()
-    if args.filename is None:
-        parser.print_help()
     
     return args

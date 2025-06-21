@@ -13,6 +13,8 @@ import sys
 from pathlib import Path
 from importlib.resources import files
 from platformdirs import user_data_dir
+import shutil
+
 appname = "anifetch"
 appauthor = "anifetch"
 
@@ -97,14 +99,10 @@ def get_data_path():
     base.mkdir(parents=True, exist_ok=True)
     return base
 
-
-def get_asset_path(filename):
-    try:
-        return files("anifetch.assets") / filename
-    except Exception as e:
-        print(f"[ERROR] Could not find asset: {filename}")
-        raise
-
+def default_asset_presence_check(asset_dir):
+        if not any(asset_dir.iterdir()):
+            packaged_asset = files("anifetch.assets") / "example.mp4"
+            shutil.copy(str(packaged_asset), asset_dir / "example.mp4")
 
 def get_neofetch_status():  # will still save the rendered chafa in cache in any case
     try:
