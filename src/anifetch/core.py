@@ -44,14 +44,8 @@ def run_anifetch(args):
     (VIDEO_DIR).mkdir(exist_ok=True)
     (OUTPUT_DIR).mkdir(exist_ok=True)
 
-<<<<<<< Updated upstream
-
     if not pathlib.Path(args.filename).exists():
         print(f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that you are in the correct directory", file=sys.stderr)
-=======
-    if not pathlib.Path(str(get_asset_path(args.filename))).exists():
-        print(f"[ERROR] File not found: {args.filename}", file=sys.stderr)
->>>>>>> Stashed changes
         sys.exit(1)
 
     if args.sound_flag_given:
