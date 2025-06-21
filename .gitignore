@@ -164,3 +164,12 @@ cython_debug/
 
 /nix/result
 /result
+
+# --- Snapcraft ---
+prime/
+parts/
+stage/
+*.snap
+*.manifest
+*.assert
+*.summary

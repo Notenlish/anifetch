@@ -47,7 +47,7 @@ def run_anifetch(args):
 
 
     if not pathlib.Path(args.filename).exists():
-        print(f"[ERROR] File not found: {args.filename}", file=sys.stderr)
+        print(f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that you are in the correct directory", file=sys.stderr)
         sys.exit(1)
 
     if args.sound_flag_given:
