@@ -370,7 +370,6 @@ if not args.fast_fetch:
         # fetch_output.pop(0)
         # fetch_output.pop(-1)
 
-
     elif get_neofetch_status() == "uninstalled":
         print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
         sys.exit(1)
