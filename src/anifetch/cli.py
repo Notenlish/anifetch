@@ -1,5 +1,3 @@
-# anifetch/cli.py
-
 '''
     Anifetch CLI module for parsing command line arguments.
 '''
@@ -24,7 +22,7 @@ def parse_args():
     parser.add_argument(
         "filename",
         nargs="?",
-        default=str(get_asset_path("example.mp4")),
+        # default=str(get_asset_path("example.mp4")),
         help="Video file to use (default: example.mp4)",
         type=str,
     )
@@ -105,4 +103,9 @@ def parse_args():
         help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
         type=str,
     )
-    return parser.parse_args()
+    
+    args = parser.parse_args()
+    if args.filename is None:
+        parser.print_help()
+    
+    return args

@@ -12,11 +12,16 @@ import subprocess
 import sys
 from pathlib import Path
 from importlib.resources import files
+from platformdirs import user_data_dir
+appname = "anifetch"
+appauthor = "anifetch"
 
 
 def print_verbose(verbose, *msg):
     if verbose:
         print(*msg)
+
+
 
 
 def strip_ansi(text):
@@ -88,10 +93,9 @@ def extract_audio_from_file(BASE_PATH, file: str, extension):
 
 
 def get_data_path():
-    base = pathlib.Path(os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")))
-    path = base / "anifetch"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    base = pathlib.Path(user_data_dir(appname, appauthor))  # /home/[username]/.local/share/anifetch
+    base.mkdir(parents=True, exist_ok=True)
+    return base
 
 
 def get_asset_path(filename):
