@@ -1,0 +1,17 @@
+Document: fontconfig-user
+Title: Fontconfig User Reference
+Author: Keith Packard
+Abstract: User and administrator reference for the fontconfig library.
+ Fontconfig is a library designed to provide system-wide font
+ configuration, customization and application access.
+Section: System/Administration
+
+Format: PDF
+Files: /usr/share/doc/fontconfig/fontconfig-user.pdf.gz
+
+Format: Text
+Files: /usr/share/doc/fontconfig/fontconfig-user.txt.gz
+
+Format: HTML
+Index: /usr/share/doc/fontconfig/fontconfig-user.html
+Files: /usr/share/doc/fontconfig/fontconfig-user.html

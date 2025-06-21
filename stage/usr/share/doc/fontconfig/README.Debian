@@ -1,0 +1,49 @@
+*** IMPORTANT ***
+
+Recently, fontconfig changed to not include bitmapped fonts in the
+default font set.  There is now a Debconf question about this.
+
+If you wish to enable bitmapped fonts manually, remove the
+/etc/fonts/conf.d/70-no-bitmaps.conf symbolic link and add a symlink named
+70-yes-bitmaps.conf pointing to ../conf.avail/70-yes-bitmaps.conf:
+
+  cd /etc/fonts/conf.d && \
+    rm -f 70-no-bitmaps.conf && \
+    ln -s ../conf.avail/70-yes-bitmaps.conf
+
+*****************
+
+
+How fonts are handled in Debian:
+--------------------------------
+
+Fontconfig is a library which handles font configuration and access at
+the system level. It is the foundation for a new font handling in X
+applications (but can also be useful without X).
+
+Applications not using fontconfig are accessing their fonts through
+the X server. Font packages for these applications are named xfonts-*.
+You can also use TrueType fonts with these applications if you install
+the x-ttcidfont-conf package, which connects the X server to defoma:
+fonts included in ttf-* packages or added manually using dfontmgr can
+then be used in these programs.
+A few of these applications, using Xft1, can benefit of antialiasing 
+with vector fonts, but it is deprecated.
+
+The new font renderer in X is called freetype2, and applications
+using it access fonts on the client side. Most of them (including all
+GTK2/GNOME2 and KDE3 applications) do it using fontconfig, which
+provides listing and matching facilities for all fonts installed on the
+system. Any font installed in /usr/share/fonts or ~/.fonts will be 
+accessible to these applications. This is now also true for fonts added
+using defoma.
+
+These programs can all benefit from antialiasing, autohinting and
+sub-pixel rendering. You can configure it through fontconfig or by changing
+links in /etc/fonts/conf.d by hand.
+
+Original text by:
+ -- Josselin Mouette <joss@debian.org>  Wed,  8 Oct 2003 21:51:35 +0200
+
+Changes for fontconfig 2.3 packages by:
+ -- Keith Packard <keithp@debian.org>  Thu, 10 Mar 2005 13:29:11 -0800

@@ -1,0 +1,12 @@
+Document: shared-mime-info
+Title: Shared MIME-info Database specification
+Author: Thomas Leonard and others
+Abstract: This document specifies a unified MIME database system for use by application developers.
+Section: Help/Standards
+
+Format: pdf
+Files: /usr/share/doc/shared-mime-info/shared-mime-info-spec.pdf
+
+Format: html
+Index: /usr/share/doc/shared-mime-info/shared-mime-info-spec.html/index.html
+Files: /usr/share/doc/shared-mime-info/shared-mime-info-spec.html/*.html

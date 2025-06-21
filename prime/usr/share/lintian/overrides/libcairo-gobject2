@@ -1,0 +1,2 @@
+# Only uses functions from libcairo, libglib, libgobject
+library-not-linked-against-libc [usr/lib/*/libcairo-gobject.so.2.*]

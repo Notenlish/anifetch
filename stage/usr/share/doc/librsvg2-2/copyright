@@ -1,0 +1,527 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: librsvg
+Source: https://download.gnome.org/sources/librsvg/
+Files-Excluded:
+ rsvg_convert/tests/fixtures/gimp-wilber-ref.png
+ rsvg_convert/tests/fixtures/gimp-wilber.svg
+
+Files: *
+Copyright: 2000 Eazel, Inc.
+           1999 - 2003 Ximian, Inc.
+           1999 Michael Zucchi
+           1998 - 2000, 2005 Red Hat, Inc.
+           2002 - 2005 Dom Lachowicz <cinamod@hotmail.com>
+           2002 Matthias Clasen
+           2003 - 2005 Caleb Moore <c.moore@student.unsw.edu.au>
+           2006 Robert Staudinger <robert.staudinger@gmail.com>
+           2010 - 2012 Christian Persch
+           2010 Igalia, S.L.
+License: LGPL-2+
+
+Files:
+ m4/ax_compare_version.m4
+Copyright:
+ 2008 Tim Toolan
+License: FSFAP
+
+Files:
+ rsvg/tests/fixtures/reftests/svg1.1/*
+Copyright:
+ 2008-2009 World Wide Web Consortium (Massachusetts Institute of
+ Technology, European Research Consortium for Informatics and
+ Mathematics (ERCIM), Keio University)
+License: BSD-3-clause
+
+Files:
+ rsvg/tests/fixtures/render-crash/feMerge-color-interpolation-srgb.svg
+Copyright:
+ 2018 Reizner Evgeniy
+License: Expat
+
+Files: debian/missing-sources/*
+Copyright:
+ 2016 A.J. Gardner
+ 2017 Aaron Power
+ (unspecified) Aaron Trent
+ 2014 Alex Crichton
+ 2015 Alex Daniel Jones
+ (unspecified) Alexander Huszagh
+ (unspecified) Alexis Beingessner
+ 2017-2018 Amanieu d'Antras
+ (unspecified) Andreas Longva
+ 2015-2017 Andrew Gallant
+ 2014 Armin Ronacher
+ 2015-2020 Ashish Myles and contributors
+ 2015 Bartłomiej Kamiński
+ (unspecified) Bastian Köcher
+ 2014 Benjamin Sago
+ 2015 Brendan Zabarauskas
+ 2015 Brian Vincent
+ (unspecified) Brook Heisler
+ 2015 Connor Hilarides
+ 2015 Corey Richardson
+ 2019-2020 CreepySkeleton
+ 2019-2020 Daniel Gee
+ 2015 Danny Guo
+ (unspecified) Darin Morrison
+ 2005-2011 David Schultz
+ (unspecified) David Tolnay
+ 2018-2021 Developers of the Rand project
+ 2015 Dmitry Roschin
+ 2010-2011 Dmitry Vyukov
+ 2015-2017 Doug Tangren
+ 2018 Dragoș Tiselice
+ 2021 DutchGhost
+ 2019 Embark Studios
+ 2012-2018 Free Software Foundation, Inc.
+ 2017 Frommi
+ 2016 FullContact, Inc.
+ 2015 Gigih Aji Ibrahim
+ 2017-2020 Gilad Naaman
+ 2006-2009 Graydon Hoare
+ 2015-2018 Guillaume Gomez
+ 2019 Hao Hou
+ 2016 Itoa Developers
+ 2019 Jacob Pratt
+ 2017 Jan Bujak
+ 2016 Jan Hudec
+ 2017-2018 Jason Lingle
+ 1995-2017 Jean-loup Gailly
+ 2015 John Nagle
+ 2015 Johann Hofmann
+ (unspecified) Jonathan Reem
+ (unspecified) Jonas Schievink
+ 2015 Jordan Miner
+ 2014-2018 Jorge Aparicio
+ (unspecified) Josh Triplett
+ 2016 Junfeng Liu
+ 2014-2017 Kang Seonghoon and contributors
+ 2016 Kathryn Long
+ 2015-2016 Kevin B. Knapp
+ 2013 Koka El Kiwi
+ 1995-2017 Mark Adler
+ 2016 Martin Geisler
+ 2015 Marvin Löbel
+ (unspecified) Michael Layzell
+ 2015 Milo Yip
+ 2009-2013 Mozilla Foundation
+ 2017 Nick Stevens
+ 2016 Nika Layzell
+ 2014 Ning Sun
+ 2016-2018 Nuxi
+ 2016 Oleksii Rudenko
+ 2014-2020 Optimal Computing (NZ) Ltd
+ 2014 Paho Lurie-Gregg
+ 2015-2016 Peter Atashian
+ 2019 Peter Glotfelty
+ 2015 Pyfisch
+ 2018 R. Janis Goldschmidt
+ 2020 Ralf Jung
+ 2017 Redox OS Developers
+ 2016 Remi Rampin and adler32-rs contributors
+ 2017 Robert Grosse
+ (unspecified) Ryan Scheel
+ 2018 Sam Rijs, Alex Crichton and contributors
+ 2015 Sean McArthur
+ 2017 Serde Developers
+ 2017-2018 Sergio Benitez
+ 2014-2016 Simon Sapin
+ 2015 Steven Allen
+ (unspecified) Steven Fackler
+ (unspecified) Sun Microsystems, Inc.
+ 2018 Syn Developers
+ 2013-2019 Sébastien Crozet
+ 2015 THL A29 Limited, a Tencent company
+ 2013-2014 The Algebra Developers
+ 2016-2017 The Fuchsia Authors
+ 2013-2018 The Gtk-rs Project Developers
+ 2010-2020 The Rust Project Developers
+ 2013-2018 The Servo Project Developers
+ 2015 The assert_cli Developers
+ 2016 The multipart Crate Developers
+ 2018 The predicates-rs Project Developers
+ 2017-2019 The proptest developers
+ 2015 The quick-error Developers
+ 2015 The rust-unreachable Developers
+ 2016 Ticki
+ 2017 Tim Visée
+ 2016 Titus Wormer
+ 2018 Ulf Adams
+ 2015-2021 Ulrik Sverdrup (bluss)
+ 2015-2016 Victor Brekenfeld
+ (unspecified) Wadelma
+ (unspecified) Without Boats
+ 2015 arcnmx
+ 2016 base-x contributors
+ 2016 bitbegin
+ 2015-2016 clap-rs contributors
+ 2009-2016 compiler-builtins Developers
+ 2015 const-cstr developers
+ 2015 grabbag contributors
+ 2016 lazy-static.rs Developers
+ 2021 matrixmultiply authors
+ 2015 nwin
+ 2016 oyvindln
+ 2017 proc-macro-nested contributors
+ 2015 skdltmxn
+ 2015-2018 winapi-rs developers
+License: Apache-2.0, and BSD-2-clause, and BSD-3-clause, and Expat, and Apache-2.0 or Expat or 0BSD, and Apache-2.0 or Boost-1.0, and Apache-2.0 or Expat, and Expat or Unlicense, and MPL-2.0, and Sun-permissive, and zlib
+
+Files:
+ rsvg/tests/resources/Ahem.ttf
+Copyright:
+ Todd Fahrner
+ Myles C. Maxfield
+License: CC-zero-waive-1.0-us
+
+Files:
+ rsvg/tests/resources/NotoSansHebrew-Regular.ttf
+Copyright:
+ 2010,2012-2020, Google Inc.
+ 2015-2020, Google LLC.
+License: OFL-1.1
+
+License: LGPL-2+
+ This package is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>.
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License can be found in "/usr/share/common-licenses/LGPL-2".
+
+License: Apache-2.0
+ On Debian systems, the complete text of the Apache License can be
+ found in "/usr/share/common-licenses/Apache-2.0".
+
+License: Expat
+ Permission is hereby granted, free of charge, to any
+ person obtaining a copy of this software and associated
+ documentation files (the "Software"), to deal in the
+ Software without restriction, including without
+ limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software
+ is furnished to do so, subject to the following
+ conditions:
+ .
+ The above copyright notice and this permission notice
+ shall be included in all copies or substantial portions
+ of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+
+License: MPL-2.0
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+Comment:
+ On Debian systems, the complete text of the Mozilla Public License can
+ be found in "/usr/share/common-licenses/MPL-2.0".
+
+License: OFL-1.1
+ PREAMBLE
+ .
+ The goals of the Open Font License (OFL) are to stimulate
+ worldwide development of collaborative font projects,
+ to support the font creation efforts
+ of academic and linguistic communities,
+ and to provide a free and open framework
+ in which fonts may be shared and improved
+ in partnership with others.
+ .
+ The OFL allows the licensed fonts to be used, studied,
+ modified and redistributed freely
+ as long as they are not sold by themselves.
+ The fonts, including any derivative works,
+ can be bundled, embedded,
+ redistributed and/or sold with any software
+ provided that any reserved names are not used
+ by derivative works.
+ The fonts and derivatives, however,
+ cannot be released under any other type of license.
+ The requirement for fonts to remain under this license
+ does not apply to any document
+ created using the fonts or their derivatives.
+ .
+ DEFINITIONS
+ .
+ "Font Software" refers to the set of files
+ released by the Copyright Holder(s) under this license
+ and clearly marked as such.
+ This may include source files, build scripts and documentation.
+ .
+ "Reserved Font Name" refers to any names specified as such
+ after the copyright statement(s).
+ .
+ "Original Version" refers to the collection
+ of Font Software components
+ as distributed by the Copyright Holder(s).
+ .
+ "Modified Version" refers to any derivative
+ made by adding to, deleting, or substituting --
+ in part or in whole --
+ any of the components of the Original Version,
+ by changing formats
+ or by porting the Font Software to a new environment.
+ .
+ "Author" refers to any designer, engineer, programmer,
+ technical writer or other person
+ who contributed to the Font Software.
+ .
+ PERMISSION & CONDITIONS
+ .
+ Permission is hereby granted, free of charge,
+ to any person obtaining a copy of the Font Software,
+ to use, study, copy, merge, embed, modify, redistribute,
+ and sell modified and unmodified copies of the Font Software,
+ subject to the following conditions:
+ .
+ 1) Neither the Font Software nor any of its individual components,
+ in Original or Modified Versions,
+ may be sold by itself.
+ .
+ 2) Original or Modified Versions of the Font Software
+ may be bundled, redistributed and/or sold with any software,
+ provided that each copy contains the above copyright notice
+ and this license.
+ These can be included either as stand-alone text files,
+ human-readable headers or in the appropriate
+ machine-readable metadata fields within text or binary files
+ as long as those fields can be easily viewed by the user.
+ .
+ 3) No Modified Version of the Font Software may use
+ the Reserved Font Name(s)
+ unless explicit written permission is granted
+ by the corresponding Copyright Holder.
+ This restriction only applies to the primary font name
+ as presented to the users.
+ .
+ 4) The name(s) of the Copyright Holder(s)
+ or the Author(s) of the Font Software
+ shall not be used to promote,
+ endorse or advertise any Modified Version,
+ except to acknowledge the contribution(s)
+ of the Copyright Holder(s) and the Author(s)
+ or with their explicit written permission.
+ .
+ 5) The Font Software,
+ modified or unmodified, in part or in whole,
+ must be distributed entirely under this license,
+ and must not be distributed under any other license.
+ The requirement for fonts to remain under this license
+ does not apply to any document
+ created using the Font Software.
+ .
+ TERMINATION
+ .
+ This license becomes null and void
+ if any of the above conditions are not met.
+ .
+ DISCLAIMER
+ .
+ THE FONT SOFTWARE IS PROVIDED "AS IS",
+ WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO
+ ANY WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+ OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ INCLUDING ANY GENERAL, SPECIAL, INDIRECT,
+ INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF THE USE OR INABILITY TO USE
+ THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE FONT SOFTWARE.
+
+License: Unlicense
+ This is free and unencumbered software released into the public domain.
+ .
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any
+ means.
+ .
+ In jurisdictions that recognize copyright laws, the author or authors
+ of this software dedicate any and all copyright interest in the
+ software to the public domain. We make this dedication for the benefit
+ of the public at large and to the detriment of our heirs and
+ successors. We intend this dedication to be an overt act of
+ relinquishment in perpetuity of all present and future rights to this
+ software under copyright law.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ .
+ For more information, please refer to <http://unlicense.org/>
+
+License: BSD-2-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
+
+License: BSD-3-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+    * Redistributions of [source code/works] must retain the above
+ copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following disclaimer
+ in the documentation and/or other materials provided with the
+ distribution.
+    * Neither the name of [the copyright holder] nor the names of its
+ contributors may be used to endorse or promote products derived from
+ this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: Sun-permissive
+ Permission to use, copy, modify, and distribute this
+ software is freely granted, provided that this notice
+ is preserved.
+
+License: Boost-1.0
+ Permission is hereby granted, free of charge, to any person or organization
+ obtaining a copy of the software and accompanying documentation covered by
+ this license (the "Software") to use, reproduce, display, distribute,
+ execute, and transmit the Software, and to prepare derivative works of the
+ Software, and to permit third-parties to whom the Software is furnished to
+ do so, all subject to the following:
+ .
+ The copyright notices in the Software and this entire statement, including
+ the above license grant, this restriction and the following disclaimer,
+ must be included in all copies of the Software, in whole or in part, and
+ all derivative works of the Software, unless such copies or derivative
+ works are solely in the form of machine-executable object code generated by
+ a source language processor.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+
+License: zlib
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ .
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ .
+ 1. The origin of this software must not be misrepresented; you must not
+ claim that you wrote the original software. If you use this software
+ in a product, an acknowledgment in the product documentation would be
+ appreciated but is not required.
+ .
+ 2. Altered source versions must be plainly marked as such, and must
+ not be misrepresented as being the original software.
+ .
+ 3. This notice may not be removed or altered from any source
+ distribution.
+
+License: 0BSD
+ Permission to use, copy, modify, and/or distribute this software for
+ any purpose with or without fee is hereby granted.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+ AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+License: FSFAP
+ Copying and distribution of this file, with or without modification, are
+ permitted in any medium without royalty provided the copyright notice
+ and this notice are preserved. This file is offered as-is, without any
+ warranty.
+
+License: CC-zero-waive-1.0-us
+ https://www.creativecommons.org/licenses/zero-waive/1.0/us/legalcode
+ .
+ Affirmation and Waiver
+ .
+ The person who has associated a work with this document (the "Work")
+ affirms that he or she (the "Affirmer") is the/an author or owner of
+ the Work. The Work may be any work of authorship, including a database.
+ .
+ The Affirmer hereby fully, permanently and irrevocably waives and
+ relinquishes all of her or his copyright and related or neighboring
+ legal rights in the Work available under any federal or state law,
+ treaty or contract, including but not limited to moral rights, publicity
+ and privacy rights, rights protecting against unfair competition and
+ any rights protecting the extraction, dissemination and reuse of data,
+ whether such rights are present or future, vested or contingent (the
+ "Waiver"). The Affirmer makes the Waiver for the benefit of the public
+ at large and to the detriment of the Affirmer's heirs or successors.
+ .
+ The Affirmer understands and intends that the Waiver has the effect of
+ eliminating and entirely removing from the Affirmer's control all the
+ copyright and related or neighboring legal rights previously held by the
+ Affirmer in the Work, to that extent making the Work freely available
+ to the public for any and all uses and purposes without restriction of
+ any kind, including commercial use and uses in media and formats or by
+ methods that have not yet been invented or conceived. Should the Waiver
+ for any reason be judged legally ineffective in any jurisdiction,
+ the Affirmer hereby grants a free, full, permanent, irrevocable,
+ nonexclusive and worldwide license for all her or his copyright and
+ related or neighboring legal rights in the Work.
+ .
+ The Affirmer understands and acknowledges that Creative Commons is not
+ a party to the Waiver and has no duty or obligation with respect to
+ the Waiver or use of the Work.
