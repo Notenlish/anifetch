@@ -150,7 +150,6 @@ def run_anifetch(args):
                 file=sys.stderr,
             )
             sys.exit(1)
-
     else:
         try:
             fetch_output = subprocess.check_output(
@@ -158,9 +157,10 @@ def run_anifetch(args):
             ).splitlines()
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
-                print(
-                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH."
-                )
+                print("The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH.")
+                raise SystemExit
+            else:
+                raise Exception(e)
 
     # put cached frames here
     frames: list[str] = []
@@ -332,12 +332,17 @@ def run_anifetch(args):
         args_dict = {key: value for key, value in args._get_kwargs()}
         json.dump(args_dict, f, indent=2)
 
+    if len(fetch_lines) == 0:
+        raise Exception("fetch_lines has no items in it:",fetch_lines)
+    
     template = []
     for fetch_line in fetch_lines:
         output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
         template.append(output + "\n")
-        output_width = get_text_length_of_formatted_text(output)
-        template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
+    
+    # Only do this once instead of for every line.
+    output_width = get_text_length_of_formatted_text(output)  # ruff: noqa
+    template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     # writing the tempate to a file.
     with open(BASE_PATH / "template.txt", "w") as f:
