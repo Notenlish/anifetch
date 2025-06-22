@@ -1,21 +1,22 @@
 #!/bin/bash
 
-FRAME_DIR="$HOME/.local/share/anifetch/output"
-STATIC_TEMPLATE_FILE="$HOME/.local/share/anifetch/template.txt"
-
 # check for num of args
 if [[ $# -ne 6 && $# -ne 7 ]]; then
-  echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
+  echo "Usage: $0 <cache_path> <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
   exit 1
 fi
 
-framerate=$1
-top=$2
-left=$3
-right=$4
-bottom=$5
-template_actual_width=$6
-soundname=$7
+CACHE_DIR="$1"
+framerate=$2
+top=$3
+left=$4
+right=$5
+bottom=$6
+template_actual_width=$7
+soundname=$8
+
+FRAME_DIR="$CACHE_DIR/output"
+STATIC_TEMPLATE_FILE="$CACHE_DIR/template.txt"
 
 num_lines=$((bottom - top))
 sleep_time=$(echo "scale=4; 1 / $framerate" | bc)
@@ -224,7 +225,7 @@ wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
   
-  for frame in $(ls "$FRAME_DIR" | sort -n); do
+  for frame in $(ls "$FRAME_DIR" | sort -n); do   #### for frame in $(find "$FRAME_DIR" -type f | sort -V); do
     lock=true
     current_top=$top
     while IFS= read -r line; do

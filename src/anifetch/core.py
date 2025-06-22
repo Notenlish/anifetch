@@ -22,6 +22,12 @@ from .utils import (
     render_frame,
     print_verbose,
     check_sound_flag_given,
+    clean_cache_args,
+    check_args_hash_same,
+    find_corresponding_cache,
+    hash_of_cache_args,
+    get_caches_json,
+    save_caches_json,
 )
 
 GAP = 2
@@ -37,14 +43,8 @@ def run_anifetch(args):
 
     BASE_PATH = get_data_path()
 
-    VIDEO_DIR = BASE_PATH / "video"
-    OUTPUT_DIR = BASE_PATH / "output"
-    CACHE_PATH = BASE_PATH / "cache.json"
     ASSET_PATH = BASE_PATH / "assets"
-
     (ASSET_PATH).mkdir(parents=True, exist_ok=True)
-    (VIDEO_DIR).mkdir(exist_ok=True)
-    (OUTPUT_DIR).mkdir(exist_ok=True)
 
     default_asset_presence_check(ASSET_PATH)
 
@@ -70,6 +70,64 @@ def run_anifetch(args):
     except shutil.SameFileError:
         pass
     args.filename = str(newpath)
+    
+    CACHE_LIST_PATH = BASE_PATH / "caches.json"
+
+    if args.cache_list:
+        all_caches = get_caches_json(CACHE_LIST_PATH)
+        if not all_caches:
+            print("No cached configurations found.")
+        else:
+            print("Available caches:")
+            for i, cache in enumerate(all_caches, 1):
+                line = f"[{i}] hash: {cache.get('hash', '???')} | video: {cache.get('filename', '?')} | width: {cache.get('width')} | chroma: {cache.get('chroma')}"
+                print(line)
+        sys.exit(0)
+
+    if args.delete:
+        all_caches = get_caches_json(CACHE_LIST_PATH)
+        hash_to_delete = args.delete
+        updated = []
+        found = False
+        for cache in all_caches:
+            if cache.get("hash") == hash_to_delete:
+                found = True
+                cache_dir = BASE_PATH / hash_to_delete
+                if cache_dir.exists():
+                    shutil.rmtree(cache_dir)
+                    print(f"Deleted cache directory: {cache_dir}")
+            else:
+                updated.append(cache)
+        if found:
+            save_caches_json(CACHE_LIST_PATH, updated)
+        sys.exit(0)
+    
+    if args.clear:
+        all_caches = get_caches_json(CACHE_LIST_PATH)
+        for cache in all_caches:
+            hash_id = cache.get("hash")
+            if hash_id:
+                cache_dir = BASE_PATH / hash_id
+                if cache_dir.exists():
+                    shutil.rmtree(cache_dir)
+                    print(f"Deleted cache directory: {cache_dir}")
+        save_caches_json(CACHE_LIST_PATH, [])
+        print("All cache entries have been cleared.")
+        sys.exit(0)
+
+
+    args_dict = {key: value for key, value in args._get_kwargs()}
+    cleaned_dict = clean_cache_args(args_dict)
+    cleaned_dict["hash"] = hash_of_cache_args(cleaned_dict)
+    
+    CACHE_PATH = BASE_PATH / cleaned_dict["hash"]
+
+    VIDEO_DIR = CACHE_PATH / "video"
+    OUTPUT_DIR = CACHE_PATH / "output"
+
+    CACHE_PATH.mkdir(parents=True, exist_ok=True)
+    (VIDEO_DIR).mkdir(exist_ok=True)
+    (OUTPUT_DIR).mkdir(exist_ok=True)
 
     if args.sound_flag_given:
         if args.sound:
@@ -82,42 +140,37 @@ def run_anifetch(args):
                 print(f"[ERROR] {e}")
                 sys.exit(1)
 
-            args.sound_saved_path = str(BASE_PATH / f"output_audio.{ext}")
+            # sound and sound_flag_given will be used for hash calculation.
+            # sound_saved_path is a value that must be kept in the 'cleaned' variable but it shouldnt be used in calculating hash, that's what sound and sound_flag_given are for.
+            args.sound_saved_path = str(CACHE_PATH / f"output_audio.{ext}")
+            cleaned_dict["sound_saved_path"] = args.sound_saved_path
+
 
     if args.chroma and args.chroma.startswith("#"):
         print("[ERROR] Use '0x' prefix for chroma color, not '#'.", file=sys.stderr)
         sys.exit(1)
 
-    # check cache
-    should_update = False
-    try:
-        args_dict = {key: value for key, value in args._get_kwargs()}
-        if args.force_render:
-            should_update = True
-        else:
-            with open(CACHE_PATH, "r") as f:
-                data = json.load(f)
-            for key, value in args_dict.items():
-                try:
-                    cached_value = data[key]
-                except KeyError:
-                    should_update = True
+
+# check cache
+    should_update = args.force_render  # True if --force-render
+
+    if not should_update:
+        try:
+            all_caches = get_caches_json(CACHE_LIST_PATH)
+
+            for cache_args in all_caches:
+                if check_args_hash_same(cache_args, cleaned_dict):
                     break
-                if value != cached_value:  # check if all options match
-                    if key not in (
-                        "playback_rate",
-                        "verbose",
-                        "center",
-                        "fast_fetch",
-                        "benchmark",
-                        "force_render",
-                    ):  # These arguments don't invalidate the cache.
-                        print_verbose(  # TODO: this is a very ugly way of doing verbose debug printing
-                            args.verbose,
-                            f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
-                        )
-                        should_update = True
-    except FileNotFoundError:
+            else:
+                print_verbose("Couldn't find a corresponding cache. Will cache the animation.")
+                should_update = True
+
+        except FileNotFoundError:
+            should_update = True
+
+
+    if not (CACHE_PATH / "output").exists() and not should_update:
+        print("[WARNING] Cache folder found but output is missing. Will regenerate.")
         should_update = True
 
     if should_update:
@@ -200,7 +253,7 @@ def run_anifetch(args):
                     f"{args.filename}",
                     "-vf",
                     f"fps={args.framerate},format=rgba",
-                    str(BASE_PATH / "video/%05d.png"),
+                    str(CACHE_PATH / "video/%05d.png"),
                 ],
                 stdout=stdout,
                 stderr=stderr,
@@ -221,11 +274,11 @@ def run_anifetch(args):
 
         print_verbose(args.verbose, args.sound_flag_given)
 
-        if args.sound_flag_given:
+        if args.sound_flag_given:   #### Is this part really useful? Isn't it the same as the one on line 117?
             if args.sound:  # sound file given
                 print_verbose(args.verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)
-                dest = BASE_PATH / source.with_name(f"output_audio{source.suffix}")
+                dest = CACHE_PATH / source.with_name(f"output_audio{source.suffix}")
                 shutil.copy(source, dest)
                 args.sound_saved_path = str(dest)
             else:
@@ -235,11 +288,13 @@ def run_anifetch(args):
                 )
                 codec = check_codec_of_file(args.filename)
                 ext = get_ext_from_codec(codec)
-                audio_file = extract_audio_from_file(BASE_PATH, args.filename, ext)
+                audio_file = extract_audio_from_file(CACHE_PATH, args.filename, ext)
                 print_verbose(args.verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
 
+            cleaned_dict["sound_saved_path"] = args.sound_saved_path
+            
             print_verbose(args.verbose, args.sound_saved_path)
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
@@ -324,26 +379,41 @@ def run_anifetch(args):
                     [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
                 )
 
-        with open(BASE_PATH / "frame.txt", "w") as f:
+        with open(CACHE_PATH / "frame.txt", "w") as f:
             f.writelines(frames)
 
         HEIGHT = len(frames[0].splitlines())
 
         # reloarding the cached output
-        with open(CACHE_PATH, "r") as f:
-            data = json.load(f)
+        with open(CACHE_LIST_PATH, "r") as f:
+            all_saved_caches = json.load(f)
+            corresponding_cache = find_corresponding_cache(cleaned_dict, all_saved_caches)
 
         if args.sound_flag_given:
-            args.sound_saved_path = data["sound_saved_path"]
+            args.sound_saved_path = corresponding_cache["sound_saved_path"]
         else:
             args.sound_saved_path = None
 
-    print_verbose(args.verbose, "-----------")
+
+
+    print_verbose("-----------")
+    print_verbose("ARGS FOR SAVING CACHES.JSON", args)
+
+
 
     # save the caching arguments
-    with open(CACHE_PATH, "w") as f:
-        args_dict = {key: value for key, value in args._get_kwargs()}
-        json.dump(args_dict, f, indent=2)
+    caches_data = get_caches_json(CACHE_LIST_PATH)
+
+    added = False
+    for i, cache_dict in enumerate(caches_data):
+        if cache_dict["hash"] == cleaned_dict["hash"]:
+            caches_data[i] = cleaned_dict  # replace the cache with the new one
+            added = True
+    if not added:
+        caches_data.append(cleaned_dict)
+
+    with open(BASE_PATH / "caches.json", "w") as f:
+        json.dump(caches_data, f, indent=2)
 
     if len(fetch_lines) == 0:
         raise Exception("fetch_lines has no items in it:", fetch_lines)
@@ -358,7 +428,7 @@ def run_anifetch(args):
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     # writing the tempate to a file.
-    with open(BASE_PATH / "template.txt", "w") as f:
+    with open(CACHE_PATH / "template.txt", "w") as f:
         f.writelines(template)
     print_verbose(args.verbose, "Template updated")
 
@@ -372,7 +442,7 @@ def run_anifetch(args):
     script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
 
-    if not args.benchmark:
+    if not args.benchmark: # opitional?
         try:
             framerate_to_use = args.playback_rate
             if args.sound_flag_given:
@@ -383,6 +453,7 @@ def run_anifetch(args):
             script_args = [
                 "bash",
                 str(bash_script_path),
+                str(CACHE_PATH),
                 str(framerate_to_use),
                 str(TOP),
                 str(LEFT),
