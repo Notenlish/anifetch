@@ -1,19 +1,19 @@
 #!/bin/bash
 
-FRAME_DIR="$HOME/.local/share/anifetch/output"
 
 # Check for FRAMERATE input
-if [[[ $# -ne 5 ] || [ $# -ne 6 ]]]; then
-  echo "Usage: <framerate> <top> <left> <right> <bottom>"
+if [[ $# -ne 6 && $# -ne 7 ]]; then
+  echo "Usage: <cache_path> <framerate> <top> <left> <right> <bottom>"
   exit 1
 fi
 
-framerate=$1
-top=$2
-left=$3
-right=$4
-bottom=$5
-soundname=$6
+cache_path=$1
+framerate=$2
+top=$3
+left=$4
+right=$5
+bottom=$6
+soundname=$7
 
 num_lines=$((bottom - top))
 
@@ -35,8 +35,8 @@ cat "$HOME/.local/share/anifetch/template.txt"
 
 ###############################
 
-if [ $# -eq 6 ]; then
-ffplay -nodisp -autoexit -loop 0 -loglevel quiet $6 &
+if [[ $# -eq 7 ]]; then
+    ffplay -nodisp -autoexit -loop 0 -loglevel quiet $soundname &
 fi
 
 # Main loop
@@ -44,7 +44,7 @@ i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
-  for frame in $(ls "$FRAME_DIR" | sort -n); do
+  for frame in $(ls "$cache_path" | sort -n); do
     current_top=$top
     while IFS= read -r line; do
         tput cup "$current_top" "$left"
@@ -53,7 +53,7 @@ while true; do
         if [[ $current_top -gt $bottom ]]; then
             break
         fi
-    done < "$FRAME_DIR/$frame"
+    done < "$cache_path/$frame"
     
     wanted_epoch=$(echo "$i/$framerate" | bc -l)
     
