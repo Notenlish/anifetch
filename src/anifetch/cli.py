@@ -1,7 +1,6 @@
-'''
-    Anifetch CLI module for parsing command line arguments.
-'''
-
+"""
+Anifetch CLI module for parsing command line arguments.
+"""
 
 import argparse
 
@@ -38,12 +37,7 @@ def parse_args():
         help="Height of the chafa animation.",
         type=int,
     )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        default=False,
-        action="store_true"
-    )
+    parser.add_argument("-v", "--verbose", default=False, action="store_true")
     parser.add_argument(
         "-r",
         "--framerate",
@@ -98,14 +92,14 @@ def parse_args():
         help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
         action="store_true",
     )
-    parser.add_argument( 
+    parser.add_argument(
         "--chroma",
         required=False,
         nargs="?",
         help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
         type=str,
     )
-    
+
     args = parser.parse_args()
-    
+
     return args

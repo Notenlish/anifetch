@@ -10,7 +10,6 @@ import subprocess
 import errno
 import sys
 import time
-from importlib.resources import files
 from .utils import (
     check_codec_of_file,
     extract_audio_from_file,
@@ -21,7 +20,7 @@ from .utils import (
     get_video_dimensions,
     get_neofetch_status,
     render_frame,
-    print_verbose
+    print_verbose,
 )
 
 
@@ -57,7 +56,10 @@ def run_anifetch(args):
         if candidate.exists():
             filename = candidate
         else:
-            print(f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.", file=sys.stderr)
+            print(
+                f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
     args.filename = str(filename.resolve())
@@ -115,7 +117,7 @@ def run_anifetch(args):
 
     WIDTH = args.width
     # automatically calculate height if not given
-    if not "--height" in sys.argv and not "-H" in sys.argv:
+    if "--height" not in sys.argv and "-H" not in sys.argv:
         try:
             vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
@@ -157,7 +159,9 @@ def run_anifetch(args):
             ).splitlines()
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
-                print("The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH.")
+                print(
+                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH."
+                )
                 raise SystemExit
             else:
                 raise Exception(e)
@@ -333,15 +337,15 @@ def run_anifetch(args):
         json.dump(args_dict, f, indent=2)
 
     if len(fetch_lines) == 0:
-        raise Exception("fetch_lines has no items in it:",fetch_lines)
-    
+        raise Exception("fetch_lines has no items in it:", fetch_lines)
+
     template = []
     for fetch_line in fetch_lines:
         output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
         template.append(output + "\n")
-    
+
     # Only do this once instead of for every line.
-    output_width = get_text_length_of_formatted_text(output)  # ruff: noqa
+    output_width = get_text_length_of_formatted_text(output)
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     # writing the tempate to a file.

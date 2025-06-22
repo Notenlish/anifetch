@@ -1,18 +1,19 @@
 # tests/benchmark.py
 
-'''
-    Benchmarking script for comparing the performance of Anifetch with Neofetch and Fastfetch.
-'''
-
+"""
+Benchmarking script for comparing the performance of Anifetch with Neofetch and Fastfetch.
+"""
 
 import subprocess
 import time
 import shlex
 
 
-def time_check(command: str, count: int, preheat: bool = False) -> tuple[str, float, float]:
+def time_check(
+    command: str, count: int, preheat: bool = False
+) -> tuple[str, float, float]:
     args = shlex.split(command)
-    if preheat:    # Preheat the cache by running the command once before timing
+    if preheat:  # Preheat the cache by running the command once before timing
         subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     start = time.time()
@@ -31,17 +32,29 @@ def run_all():
     tests = [
         ("Neofetch", "neofetch", True),
         ("Fastfetch", "fastfetch", True),
-        ("Anifetch (no cache, Neofetch)", f"python3 -m anifetch {common_args} --force-render", False),
+        (
+            "Anifetch (no cache, Neofetch)",
+            f"python3 -m anifetch {common_args} --force-render",
+            False,
+        ),
         ("Anifetch (cached, Neofetch)", f"python3 -m anifetch {common_args}", True),
-        ("Anifetch (no cache, Fastfetch)", f"python3 -m anifetch {common_args} -ff --force-render", False),
-        ("Anifetch (cached, Fastfetch)", f"python3 -m anifetch {common_args} -ff", True),
+        (
+            "Anifetch (no cache, Fastfetch)",
+            f"python3 -m anifetch {common_args} -ff --force-render",
+            False,
+        ),
+        (
+            "Anifetch (cached, Fastfetch)",
+            f"python3 -m anifetch {common_args} -ff",
+            True,
+        ),
     ]
 
     results = []
     print("Running benchmarks...\n(This may take a moment)\n")
 
     for name, cmd, preheat in tests:
-        print(f"Running: {name}...", end='', flush=True)
+        print(f"Running: {name}...", end="", flush=True)
         try:
             _, total, avg = time_check(cmd, count, preheat)
             results.append((name, total, avg))
@@ -55,7 +68,9 @@ def run_all():
         if total is None:
             print(f"{name}: failed")
         else:
-            print(f"{name}:\n  Total time: {total:.2f} sec\n  Avg per run: {avg:.2f} sec\n")
+            print(
+                f"{name}:\n  Total time: {total:.2f} sec\n  Avg per run: {avg:.2f} sec\n"
+            )
 
 
 if __name__ == "__main__":

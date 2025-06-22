@@ -1,16 +1,13 @@
 # animfetch/utils.py
 
-'''
-    Anifetch utility module for common functions used across the application.
-'''
+"""
+Anifetch utility module for common functions used across the application.
+"""
 
-
-import os
 import pathlib
 import re
 import subprocess
 import sys
-from pathlib import Path
 from importlib.resources import files
 from platformdirs import user_data_dir
 import shutil
@@ -52,16 +49,16 @@ def get_ext_from_codec(codec):
 def check_codec_of_file(file: str):
     try:
         ffprobe_cmd = [
-        "ffprobe",
-        "-v",
-        "error",
-        "-select_streams",
-        "a:0",
-        "-show_entries",
-        "stream=codec_name",
-        "-of",
-        "default=nokey=1:noprint_wrappers=1",
-        file,
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "a:0",
+            "-show_entries",
+            "stream=codec_name",
+            "-of",
+            "default=nokey=1:noprint_wrappers=1",
+            file,
         ]
         codec = subprocess.check_output(ffprobe_cmd, text=True).strip()
         return codec
@@ -93,21 +90,29 @@ def extract_audio_from_file(BASE_PATH, file: str, extension):
 
 
 def get_data_path():
-    base = pathlib.Path(user_data_dir(appname, appauthor))  # /home/[username]/.local/share/anifetch
+    base = pathlib.Path(
+        user_data_dir(appname, appauthor)
+    )  # /home/[username]/.local/share/anifetch
     base.mkdir(parents=True, exist_ok=True)
     return base
 
+
 def default_asset_presence_check(asset_dir):
-        if not any(asset_dir.iterdir()):
-            packaged_asset = files("anifetch.assets") / "example.mp4"
-            shutil.copy(str(packaged_asset), asset_dir / "example.mp4")
+    if not any(asset_dir.iterdir()):
+        packaged_asset = files("anifetch.assets") / "example.mp4"
+        shutil.copy(str(packaged_asset), asset_dir / "example.mp4")
+
 
 def get_neofetch_status():  # will still save the rendered chafa in cache in any case
     try:
         # check the result of running neofetch with --version
-        result = subprocess.run(["neofetch", "--version"], capture_output=True, text=True)
+        result = subprocess.run(
+            ["neofetch", "--version"], capture_output=True, text=True
+        )
         output = result.stdout + result.stderr
-        if "fastfetch" in output.lower(): # if the output contains "fastfetch", return wrapper
+        if (
+            "fastfetch" in output.lower()
+        ):  # if the output contains "fastfetch", return wrapper
             return "wrapper"
         else:
             return "neofetch"  # neofetch works
@@ -134,7 +139,8 @@ def render_frame(path, width, height, chafa_args: str) -> str:
     chafa_cmd = [
         "chafa",
         *chafa_args.strip().split(),
-        "--format", "symbols",  # Fix issue #1 by forcing consistent rendering
+        "--format",
+        "symbols",  # Fix issue #1 by forcing consistent rendering
         f"--size={width}x{height}",
         path.as_posix(),
     ]
@@ -142,22 +148,29 @@ def render_frame(path, width, height, chafa_args: str) -> str:
     try:
         return subprocess.check_output(chafa_cmd, text=True)
     except subprocess.CalledProcessError as e:
-        print(f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {e.stderr}", file=sys.stderr)
+        print(
+            f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {e.stderr}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
 def get_video_dimensions(filename):
     cmd = [
         "ffprobe",
-        "-v", "error",
-        "-select_streams", "v:0",
-        "-show_entries", "stream=width,height",
-        "-of", "csv=s=x:p=0",
-        filename
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=width,height",
+        "-of",
+        "csv=s=x:p=0",
+        filename,
     ]
     try:
         output = subprocess.check_output(cmd, text=True).strip()
-        width_str, height_str = output.split('x')
+        width_str, height_str = output.split("x")
         return int(width_str), int(height_str)
     except subprocess.CalledProcessError:
         raise RuntimeError(f"Failed to get video dimensions: {filename}")
