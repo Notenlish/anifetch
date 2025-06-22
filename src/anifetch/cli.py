@@ -14,7 +14,7 @@ def parse_args():
         "-b",
         "--benchmark",
         default=False,
-        help="For testing. Runs Anifetch without actually starting the animation.",
+        help="For testing. Runs Anifetch without actually starting the animation and times how long it took. Also does the same for neofetch and fastfetch. Checks anifetch for both cached and not cached version.",
         action="store_true",
     )
     parser.add_argument(
