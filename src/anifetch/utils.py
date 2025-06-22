@@ -84,8 +84,8 @@ def check_codec_of_file(file: str):
         return None
 
 
-def extract_audio_from_file(BASE_PATH, file: str, extension):
-    audio_file = BASE_PATH / f"output_audio.{extension}"
+def extract_audio_from_file(CACHE_PATH, file: str, extension):
+    audio_file = CACHE_PATH / f"output_audio.{extension}"
     extract_cmd = [
         "ffmpeg",
         "-i",

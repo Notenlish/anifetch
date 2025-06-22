@@ -145,7 +145,6 @@ def run_anifetch(args):
             args.sound_saved_path = str(CACHE_PATH / f"output_audio.{ext}")
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
-
     if args.chroma and args.chroma.startswith("#"):
         print("[ERROR] Use '0x' prefix for chroma color, not '#'.", file=sys.stderr)
         sys.exit(1)
@@ -173,14 +172,33 @@ def run_anifetch(args):
         print("[WARNING] Cache folder found but output is missing. Will regenerate.")
         should_update = True
 
-    if should_update:
-        print("Caching...")
+    if not should_update:
+        try:
+            with open(CACHE_LIST_PATH, "r") as f:
+                all_caches = json.load(f)
+
+            for cache_args in all_caches:
+                if check_args_hash_same(cache_args, cleaned_dict):
+                    break
+            else:
+                print_verbose("Couldn't find a corresponding cache. Will cache the animation.")
+                should_update = True
+
+        except FileNotFoundError:
+            should_update = True
+
+
+    if not (CACHE_PATH / "output").exists():
+        print("[WARNING] Cache folder found but output is missing. Will regenerate.")
+        should_update = True
+    
+    print("Caching...")
 
     WIDTH = args.width
     # automatically calculate height if not given
     if "--height" not in sys.argv and "-H" not in sys.argv:
         try:
-            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename) #### Zob
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -238,8 +256,11 @@ def run_anifetch(args):
     if should_update:
         print_verbose(args.verbose, "SHOULD RENDER WITH CHAFA")
 
-        # delete all old frames
-        shutil.rmtree(VIDEO_DIR, ignore_errors=True)
+        # deletes the old cache
+        if CACHE_PATH.exists():
+            shutil.rmtree(CACHE_PATH)
+        
+        os.mkdir(CACHE_PATH)
         (VIDEO_DIR).mkdir(exist_ok=True)
 
         stdout = None if args.verbose else subprocess.DEVNULL
@@ -292,6 +313,8 @@ def run_anifetch(args):
                 print_verbose(args.verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
+            
+            cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
             
@@ -299,7 +322,6 @@ def run_anifetch(args):
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
         # Empty the directory to fix this.
-        shutil.rmtree(OUTPUT_DIR)
         os.mkdir(OUTPUT_DIR)
 
         print_verbose(args.verbose, "Emptied the output folder.")

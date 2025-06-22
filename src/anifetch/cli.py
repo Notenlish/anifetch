@@ -78,7 +78,7 @@ def parse_args():
         "-c",
         "--chafa-arguments",
         default="--symbols ascii --fg-only",
-        help="Specify the arguments to give to chafa. For more informations, use 'chafa --help'",
+        help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
     )
     parser.add_argument(
         "--force",
