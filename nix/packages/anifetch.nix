@@ -4,9 +4,6 @@
   lib,
   ...
 }: let
-  # loop = pkgs.writeShellScriptBin "anifetch-static-resize2.sh" ''
-  #   ${(builtins.readFile ../../src/anifetch/anifetch-static-resize2.sh)}
-  # '';
   fs = lib.fileset;
   sourceFiles = ../../.;
 in
@@ -24,12 +21,17 @@ in
       pkgs.python3Packages.setuptools
     ];
 
-    # TODO: need to add the platformdirs python dependency
     dependencies = [
       pkgs.bc
       pkgs.chafa
       pkgs.ffmpeg
       pkgs.python3Packages.platformdirs
-      # loop
     ];
+
+    meta = with lib; {
+      description = "neofetch but animated ";
+      homepage = "https://github.com/Notenlish/anifetch";
+      license = licenses.mit;
+      maintainers = with maintainers; [Immelancholy];
+    };
   }
