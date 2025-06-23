@@ -13,5 +13,6 @@ def main():
         run_anifetch(args)
 
 
+
 if __name__ == "__main__":
     main()

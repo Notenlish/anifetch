@@ -166,7 +166,7 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 - [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
 
-- [ ] Fix transparent video frame seperation.
+- [X] Fix transparent video frame seperation.
 
 - [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 
