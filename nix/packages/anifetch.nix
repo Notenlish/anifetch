@@ -16,6 +16,7 @@ in
       pkgs.python3Packages.setuptools
     ];
 
+    # TODO: need to add the platformdirs python dependency
     dependencies = [
       pkgs.bc
       pkgs.chafa

@@ -1,12 +1,8 @@
-# anifetch/cli.py
-
-'''
-    Anifetch CLI module for parsing command line arguments.
-'''
-
+"""
+Anifetch CLI module for parsing command line arguments.
+"""
 
 import argparse
-from .utils import get_asset_path
 
 
 def parse_args():
@@ -18,13 +14,11 @@ def parse_args():
         "-b",
         "--benchmark",
         default=False,
-        help="For testing. Runs Anifetch without actually starting the animation.",
+        help="For testing. Runs Anifetch without actually starting the animation and times how long it took. Also does the same for neofetch and fastfetch. Checks anifetch for both cached and not cached version.",
         action="store_true",
     )
     parser.add_argument(
         "filename",
-        nargs="?",
-        default=str(get_asset_path("example.mp4")),
         help="Video file to use (default: example.mp4)",
         type=str,
     )
@@ -98,11 +92,14 @@ def parse_args():
         help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
         action="store_true",
     )
-    parser.add_argument( 
+    parser.add_argument(
         "--chroma",
         required=False,
         nargs="?",
         help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
         type=str,
     )
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    return args

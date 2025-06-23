@@ -1,0 +1,43 @@
+name: Python Code Quality Check (Ruff)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install Ruff
+        run: pip install ruff
+      
+      - name: Run Ruff Check (Linting)
+        run: ruff check .
+        # if there are any issues it will exit with non-zero code.
+      
+      - name: Run Ruff Format Check
+        run: ruff format --check
+        # if there are any issues it will exit with non-zero code.
+      
+      - name: Show Unformatted Files For Debugging
+        if: failure()
+        run: |
+          echo "::error::Python code hasn't been formatted or has linting issues."
+          echo "Please run 'ruff check . --fix' and 'ruff format .' locally."
+          echo "Files with linting issues:"
+          ruff check . --statistics
+          echo "Files with formatting issues(diff):"
+          ruff format --check --diff .
+        # or --output-format=text to list them all

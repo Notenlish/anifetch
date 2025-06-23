@@ -1,15 +1,13 @@
-# anifetch/core.py
-
 """
-    Anifetch core module for running the animation.
+Anifetch core module for running the animation.
 """
-
 
 import json
 import os
 import pathlib
 import shutil
 import subprocess
+import errno
 import sys
 import time
 from .utils import (
@@ -18,6 +16,7 @@ from .utils import (
     get_text_length_of_formatted_text,
     get_ext_from_codec,
     get_data_path,
+    default_asset_presence_check,
     get_video_dimensions,
     get_neofetch_status,
     render_frame,
@@ -41,14 +40,29 @@ def run_anifetch(args):
     VIDEO_DIR = BASE_PATH / "video"
     OUTPUT_DIR = BASE_PATH / "output"
     CACHE_PATH = BASE_PATH / "cache.json"
+    ASSET_PATH = BASE_PATH / "assets"
 
+    (ASSET_PATH).mkdir(parents=True, exist_ok=True)
     (VIDEO_DIR).mkdir(exist_ok=True)
     (OUTPUT_DIR).mkdir(exist_ok=True)
 
+    default_asset_presence_check(ASSET_PATH)
 
-    if not pathlib.Path(args.filename).exists():
-        print(f"[ERROR] File not found: {args.filename}", file=sys.stderr)
-        sys.exit(1)
+    filename = pathlib.Path(args.filename)
+
+    # If the filename is relative, check if it exists in the assets directory.
+    if not filename.exists():
+        candidate = ASSET_PATH / filename
+        if candidate.exists():
+            filename = candidate
+        else:
+            print(
+                f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    args.filename = str(filename.resolve())
 
     if args.sound_flag_given:
         if args.sound:
@@ -101,12 +115,11 @@ def run_anifetch(args):
     if should_update:
         print("Caching...")
 
-
     WIDTH = args.width
     # automatically calculate height if not given
-    if not "--height" in sys.argv and not "-H" in sys.argv:
+    if "--height" not in sys.argv and "-H" not in sys.argv:
         try:
-            vid_w, vid_h = get_video_dimensions(args.filename)
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -116,28 +129,42 @@ def run_anifetch(args):
     else:
         HEIGHT = args.height
 
-
     # Get the fetch output(neofetch/fastfetch)
     if not args.fast_fetch:
-
-        if (neofetch_status == "wrapper" and args.force) or neofetch_status == "neofetch":
+        if (
+            neofetch_status == "wrapper" and args.force
+        ) or neofetch_status == "neofetch":
             # Get Neofetch Output
             fetch_output = subprocess.check_output(
                 ["neofetch", "--off"], text=True
             ).splitlines()
 
         elif neofetch_status == "uninstalled":
-                print("Neofetch is not installed. Please install Neofetch or Fastfetch.", file=sys.stderr)
-                sys.exit(1)
-
-        else:
-            print("Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.", file=sys.stderr)
+            print(
+                "Neofetch is not installed. Please install Neofetch or Fastfetch.",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
+        else:
+            print(
+                "Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
     else:
-        fetch_output = subprocess.check_output(
-            ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
-        ).splitlines()
+        try:
+            fetch_output = subprocess.check_output(
+                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
+            ).splitlines()
+        except FileNotFoundError as e:
+            if e.errno == errno.ENOENT:
+                print(
+                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH."
+                )
+                raise SystemExit
+            else:
+                raise Exception(e)
 
     # put cached frames here
     frames: list[str] = []
@@ -155,24 +182,34 @@ def run_anifetch(args):
         (VIDEO_DIR).mkdir(exist_ok=True)
 
         stdout = None if args.verbose else subprocess.DEVNULL
-        stderr = None if args.verbose else subprocess.STDOUT
+        stderr = None if args.verbose else subprocess.PIPE
 
-        result_ffmpeg = subprocess.run(
-            [
-                "ffmpeg",
-                "-i",
-                f"{args.filename}",
-                "-vf",
-                f"fps={args.framerate},format=rgba",
-                str(BASE_PATH / "video/%05d.png"),
-            ],
-            stdout=stdout,
-            stderr=stderr,
-            text=True
-        )
-        if result_ffmpeg.returncode != 0:
-            print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
-            sys.exit(1)
+        try:
+            result_ffmpeg = subprocess.run(
+                [
+                    "ffmpeg",
+                    "-i",
+                    f"{args.filename}",
+                    "-vf",
+                    f"fps={args.framerate},format=rgba",
+                    str(BASE_PATH / "video/%05d.png"),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+                text=True,
+            )
+        except FileNotFoundError as e:
+            if e.errno == errno.ENOENT:
+                print(
+                    "The command Ffmpeg was not found. You probably forgot to install it. You can install it by going to here: https://ffmpeg.org/download.html\n If you installed Ffmpeg but it still doesn't work, check your PATH."
+                )
+                raise SystemExit
+            else:
+                raise
+        else:
+            if result_ffmpeg.returncode != 0:
+                print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
+                sys.exit(1)
 
         print_verbose(args.sound_flag_given)
 
@@ -214,40 +251,49 @@ def run_anifetch(args):
             path = VIDEO_DIR / f
             frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
 
-
             chafa_lines = frame.splitlines()
 
             if args.center_mode:
                 # centering the fetch output or the chafa animation if needed.
                 len_chafa = len(chafa_lines)
 
-                if len_chafa < len_fetch:   # if the chafa animation is shorter than the fetch output
+                if (
+                    len_chafa < len_fetch
+                ):  # if the chafa animation is shorter than the fetch output
                     pad = (len_fetch - len_chafa) // 2
                     remind = (len_fetch - len_chafa) % 2
-                    chafa_lines.pop() # don't ask me why, the last line always seems to be empty
-                    chafa_lines = [' ' * WIDTH] * pad + chafa_lines + [' ' * WIDTH] * (pad + remind)
+                    chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
+                    chafa_lines = (
+                        [" " * WIDTH] * pad
+                        + chafa_lines
+                        + [" " * WIDTH] * (pad + remind)
+                    )
 
-                elif len_fetch < len_chafa:    # if the chafa animation is longer than the fetch output
+                elif (
+                    len_fetch < len_chafa
+                ):  # if the chafa animation is longer than the fetch output
                     pad = (len_chafa - len_fetch) // 2
                     remind = (len_chafa - len_fetch) % 2
-                    fetch_lines = [' ' * WIDTH] * pad + fetch_output +[' ' * WIDTH] * (pad + remind)
+                    fetch_lines = (
+                        [" " * WIDTH] * pad
+                        + fetch_output
+                        + [" " * WIDTH] * (pad + remind)
+                    )
 
                 if i == 0:
-                # updating the HEIGHT variable from the first frame
+                    # updating the HEIGHT variable from the first frame
                     HEIGHT = len(chafa_lines)
             else:
                 if i == 0:
                     len_chafa = len(chafa_lines)
                     pad = abs(len_fetch - len_chafa) // 2
                     remind = abs(len_fetch - len_chafa) % 2
-                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH 
+                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
 
-
-
-            frames.append('\n'.join(chafa_lines))
+            frames.append("\n".join(chafa_lines))
 
             with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
-                file.write('\n'.join(chafa_lines))
+                file.write("\n".join(chafa_lines))
 
             # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
             # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
@@ -259,13 +305,15 @@ def run_anifetch(args):
                 frame = file.read()
                 frames.append(frame)
             break  # first frame used for the template and the height
-        
+
         if args.center_mode:
             len_chafa = len(frame.splitlines())
             if len_fetch < len_chafa:
                 pad = (len_chafa - len_fetch) // 2
                 remind = (len_chafa - len_fetch) % 2
-                fetch_lines = [' ' * WIDTH] * pad + fetch_output + [' ' * WIDTH] * (pad + remind)
+                fetch_lines = (
+                    [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+                )
 
         with open(BASE_PATH / "frame.txt", "w") as f:
             f.writelines(frames)
@@ -288,40 +336,17 @@ def run_anifetch(args):
         args_dict = {key: value for key, value in args._get_kwargs()}
         json.dump(args_dict, f, indent=2)
 
+    if len(fetch_lines) == 0:
+        raise Exception("fetch_lines has no items in it:", fetch_lines)
+
     template = []
     for fetch_line in fetch_lines:
         output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
-        template.append(output + '\n')
-        output_width = get_text_length_of_formatted_text(output)
-        template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
+        template.append(output + "\n")
 
-
-        """with open("debug.txt", "w") as f:
-            f.writelines(
-                [
-                    "fetch_line:\n",
-                    fetch_line,
-                    "\n--------\n",
-                    "output:\n",
-                    output,
-                    "\n--------\n",
-                    "output_width:\n",
-                    str(output_width),
-                    "\n--------\n",
-                    "output_width_with_color:\n",
-                    str(output_width_with_color),
-                    "\n--------\n",
-                    "I have no idea what this is(something):\n",
-                    str(width_for_safe_space),
-                    "\n--------\n",
-                    "max_width:\n",
-                    str(max_width),
-                    "\n--------\n",
-                    "cleaned_line:\n",
-                    cleaned_line,
-                ]
-            )"""
-
+    # Only do this once instead of for every line.
+    output_width = get_text_length_of_formatted_text(output)
+    template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     # writing the tempate to a file.
     with open(BASE_PATH / "template.txt", "w") as f:
@@ -354,13 +379,13 @@ def run_anifetch(args):
                 str(LEFT),
                 str(RIGHT),
                 str(BOTTOM),
-                str(template_actual_width)
+                str(template_actual_width),
             ]
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
 
             print_verbose(script_args)
-            #raise SystemExit
+            # raise SystemExit
             subprocess.call(
                 script_args,
                 text=True,

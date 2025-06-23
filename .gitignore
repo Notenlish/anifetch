@@ -1,5 +1,6 @@
 .wakatime-project
 .ruff_cache/
+.flatpak-builder/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -164,3 +165,12 @@ cython_debug/
 
 /nix/result
 /result
+
+# --- Snapcraft ---
+prime/
+parts/
+stage/
+*.snap
+*.manifest
+*.assert
+*.summary
