@@ -24,6 +24,12 @@ def get_version_of_anifetch():
         raise Exception("Anifetch package not found.")
 
 
+def check_sound_flag_given(cmd):
+    if "--sound" in cmd:
+        return True
+    return False
+
+
 def print_verbose(verbose, *msg):
     if verbose:
         print(*msg)

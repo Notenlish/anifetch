@@ -21,8 +21,8 @@ from .utils import (
     get_neofetch_status,
     render_frame,
     print_verbose,
+    check_sound_flag_given,
 )
-
 
 GAP = 2
 PAD_LEFT = 4
@@ -31,7 +31,7 @@ PAD_LEFT = 4
 def run_anifetch(args):
     st = time.time()
 
-    args.sound_flag_given = bool(args.sound)
+    args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
     neofetch_status = get_neofetch_status()
 
@@ -55,7 +55,7 @@ def run_anifetch(args):
         candidate = ASSET_PATH / filename
         if candidate.exists():
             filename = candidate
-            print("EXISTS IN THE ASSET PATH", "candidate:", candidate)
+            # print("EXISTS IN THE ASSET PATH", "candidate:", candidate)
         else:
             print(
                 f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
@@ -112,7 +112,8 @@ def run_anifetch(args):
                         "benchmark",
                         "force_render",
                     ):  # These arguments don't invalidate the cache.
-                        print_verbose(
+                        print_verbose(  # TODO: this is a very ugly way of doing verbose debug printing
+                            args.verbose,
                             f"{key} INVALID! Will cache again. Value:{value} Cache:{cached_value}",
                         )
                         should_update = True
@@ -182,7 +183,7 @@ def run_anifetch(args):
 
     # cache is invalid, re-render
     if should_update:
-        print_verbose("SHOULD RENDER WITH CHAFA")
+        print_verbose(args.verbose, "SHOULD RENDER WITH CHAFA")
 
         # delete all old frames
         shutil.rmtree(VIDEO_DIR, ignore_errors=True)
@@ -218,34 +219,35 @@ def run_anifetch(args):
                 print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
                 sys.exit(1)
 
-        print_verbose(args.sound_flag_given)
+        print_verbose(args.verbose, args.sound_flag_given)
 
         if args.sound_flag_given:
             if args.sound:  # sound file given
-                print_verbose("Sound file to use:", args.sound)
+                print_verbose(args.verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)
                 dest = BASE_PATH / source.with_name(f"output_audio{source.suffix}")
                 shutil.copy(source, dest)
                 args.sound_saved_path = str(dest)
             else:
                 print_verbose(
-                    "No sound file specified, will attempt to extract it from video."
+                    args.verbose,
+                    "No sound file specified, will attempt to extract it from video.",
                 )
                 codec = check_codec_of_file(args.filename)
                 ext = get_ext_from_codec(codec)
                 audio_file = extract_audio_from_file(BASE_PATH, args.filename, ext)
-                print_verbose("Extracted audio file.")
+                print_verbose(args.verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
 
-            print_verbose(args.sound_saved_path)
+            print_verbose(args.verbose, args.sound_saved_path)
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
         # Empty the directory to fix this.
         shutil.rmtree(OUTPUT_DIR)
         os.mkdir(OUTPUT_DIR)
 
-        print_verbose("Emptied the output folder.")
+        print_verbose(args.verbose, "Emptied the output folder.")
 
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
@@ -336,7 +338,7 @@ def run_anifetch(args):
         else:
             args.sound_saved_path = None
 
-    print_verbose("-----------")
+    print_verbose(args.verbose, "-----------")
 
     # save the caching arguments
     with open(CACHE_PATH, "w") as f:
@@ -358,7 +360,7 @@ def run_anifetch(args):
     # writing the tempate to a file.
     with open(BASE_PATH / "template.txt", "w") as f:
         f.writelines(template)
-    print_verbose("Template updated")
+    print_verbose(args.verbose, "Template updated")
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
     TOP = 2
@@ -391,7 +393,7 @@ def run_anifetch(args):
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
 
-            print_verbose(script_args)
+            print_verbose(args.verbose, script_args)
             # raise SystemExit
             subprocess.call(
                 script_args,
