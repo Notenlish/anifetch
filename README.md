@@ -31,7 +31,16 @@ You need the following tools installed on your system:
 
 ---
 
-### ✅ Recommended Installation (for regular users): via `pipx`
+### ✅ Recommended Installation: via `pipx`
+
+🔧 Make sure `pipx` is installed:
+
+```bash
+sudo apt install pipx
+pipx ensurepath
+```
+
+and then:
 
 ```bash
 pipx install git+https://github.com/Notenlish/anifetch.git
@@ -40,19 +49,8 @@ pipx install git+https://github.com/Notenlish/anifetch.git
 This installs `anifetch` in an isolated environment, keeping your system Python clean.
 You can then run the `anifetch` command **directly in your terminal**.
 
-✅ **Benefits**:
+Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
-- Avoids dependency conflicts.
-- Doesn’t pollute your global Python environment.
-- Behaves like a native CLI tool.
-- Easy updates with `pipx upgrade anifetch`.
-
-🔧 Make sure `pipx` is installed:
-
-```bash
-sudo apt install pipx
-pipx ensurepath
-```
 
 ---
 
@@ -73,15 +71,14 @@ You can then run the program in two ways:
 - As a CLI: `anifetch`
 - Or as a module: `python3 -m anifetch` (useful for debugging or internal testing)
 
-⚠️ Avoid using `pip install` outside a virtual environment on systems like Ubuntu.
+⚠️ Please avoid using `pip install` outside a virtual environment on systems like Ubuntu.
 This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
 
 ## ▶️ How to Use It
 
-You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and integrate them automatically.
+You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that one of these must be installed, otherwise anifetch won't work. To use **fastfetch**, you must append `-ff` to the anifetch command.
 
-Place your video or gif file anywhere (e.g. your project folder).
-By default, the included test file `example.mp4` is used (you don't need to add any arguments in this case).
+Place your video or gif file anywhere (e.g. your project folder). If you give a relative path then you must be in the correct folder. Anifetch is packaged with an `example.mp4` video by default. You can use that to test anifetch.
 
 ### Example usage:
 
@@ -97,23 +94,15 @@ anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 - `-W` / `--width`: video width
 - `-H` / `--height`: video height (may be automatically fixed with the width)
 - `-c` / `--chafa`: extra arguments to pass to `chafa`
+- `-C` / `--center`: centers the terminal animation vertically
 - `-ff` / `--fast-fetch`: uses `fastfetch` instead of `neofetch` if available
+- `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken.
 
 For full help:
 
 ```bash
 anifetch --help
 ```
-
-## 🎯 Creating a Shortcut (if installed manually)
-
-If you did not use `pipx` and installed manually via `git` (for developpers), you can still create an alias in your shell config (`~/.bashrc`, `~/.zshrc`, etc.):
-
-```bash
-alias anifetch='python3 /path/to/anifetch.py -f /path/to/video.mp4'
-```
-
----
 
 ## 📊 Benchmarks
 

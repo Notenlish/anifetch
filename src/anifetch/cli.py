@@ -69,7 +69,7 @@ def parse_args():
     )
     parser.add_argument(
         "-C",
-        "--center-mode",
+        "--center",
         default=False,
         action="store_true",
         help="Disabled by default. Use this argument to center the animation relative to the fetch output. Note that centering may slow down the execution.",
