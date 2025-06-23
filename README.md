@@ -8,6 +8,8 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 
 ### Prerequisites
 
+Recommended Python version: 3.12 and later
+
 You need the following tools installed on your system:
 
 - `bc`
