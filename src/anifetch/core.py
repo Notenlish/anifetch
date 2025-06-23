@@ -63,16 +63,13 @@ def run_anifetch(args):
             )
             sys.exit(1)
 
-    original_path = pathlib.Path(args.filename)
-    
     newpath = ASSET_PATH / filename.name
-    
+
     try:
         shutil.copy(filename, newpath)
     except shutil.SameFileError:
         pass
     args.filename = str(newpath)
-    
 
     if args.sound_flag_given:
         if args.sound:
