@@ -99,6 +99,7 @@ def extract_audio_from_file(BASE_PATH, file: str, extension):
 
 def get_data_path():
     # on linux: /home/[username]/.local/share/anifetch
+    # windows: C:\\Users\\[Username]\\AppData\\Local\\anifetch\\anifetch
     base = pathlib.Path(user_data_dir(appname, appauthor))
     base.mkdir(parents=True, exist_ok=True)
     return base

@@ -80,6 +80,8 @@ You don't need to configure anything for `fastfetch` or `neofetch`. If they alre
 
 Place your video or gif file anywhere (e.g. your project folder). If you give a relative path then you must be in the correct folder. Anifetch is packaged with an `example.mp4` video by default. You can use that to test anifetch.
 
+Any video file you give to anifetch will be stored in `~/.local/share/anifetch/assets` folder for linux and `C:\\Users\\[Username]\\AppData\\Local\\anifetch\\anifetch\\assets` folder for windows. After running `anifetch` with this video file once, next time use anifetch, you will be able to use that same video file in any location by just using its filename, since the video file has been saved in `/assets`.
+
 ### Example usage:
 
 ```bash
