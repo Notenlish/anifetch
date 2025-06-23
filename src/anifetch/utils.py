@@ -10,10 +10,18 @@ import subprocess
 import sys
 from importlib.resources import files
 from platformdirs import user_data_dir
+from importlib.metadata import version, PackageNotFoundError
 import shutil
 
 appname = "anifetch"
 appauthor = "anifetch"
+
+
+def get_version_of_anifetch():
+    try:
+        return version("anifetch")
+    except PackageNotFoundError:
+        raise Exception("Anifetch package not found.")
 
 
 def print_verbose(verbose, *msg):

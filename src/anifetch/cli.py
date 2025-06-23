@@ -3,6 +3,7 @@ Anifetch CLI module for parsing command line arguments.
 """
 
 import argparse
+from .utils import get_version_of_anifetch
 
 
 def parse_args():
@@ -98,6 +99,11 @@ def parse_args():
         nargs="?",
         help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
         type=str,
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="%(prog)s {version}".format(version=get_version_of_anifetch()),
     )
 
     args = parser.parse_args()
