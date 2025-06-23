@@ -1,7 +1,5 @@
 import subprocess
 import time
-import os
-import shutil
 
 
 def time_check_nocache(args, count: int):
