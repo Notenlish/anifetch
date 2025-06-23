@@ -3,6 +3,7 @@
 """
 Anifetch utility module for common functions used across the application.
 """
+
 import pathlib
 import re
 import subprocess
@@ -90,9 +91,7 @@ def extract_audio_from_file(BASE_PATH, file: str, extension):
 
 def get_data_path():
     # on linux: /home/[username]/.local/share/anifetch
-    base = pathlib.Path(
-        user_data_dir(appname, appauthor)
-    )
+    base = pathlib.Path(user_data_dir(appname, appauthor))
     base.mkdir(parents=True, exist_ok=True)
     return base
 

@@ -343,43 +343,11 @@ def run_anifetch(args):
     for fetch_line in fetch_lines:
         output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
         template.append(output + "\n")
-<<<<<<< Updated upstream
 
     # Only do this once instead of for every line.
     output_width = get_text_length_of_formatted_text(output)
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
-=======
-        output_width = get_text_length_of_formatted_text(output)
-        template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
-
-        """with open("debug.txt", "w") as f:
-            f.writelines(
-                [
-                    "fetch_line:\n",
-                    fetch_line,
-                    "\n--------\n",
-                    "output:\n",
-                    output,
-                    "\n--------\n",
-                    "output_width:\n",
-                    str(output_width),
-                    "\n--------\n",
-                    "output_width_with_color:\n",
-                    str(output_width_with_color),
-                    "\n--------\n",
-                    "I have no idea what this is(something):\n",
-                    str(width_for_safe_space),
-                    "\n--------\n",
-                    "max_width:\n",
-                    str(max_width),
-                    "\n--------\n",
-                    "cleaned_line:\n",
-                    cleaned_line,
-                ]
-            )"""
-
->>>>>>> Stashed changes
     # writing the tempate to a file.
     with open(BASE_PATH / "template.txt", "w") as f:
         f.writelines(template)
