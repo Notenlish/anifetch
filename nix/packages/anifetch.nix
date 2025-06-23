@@ -1,16 +1,24 @@
 {
   python3Packages,
   pkgs,
+  lib,
   ...
 }: let
-  loop = pkgs.writeShellScriptBin "loop-anifetch.sh" ''
-    ${(builtins.readFile ../../loop-anifetch.sh)}
-  '';
-  anifetch-unwrapped = pkgs.writers.writePython3Bin "anifetch.py" {doCheck = false;} (builtins.readFile ../../anifetch.py);
+  # loop = pkgs.writeShellScriptBin "anifetch-static-resize2.sh" ''
+  #   ${(builtins.readFile ../../src/anifetch/anifetch-static-resize2.sh)}
+  # '';
+  fs = lib.fileset;
+  sourceFiles = ../../.;
 in
-  python3Packages.buildPythonPackage {
+  fs.trace sourceFiles
+  python3Packages.buildPythonApplication {
     name = "aniftech-wrapped";
-    src = anifetch-unwrapped;
+    version = "0.1.1";
+    pyproject = true;
+    src = fs.toSource {
+      root = ../../.;
+      fileset = sourceFiles;
+    };
 
     build-system = [
       pkgs.python3Packages.setuptools
@@ -21,20 +29,7 @@ in
       pkgs.bc
       pkgs.chafa
       pkgs.ffmpeg
-      loop
+      pkgs.python3Packages.platformdirs
+      # loop
     ];
-    preBuild = ''
-      cat > setup.py << EOF
-      from setuptools import setup
-
-      setup(
-        name='anifetch',
-        version='0.1.0',
-        scripts=['bin/anifetch.py'],
-      )
-      EOF
-    '';
-    postInstall = ''
-      mv $out/bin/anifetch.py $out/bin/anifetch
-    '';
   }
