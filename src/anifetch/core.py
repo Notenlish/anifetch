@@ -55,6 +55,7 @@ def run_anifetch(args):
         candidate = ASSET_PATH / filename
         if candidate.exists():
             filename = candidate
+            print("EXISTS IN THE ASSET PATH", "candidate:", candidate)
         else:
             print(
                 f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
@@ -62,7 +63,16 @@ def run_anifetch(args):
             )
             sys.exit(1)
 
-    args.filename = str(filename.resolve())
+    original_path = pathlib.Path(args.filename)
+    
+    newpath = ASSET_PATH / filename.name
+    
+    try:
+        shutil.copy(filename, newpath)
+    except shutil.SameFileError:
+        pass
+    args.filename = str(newpath)
+    
 
     if args.sound_flag_given:
         if args.sound:
@@ -100,7 +110,7 @@ def run_anifetch(args):
                     if key not in (
                         "playback_rate",
                         "verbose",
-                        "center-mode",
+                        "center",
                         "fast_fetch",
                         "benchmark",
                         "force_render",
@@ -253,7 +263,7 @@ def run_anifetch(args):
 
             chafa_lines = frame.splitlines()
 
-            if args.center_mode:
+            if args.center:
                 # centering the fetch output or the chafa animation if needed.
                 len_chafa = len(chafa_lines)
 
@@ -306,7 +316,7 @@ def run_anifetch(args):
                 frames.append(frame)
             break  # first frame used for the template and the height
 
-        if args.center_mode:
+        if args.center:
             len_chafa = len(frame.splitlines())
             if len_fetch < len_chafa:
                 pad = (len_chafa - len_fetch) // 2
