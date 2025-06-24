@@ -29,23 +29,21 @@ last_term_width=0
 
 # Hide cursor
 tput civis
-stty -icanon
-stty -echo
 
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
-	stty icanon
-	stty echo
   if [ -t 0 ]; then
     stty echo        # Restore echo
   fi
   tput sgr0          # Reset terminal attributes
   tput cup $(tput lines) 0  # Move cursor to bottom
+	stty icanon
   exit 0
 }
 trap cleanup SIGINT SIGTERM
 stty -echo  # won't allow ^C to be printed when SIGINT signal comes.
+stty -icanon
 
 # Process the template once and store in memory buffer
 process_template() {
