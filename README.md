@@ -54,6 +54,57 @@ Since pipx installs packages in an isolated environment, you won't have to worry
 
 ---
 
+### ❄️ NixOS installation via flakes
+
+❄️ Add the anifetch repo as a flake input:
+
+```nix
+{
+    inputs = {
+        anifetch = {
+            url = "github:Notenlish/anifetch";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+    };
+}
+```
+
+#### ❄️ As a package:
+
+Add anifetch to your packages list like so:
+
+
+```nix
+{inputs, ...}: {
+    environment.systemPackages = [
+        inputs.anifetch.packages.${pkgs.system}.default
+    ];
+}
+```
+
+#### ❄️ As an overlay:
+
+Add the overlay to nixpkgs overlays, then add the package to your package list as you would a package from the normal nixpkgs repo.
+
+```nix
+{inputs, pkgs, ...}: {
+    nixpkgs = {
+        overlays = [
+            inputs.anifetch.overlays.anifetch
+        ];
+    };
+
+    environment.systemPackages = with pkgs; [
+        anifetch
+    ];
+}
+
+```
+
+The Nix package contains all the dependencies in a wrapper script fro the application, so there is no need to necessarily also add them to your package list.
+
+---
+
 ### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
 
 ```bash
