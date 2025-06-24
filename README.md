@@ -76,7 +76,7 @@ Add anifetch to your packages list like so:
 
 ```nix
 {inputs, pkgs, ...}: {
-    environment.systemPackages = [
+    environment.systemPackages = with pkgs; [
         inputs.anifetch.packages.${pkgs.system}.default
         fastfetch # Choose either fastfetch or neofetch to run anifetch with
         neofetch
