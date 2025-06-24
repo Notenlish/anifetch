@@ -186,7 +186,9 @@ def get_video_dimensions(filename):
         filename,
     ]
     try:
-        output = subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT).strip()
+        output = subprocess.check_output(
+            cmd, text=True, stderr=subprocess.STDOUT
+        ).strip()
         # print("OUTPUT OF GET VIDEO DIMENSIONS:", output)
         width_str, height_str = output.split("x")
         return int(width_str), int(height_str)
