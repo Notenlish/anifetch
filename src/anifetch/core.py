@@ -192,7 +192,8 @@ def run_anifetch(args):
         print("[WARNING] Cache folder found but output is missing. Will regenerate.")
         should_update = True
 
-    print("Caching...")
+    if should_update:
+        print("Caching...")
 
     WIDTH = args.width
     # automatically calculate height if not given
