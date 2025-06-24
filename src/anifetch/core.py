@@ -48,29 +48,6 @@ def run_anifetch(args):
 
     default_asset_presence_check(ASSET_PATH)
 
-    filename = pathlib.Path(args.filename)
-
-    # If the filename is relative, check if it exists in the assets directory.
-    if not filename.exists():
-        candidate = ASSET_PATH / filename
-        if candidate.exists():
-            filename = candidate
-            # print("EXISTS IN THE ASSET PATH", "candidate:", candidate)
-        else:
-            print(
-                f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
-    newpath = ASSET_PATH / filename.name
-
-    try:
-        shutil.copy(filename, newpath)
-    except shutil.SameFileError:
-        pass
-    args.filename = str(newpath)
-
     CACHE_LIST_PATH = BASE_PATH / "caches.json"
 
     if args.cache_list:
@@ -114,6 +91,29 @@ def run_anifetch(args):
         save_caches_json(CACHE_LIST_PATH, [])
         print("All cache entries have been cleared.")
         sys.exit(0)
+
+    filename = pathlib.Path(args.filename)
+
+    # If the filename is relative, check if it exists in the assets directory.
+    if not filename.exists():
+        candidate = ASSET_PATH / filename
+        if candidate.exists():
+            filename = candidate
+            # print("EXISTS IN THE ASSET PATH", "candidate:", candidate)
+        else:
+            print(
+                f"[ERROR] File not found: {args.filename}\nMake sure the file exists or that it is in the correct directory.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    newpath = ASSET_PATH / filename.name
+
+    try:
+        shutil.copy(filename, newpath)
+    except shutil.SameFileError:
+        pass
+    args.filename = str(newpath)
 
     args_dict = {key: value for key, value in args._get_kwargs()}
     cleaned_dict = clean_cache_args(args_dict)

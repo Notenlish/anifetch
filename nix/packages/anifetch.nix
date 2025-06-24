@@ -10,7 +10,7 @@ in
   fs.trace sourceFiles
   python3Packages.buildPythonApplication {
     name = "aniftech-wrapped";
-    version = "1.1.0";
+    version = "1.1.1";
     pyproject = true;
     src = fs.toSource {
       root = ../../.;

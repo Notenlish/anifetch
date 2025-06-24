@@ -20,7 +20,9 @@ def parse_args():
     )
     parser.add_argument(
         "filename",
-        help="Video file to use (default: example.mp4)",
+        nargs="?",
+        default=None,
+        help="Video file to use (e.g. video.mp4).",
         type=str,
     )
     parser.add_argument(
