@@ -70,7 +70,7 @@ def run_anifetch(args):
     except shutil.SameFileError:
         pass
     args.filename = str(newpath)
-    
+
     CACHE_LIST_PATH = BASE_PATH / "caches.json"
 
     if args.cache_list:
@@ -101,7 +101,7 @@ def run_anifetch(args):
         if found:
             save_caches_json(CACHE_LIST_PATH, updated)
         sys.exit(0)
-    
+
     if args.clear:
         all_caches = get_caches_json(CACHE_LIST_PATH)
         for cache in all_caches:
@@ -115,11 +115,10 @@ def run_anifetch(args):
         print("All cache entries have been cleared.")
         sys.exit(0)
 
-
     args_dict = {key: value for key, value in args._get_kwargs()}
     cleaned_dict = clean_cache_args(args_dict)
     cleaned_dict["hash"] = hash_of_cache_args(cleaned_dict)
-    
+
     CACHE_PATH = BASE_PATH / cleaned_dict["hash"]
 
     VIDEO_DIR = CACHE_PATH / "video"
@@ -149,8 +148,7 @@ def run_anifetch(args):
         print("[ERROR] Use '0x' prefix for chroma color, not '#'.", file=sys.stderr)
         sys.exit(1)
 
-
-# check cache
+    # check cache
     should_update = args.force_render  # True if --force-render
 
     if not should_update:
@@ -161,12 +159,13 @@ def run_anifetch(args):
                 if check_args_hash_same(cache_args, cleaned_dict):
                     break
             else:
-                print_verbose("Couldn't find a corresponding cache. Will cache the animation.")
+                print_verbose(
+                    "Couldn't find a corresponding cache. Will cache the animation."
+                )
                 should_update = True
 
         except FileNotFoundError:
             should_update = True
-
 
     if not (CACHE_PATH / "output").exists() and not should_update:
         print("[WARNING] Cache folder found but output is missing. Will regenerate.")
@@ -181,24 +180,25 @@ def run_anifetch(args):
                 if check_args_hash_same(cache_args, cleaned_dict):
                     break
             else:
-                print_verbose("Couldn't find a corresponding cache. Will cache the animation.")
+                print_verbose(
+                    "Couldn't find a corresponding cache. Will cache the animation."
+                )
                 should_update = True
 
         except FileNotFoundError:
             should_update = True
 
-
     if not (CACHE_PATH / "output").exists():
         print("[WARNING] Cache folder found but output is missing. Will regenerate.")
         should_update = True
-    
+
     print("Caching...")
 
     WIDTH = args.width
     # automatically calculate height if not given
     if "--height" not in sys.argv and "-H" not in sys.argv:
         try:
-            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename) #### Zob
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)  #### Zob
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -259,7 +259,7 @@ def run_anifetch(args):
         # deletes the old cache
         if CACHE_PATH.exists():
             shutil.rmtree(CACHE_PATH)
-        
+
         os.mkdir(CACHE_PATH)
         (VIDEO_DIR).mkdir(exist_ok=True)
 
@@ -295,7 +295,9 @@ def run_anifetch(args):
 
         print_verbose(args.verbose, args.sound_flag_given)
 
-        if args.sound_flag_given:   #### Is this part really useful? Isn't it the same as the one on line 117?
+        if (
+            args.sound_flag_given
+        ):  #### Is this part really useful? Isn't it the same as the one on line 117?
             if args.sound:  # sound file given
                 print_verbose(args.verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)
@@ -313,11 +315,11 @@ def run_anifetch(args):
                 print_verbose(args.verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
-            
+
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
-            
+
             print_verbose(args.verbose, args.sound_saved_path)
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
@@ -409,19 +411,17 @@ def run_anifetch(args):
         # reloarding the cached output
         with open(CACHE_LIST_PATH, "r") as f:
             all_saved_caches = json.load(f)
-            corresponding_cache = find_corresponding_cache(cleaned_dict, all_saved_caches)
+            corresponding_cache = find_corresponding_cache(
+                cleaned_dict, all_saved_caches
+            )
 
         if args.sound_flag_given:
             args.sound_saved_path = corresponding_cache["sound_saved_path"]
         else:
             args.sound_saved_path = None
 
-
-
     print_verbose("-----------")
     print_verbose("ARGS FOR SAVING CACHES.JSON", args)
-
-
 
     # save the caching arguments
     caches_data = get_caches_json(CACHE_LIST_PATH)
@@ -464,7 +464,7 @@ def run_anifetch(args):
     script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
 
-    if not args.benchmark: # opitional?
+    if not args.benchmark:  # opitional?
         try:
             framerate_to_use = args.playback_rate
             if args.sound_flag_given:
