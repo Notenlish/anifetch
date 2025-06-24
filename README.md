@@ -119,6 +119,8 @@ Add the overlay to nixpkgs overlays, then add the package to your package list a
 
 The Nix package contains all the dependencies in a wrapper script for the application aside from fastfetch or neofetch, so you should only need to add one of those to your package list as well.
 
+After you've done these steps, rebuild your system.
+
 ---
 
 ### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
