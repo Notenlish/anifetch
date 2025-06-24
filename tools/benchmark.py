@@ -2,6 +2,7 @@
 
 """
 Benchmarking script for comparing the performance of Anifetch with Neofetch and Fastfetch.
+Only works with 'pip' installation.
 """
 
 import subprocess
@@ -26,7 +27,7 @@ def time_check(
 
 def run_all():
     count = 10
-    video = ""  # optionally: "-f example.mp4"
+    video = "example.mp4"
     common_args = f"{video} -W 60 -r 10 --benchmark"
 
     tests = [
