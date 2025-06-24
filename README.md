@@ -69,10 +69,23 @@ Since pipx installs packages in an isolated environment, you won't have to worry
 }
 ```
 
+Remember to add:
+
+```nix
+    specialArgs = {inherit inputs;};
+```
+
+to your nixos configuration, like I've done here on my system:
+
+```nix
+    nixosConfigurations = {
+      Enlil = nixpkgs.lib.nixosSystem {
+        specialArgs = {inherit inputs outputs;};
+```
+
 #### ❄️ As a package:
 
 Add anifetch to your packages list like so:
-
 
 ```nix
 {inputs, pkgs, ...}: {
@@ -82,17 +95,6 @@ Add anifetch to your packages list like so:
         neofetch
     ];
 }
-```
-Remember to add:
-```nix
-    specialArgs = {inherit inputs;};
-```
-to your nixos configuration, like I've done here on my system:
-
-```nix
-    nixosConfigurations = {
-      Enlil = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
 ```
 
 #### ❄️ As an overlay:
@@ -113,7 +115,6 @@ Add the overlay to nixpkgs overlays, then add the package to your package list a
         neofetch
     ];
 }
-
 ```
 
 The Nix package contains all the dependencies in a wrapper script for the application aside from fastfetch or neofetch, so you should only need to add one of those to your package list as well.
