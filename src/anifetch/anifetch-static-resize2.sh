@@ -28,10 +28,14 @@ last_term_width=0
 
 # Hide cursor
 tput civis
+stty -icanon
+stty -echo
 
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
+	stty icanon
+	stty echo
   if [ -t 0 ]; then
     stty echo        # Restore echo
   fi
