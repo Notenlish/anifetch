@@ -83,6 +83,17 @@ Add anifetch to your packages list like so:
     ];
 }
 ```
+Remember to add:
+```nix
+    specialArgs = {inherit inputs;};
+```
+to your nixos configuration, like I've done here on my system:
+
+```nix
+    nixosConfigurations = {
+      Enlil = nixpkgs.lib.nixosSystem {
+        specialArgs = {inherit inputs outputs;};
+```
 
 #### ❄️ As an overlay:
 
