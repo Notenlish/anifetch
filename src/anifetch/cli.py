@@ -20,7 +20,9 @@ def parse_args():
     )
     parser.add_argument(
         "filename",
-        help="Video file to use (default: example.mp4)",
+        nargs="?",
+        default=None,
+        help="Video file to use (e.g. video.mp4).",
         type=str,
     )
     parser.add_argument(
@@ -78,7 +80,7 @@ def parse_args():
         "-c",
         "--chafa-arguments",
         default="--symbols ascii --fg-only",
-        help="Specify the arguments to give to chafa. For more informations, use 'chafa --help'",
+        help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
     )
     parser.add_argument(
         "--force",
@@ -105,7 +107,24 @@ def parse_args():
         action="version",
         version="%(prog)s {version}".format(version=get_version_of_anifetch()),
     )
-
+    parser.add_argument(
+        "--cache-list",
+        required=False,
+        action="store_true",
+        help="List all saved cache configurations.",
+    )
+    parser.add_argument(
+        "--delete",
+        required=False,
+        type=str,
+        help="Delete a cache by its number (as listed with --cache-list)",
+    )
+    parser.add_argument(
+        "--clear",
+        required=False,
+        action="store_true",
+        help="Clear all saved cache configurations.",
+    )
     args = parser.parse_args()
 
     return args

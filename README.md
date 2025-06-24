@@ -51,7 +51,6 @@ You can then run the `anifetch` command **directly in your terminal**.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
-
 ---
 
 ### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
@@ -99,6 +98,19 @@ anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 - `-C` / `--center`: centers the terminal animation vertically
 - `-ff` / `--fast-fetch`: uses `fastfetch` instead of `neofetch` if available
 - `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken.
+
+### Cached files:
+
+Anifetch automatically caches rendered animations to speed up future runs. Each unique combination of video and render options generates a cache stored in ~/.local/share/anifetch/, organized by hash. This includes frames, output, and audio.
+
+Cache-related commands:
+anifetch --cache-list — View all cached configurations.
+
+anifetch --cache-delete <hash> — Delete a specific cache.
+
+anifetch --clear — Delete all cached files.
+
+Use --force-render to ignore the cache and re-render from scratch.
 
 For full help:
 
@@ -161,7 +173,7 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 - [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
 
-- [X] Fix transparent video frame seperation.
+- [x] Fix transparent video frame seperation.
 
 - [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 
