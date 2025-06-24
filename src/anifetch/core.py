@@ -57,26 +57,36 @@ def run_anifetch(args):
         else:
             print("Available caches:")
             for i, cache in enumerate(all_caches, 1):
-                line = f"[{i}] hash: {cache.get('hash', '???')} | video: {cache.get('filename', '?')} | width: {cache.get('width')} | chroma: {cache.get('chroma')}"
+                line = f"[{i}] video: {cache.get('filename', '?')} | width: {cache.get('width')} | chroma: {cache.get('chroma')}"
                 print(line)
         sys.exit(0)
 
     if args.delete:
         all_caches = get_caches_json(CACHE_LIST_PATH)
-        hash_to_delete = args.delete
-        updated = []
-        found = False
-        for cache in all_caches:
-            if cache.get("hash") == hash_to_delete:
-                found = True
-                cache_dir = BASE_PATH / hash_to_delete
-                if cache_dir.exists():
-                    shutil.rmtree(cache_dir)
-                    print(f"Deleted cache directory: {cache_dir}")
-            else:
-                updated.append(cache)
-        if found:
-            save_caches_json(CACHE_LIST_PATH, updated)
+
+        try:
+            index = int(args.delete) - 1
+            if not (0 <= index < len(all_caches)):
+                print(f"[ERROR] No cache found with number {args.delete}")
+                sys.exit(1)
+        except ValueError:
+            print(f"[ERROR] Invalid number: {args.delete}")
+            sys.exit(1)
+
+        cache_to_delete = all_caches[index]
+        hash_to_delete = cache_to_delete["hash"]
+        cache_dir = BASE_PATH / hash_to_delete
+
+        if cache_dir.exists():
+            shutil.rmtree(cache_dir)
+            print(f"Deleted cache directory: {cache_dir}")
+        else:
+            print("[WARNING] Cache directory already missing.")
+
+        # Remove from cache list and save
+        del all_caches[index]
+        save_caches_json(CACHE_LIST_PATH, all_caches)
+
         sys.exit(0)
 
     if args.clear:

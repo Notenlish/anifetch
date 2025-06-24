@@ -117,7 +117,7 @@ def parse_args():
         "--delete",
         required=False,
         type=str,
-        help="Delete a cache by its hash value.",
+        help="Delete a cache by its number (as listed with --cache-list)",
     )
     parser.add_argument(
         "--clear",
