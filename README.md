@@ -78,6 +78,8 @@ Add anifetch to your packages list like so:
 {inputs, ...}: {
     environment.systemPackages = [
         inputs.anifetch.packages.${pkgs.system}.default
+        fastfetch # Choose either fastfetch or neofetch to run anifetch with
+        neofetch
     ];
 }
 ```
@@ -96,12 +98,14 @@ Add the overlay to nixpkgs overlays, then add the package to your package list a
 
     environment.systemPackages = with pkgs; [
         anifetch
+        fastfetch # Choose either fastfetch or neofetch to run anifetch with
+        neofetch
     ];
 }
 
 ```
 
-The Nix package contains all the dependencies in a wrapper script fro the application, so there is no need to necessarily also add them to your package list.
+The Nix package contains all the dependencies in a wrapper script for the application aside from fastfetch or neofetch, so you should only need to add one of those to your package list as well.
 
 ---
 
