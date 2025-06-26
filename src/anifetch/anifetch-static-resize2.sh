@@ -35,10 +35,10 @@ cleanup() {
   tput cnorm         # Show cursor
   if [ -t 0 ]; then
     stty echo        # Restore echo
+    stty icanon
   fi
   tput sgr0          # Reset terminal attributes
   tput cup $(tput lines) 0  # Move cursor to bottom
-	stty icanon
   exit 0
 }
 trap cleanup SIGINT SIGTERM

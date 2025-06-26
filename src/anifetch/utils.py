@@ -221,18 +221,6 @@ def check_args_hash_same(args1: dict, args2: dict):
         return True
     return False
 
-    ######
-    same = True
-    for key, value in args1.items():
-        try:
-            cached_value = args2[key]
-        except KeyError:
-            same = False
-            break
-        if value != cached_value:  # check if all options match
-            same = False
-    return same
-
 
 def find_corresponding_cache(args: dict, all_saved_caches_list: list[dict]):
     corresponding = None
