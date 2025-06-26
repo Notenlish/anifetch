@@ -116,8 +116,9 @@ def parse_args():
     parser.add_argument(
         "--delete",
         required=False,
-        type=str,
-        help="Delete a cache by its number (as listed with --cache-list)",
+        type=int,
+        nargs="+",
+        help="Delete one or more caches by number(s) (as listed with --cache-list)",
     )
     parser.add_argument(
         "--clear",

@@ -63,30 +63,30 @@ def run_anifetch(args):
 
     if args.delete:
         all_caches = get_caches_json(CACHE_LIST_PATH)
+        to_delete = sorted(set(args.delete), reverse=True)
+        max_index = len(all_caches)
 
-        try:
-            index = int(args.delete) - 1
-            if not (0 <= index < len(all_caches)):
-                print(f"[ERROR] No cache found with number {args.delete}")
-                sys.exit(1)
-        except ValueError:
-            print(f"[ERROR] Invalid number: {args.delete}")
-            sys.exit(1)
+        for index in to_delete:
+            real_index = index - 1
+            if not (0 <= real_index < max_index):
+                print(f"[ERROR] No cache found with number {index}")
+                continue
 
-        cache_to_delete = all_caches[index]
-        hash_to_delete = cache_to_delete["hash"]
-        cache_dir = BASE_PATH / hash_to_delete
+            cache = all_caches[real_index]
+            hash_to_delete = cache["hash"]
+            cache_dir = BASE_PATH / hash_to_delete
 
-        if cache_dir.exists():
-            shutil.rmtree(cache_dir)
-            print(f"Deleted cache directory: {cache_dir}")
-        else:
-            print("[WARNING] Cache directory already missing.")
+            if cache_dir.exists():
+                shutil.rmtree(cache_dir)
+                print(f"Deleted cache directory: {cache_dir}")
+            else:
+                print(f"[WARNING] Cache directory {cache_dir} already missing.")
 
-        # Remove from cache list and save
-        del all_caches[index]
+            # Supprimer du cache JSON
+            del all_caches[real_index]
+            max_index -= 1  # car on modifie la liste au fur et à mesure
+
         save_caches_json(CACHE_LIST_PATH, all_caches)
-
         sys.exit(0)
 
     if args.clear:
