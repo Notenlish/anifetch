@@ -74,6 +74,15 @@ You can then run the program in two ways:
 ⚠️ Please avoid using `pip install` outside a virtual environment on systems like Ubuntu.
 This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
 
+On Nix you can run:
+
+```bash
+nix develop
+pip install -e .
+```
+
+inside the anifetch dir after cloning the repo. This creates a python venv you can re-enter by running `nix develop` inside the project dir.
+
 ## ▶️ How to Use It
 
 You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that one of these must be installed, otherwise anifetch won't work. To use **fastfetch**, you must append `-ff` to the anifetch command.
