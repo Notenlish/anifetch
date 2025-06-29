@@ -431,8 +431,8 @@ def run_anifetch(args):
         else:
             args.sound_saved_path = None
 
-    print_verbose("-----------")
-    print_verbose("ARGS FOR SAVING CACHES.JSON", args)
+    print_verbose(args.verbose, "-----------")
+    print_verbose(args.verbose, "ARGS FOR SAVING CACHES.JSON")
 
     # save the caching arguments
     caches_data = get_caches_json(CACHE_LIST_PATH)
