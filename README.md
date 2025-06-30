@@ -137,6 +137,11 @@ If you set animation resolution really big it may not be able to keep up with th
 
 Currently only the `symbols` format of chafa is supported, formats like kitty, iterm etc. are not supported. If you try to tell chafa to use iterm, kitty etc. it will just override your format with `symbols` mode.
 
+## Running Anifetch On Terminal Startup
+
+Add `exec anifetch [YOUR_FILENAME] [YOUR_ARGS] &` to the bottom of your `.bashrc`
+
+
 ## 🚧 What's Next
 
 - [x] Add music support
