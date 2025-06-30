@@ -87,6 +87,8 @@ Any video file you give to anifetch will be stored in `~/.local/share/anifetch/a
 anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 ```
 
+_Note : by default, the video `example.mp4` can directly be used as an example._
+
 ### Optional arguments:
 
 - `-f` / `--file`: path to the video file (the path can be added without the `-f` argument)
@@ -101,16 +103,17 @@ anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 
 ### Cached files:
 
-Anifetch automatically caches rendered animations to speed up future runs. Each unique combination of video and render options generates a cache stored in ~/.local/share/anifetch/, organized by hash. This includes frames, output, and audio.
+Anifetch automatically caches rendered animations to speed up future runs. Each unique combination of video and render options generates a cache stored in `~/.local/share/anifetch/`, organized by hash. This includes frames, output, and audio.
 
 Cache-related commands:
-anifetch --cache-list — View all cached configurations.
 
-anifetch --cache-delete <hash> — Delete a specific cache.
+`anifetch --cache-list` — View all cached configurations and orders them.
 
-anifetch --clear — Delete all cached files.
+`anifetch --cache-delete <number>` — Delete a specific cache.
 
-Use --force-render to ignore the cache and re-render from scratch.
+`anifetch --clear` — Delete all cached files.
+
+Note that modifying the content of a video file but keeping the same name makes Anifetch still use the old cache. In that case, use `--force-render` to bypass the cache and generate a new version.
 
 For full help:
 
