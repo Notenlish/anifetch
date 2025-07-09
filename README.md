@@ -51,7 +51,6 @@ You can then run the `anifetch` command **directly in your terminal**.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
-
 ---
 
 ### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
@@ -139,8 +138,7 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 ## Running Anifetch On Terminal Startup
 
-Add `exec anifetch [YOUR_FILENAME] [YOUR_ARGS] &` to the bottom of your `.bashrc`
-
+Add `anifetch [YOUR_FILENAME] [YOUR_ARGS]` to the bottom of your `.bashrc`
 
 ## 🚧 What's Next
 
@@ -166,7 +164,7 @@ Add `exec anifetch [YOUR_FILENAME] [YOUR_ARGS] &` to the bottom of your `.bashrc
 
 - [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
 
-- [X] Fix transparent video frame seperation.
+- [x] Fix transparent video frame seperation.
 
 - [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 

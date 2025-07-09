@@ -15,6 +15,7 @@ left=$3
 right=$4
 bottom=$5
 template_actual_width=$6
+# last arg(optional)
 soundname=$7
 
 num_lines=$((bottom - top))
@@ -32,17 +33,32 @@ tput civis
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
-  if [ -t 0 ]; then
-    stty echo        # Restore echo
-		stty icanon
-  fi
+  # whats wrong with stty
+    if [ -c /dev/tty ]; then # Check if /dev/tty is a character device
+    stty echo < /dev/tty   # Restore echo
+    stty icanon < /dev/tty # Restore canonical mode
+    else
+    # Fallback for if /dev/tty is not available or not a character device.
+    # This might still fail though
+    stty echo
+    stty icanon
+    fi
+
   tput sgr0          # Reset terminal attributes
-  tput cup $(tput lines) 0  # Move cursor to bottom
+  tput cup $(tput lines) 0 # Move cursor to bottom
   exit 0
 }
+
 trap cleanup SIGINT SIGTERM
-stty -echo  # won't allow ^C to be printed when SIGINT signal comes.
+
+# Apply stty commands, redirect stdin from /dev/tty
+if [ -c /dev/tty ]; then
+stty -echo < /dev/tty
+stty -icanon < /dev/tty
+else
+stty -echo
 stty -icanon
+fi
 
 # Process the template once and store in memory buffer
 process_template() {
@@ -225,7 +241,6 @@ i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
-  
   for frame in $(ls "$FRAME_DIR" | sort -n); do
     lock=true
     current_top=$top
@@ -238,7 +253,6 @@ while true; do
         fi
     done < "$FRAME_DIR/$frame"
     lock=false
-    
     wanted_epoch=$(echo "$i/$framerate" | bc -l)
 
     # current time in seconds (with fractional part)
@@ -253,7 +267,6 @@ while true; do
     fi
 
     i=$((i + 1))
-    
     process_resize_if_needed
   done
   sleep 0.005
