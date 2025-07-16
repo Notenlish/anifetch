@@ -243,10 +243,8 @@ wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
   # Check for any key press (non-blocking) - only if key-exit is enabled
-  if [ "$key_exit_enabled" = true ]; then
-    if read -t 0 -n 1 pressed_key; then
-      cleanup
-    fi
+  if read -t 0 -n 1 pressed_key && [ "$key_exit_enabled" = true ]; then
+    cleanup
   fi
   
   for frame in $(ls "$FRAME_DIR" | sort -n); do
