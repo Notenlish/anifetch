@@ -225,6 +225,10 @@ i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
+  # Check for any key press (non-blocking)
+  if read -t 0 -n 1; then
+    cleanup
+  fi
   
   for frame in $(ls "$FRAME_DIR" | sort -n); do
     lock=true
@@ -249,7 +253,15 @@ while true; do
 
     # Only sleep if ahead of schedule
     if (( $(echo "$sleep_duration > 0" | bc -l) )); then
-        sleep "$sleep_duration"
+        # Check for key press during sleep
+        if read -t "$sleep_duration" -n 1; then
+            cleanup
+        fi
+    else
+        # Check for key press (non-blocking)
+        if read -t 0 -n 1; then
+            cleanup
+        fi
     fi
 
     i=$((i + 1))
