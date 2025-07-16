@@ -41,16 +41,11 @@ cleanup() {
   fi
   tput sgr0          # Reset terminal attributes
   
-  # Calculate total height: template lines + animation height
-  local template_height=${#template_buffer[@]}
-  local total_height=$((template_height + (bottom - top)))
-  
-  # Position cursor right under the entire output
-  cursor_pos=$((total_height + 1))
+  cursor_pos=$((bottom + 1))
   tput cup $cursor_pos 0
   
   # Small delay to ensure terminal is ready before key echo
-  sleep 0.1
+  sleep 0.5
   
   # Echo the captured key
   if [ -n "$pressed_key" ]; then
