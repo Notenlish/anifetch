@@ -47,7 +47,7 @@ cleanup() {
   fi
   tput sgr0          # Reset terminal attributes
   
-  cursor_pos=$((bottom + 5))
+  cursor_pos=$((bottom + 10))
   tput cup $cursor_pos 0
   
   # Echo the captured key in background after a delay (only if key-exit is enabled)
