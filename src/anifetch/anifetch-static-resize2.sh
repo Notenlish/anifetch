@@ -29,6 +29,9 @@ last_term_width=0
 # Hide cursor
 tput civis
 
+# Global variable to store the pressed key
+pressed_key=""
+
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
@@ -38,12 +41,21 @@ cleanup() {
   fi
   tput sgr0          # Reset terminal attributes
   
-  # Position cursor right under the neofetch output (bottom + 1)
-  cursor_pos=$((bottom + 1))
+  # Calculate total height: template lines + animation height
+  local template_height=${#template_buffer[@]}
+  local total_height=$((template_height + (bottom - top)))
+  
+  # Position cursor right under the entire output
+  cursor_pos=$((total_height + 1))
   tput cup $cursor_pos 0
   
   # Small delay to ensure terminal is ready before key echo
   sleep 0.1
+  
+  # Echo the captured key
+  if [ -n "$pressed_key" ]; then
+    echo -n "$pressed_key"
+  fi
   
   exit 0
 }
@@ -233,7 +245,7 @@ wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
   # Check for any key press (non-blocking)
-  if read -t 0 -n 1; then
+  if read -t 0 -n 1 pressed_key; then
     cleanup
   fi
   
@@ -261,12 +273,12 @@ while true; do
     # Only sleep if ahead of schedule
     if (( $(echo "$sleep_duration > 0" | bc -l) )); then
         # Check for key press during sleep
-        if read -t "$sleep_duration" -n 1; then
+        if read -t "$sleep_duration" -n 1 pressed_key; then
             cleanup
         fi
     else
         # Check for key press (non-blocking)
-        if read -t 0 -n 1; then
+        if read -t 0 -n 1 pressed_key; then
             cleanup
         fi
     fi
