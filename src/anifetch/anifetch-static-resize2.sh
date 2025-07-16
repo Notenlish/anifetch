@@ -4,8 +4,8 @@ FRAME_DIR="$HOME/.local/share/anifetch/output"
 STATIC_TEMPLATE_FILE="$HOME/.local/share/anifetch/template.txt"
 
 # check for num of args
-if [[ $# -ne 6 && $# -ne 7 ]]; then
-  echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
+if [[ $# -ne 6 && $# -ne 7 && $# -ne 8 ]]; then
+  echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname] [--key-exit]"
   exit 1
 fi
 
@@ -16,6 +16,12 @@ right=$4
 bottom=$5
 template_actual_width=$6
 soundname=$7
+
+# Check if key-exit functionality is enabled
+key_exit_enabled=false
+if [[ $# -eq 8 && "$8" == "--key-exit" ]]; then
+  key_exit_enabled=true
+fi
 
 num_lines=$((bottom - top))
 sleep_time=$(echo "scale=4; 1 / $framerate" | bc)
@@ -44,8 +50,8 @@ cleanup() {
   cursor_pos=$((bottom + 5))
   tput cup $cursor_pos 0
   
-  # Echo the captured key in background after a delay
-  if [ -n "$pressed_key" ]; then
+  # Echo the captured key in background after a delay (only if key-exit is enabled)
+  if [ "$key_exit_enabled" = true ] && [ -n "$pressed_key" ]; then
     wtype "$pressed_key"
   fi
   
@@ -236,9 +242,11 @@ i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
-  # Check for any key press (non-blocking)
-  if read -t 0 -n 1 pressed_key; then
-    cleanup
+  # Check for any key press (non-blocking) - only if key-exit is enabled
+  if [ "$key_exit_enabled" = true ]; then
+    if read -t 0 -n 1 pressed_key; then
+      cleanup
+    fi
   fi
   
   for frame in $(ls "$FRAME_DIR" | sort -n); do
@@ -263,16 +271,23 @@ while true; do
     sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
 
     # Only sleep if ahead of schedule
-    if (( $(echo "$sleep_duration > 0" | bc -l) )); then
-        # Check for key press during sleep
-        if read -t "$sleep_duration" -n 1 pressed_key; then
-            cleanup
-        fi
+    if [ "$key_exit_enabled" = true ]; then
+      if (( $(echo "$sleep_duration > 0" | bc -l) )); then
+          # Check for key press during sleep
+          if read -t "$sleep_duration" -n 1 pressed_key; then
+              cleanup
+          fi
+      else
+          # Check for key press (non-blocking)
+          if read -t 0 -n 1 pressed_key; then
+              cleanup
+          fi
+      fi
     else
-        # Check for key press (non-blocking)
-        if read -t 0 -n 1 pressed_key; then
-            cleanup
-        fi
+      # If key-exit is not enabled, just sleep normally
+      if (( $(echo "$sleep_duration > 0" | bc -l) )); then
+          sleep "$sleep_duration"
+      fi
     fi
 
     i=$((i + 1))

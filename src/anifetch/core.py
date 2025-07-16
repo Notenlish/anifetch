@@ -392,6 +392,8 @@ def run_anifetch(args):
             ]
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
+            if args.key_exit:  # if user requested key exit functionality
+                script_args.append("--key-exit")
 
             print_verbose(args.verbose, script_args)
             # raise SystemExit

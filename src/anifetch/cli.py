@@ -105,6 +105,13 @@ def parse_args():
         action="version",
         version="%(prog)s {version}".format(version=get_version_of_anifetch()),
     )
+    parser.add_argument(
+        "-k",
+        "--key-exit",
+        default=False,
+        action="store_true",
+        help="Enable key press to exit functionality. When enabled, pressing any key will exit the animation and echo the key to the terminal.",
+    )
 
     args = parser.parse_args()
 
