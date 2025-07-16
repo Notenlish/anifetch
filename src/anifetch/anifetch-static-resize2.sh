@@ -41,15 +41,12 @@ cleanup() {
   fi
   tput sgr0          # Reset terminal attributes
   
-  cursor_pos=$((bottom + 1))
+  cursor_pos=$((bottom + 5))
   tput cup $cursor_pos 0
   
-  # Small delay to ensure terminal is ready before key echo
-  sleep 0.5
-  
-  # Echo the captured key
+  # Echo the captured key in background after a delay
   if [ -n "$pressed_key" ]; then
-    echo -n "$pressed_key"
+    (sleep 0.2 && echo -n "$pressed_key") &
   fi
   
   exit 0
