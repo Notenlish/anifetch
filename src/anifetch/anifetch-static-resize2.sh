@@ -19,7 +19,7 @@ soundname=$7
 
 # Check if key-exit functionality is enabled
 key_exit_enabled=false
-if [[ $# -eq 8 && "$8" == "--key-exit" ]]; then
+if [[ "${!#}" == "--key-exit" ]]; then
   key_exit_enabled=true
 fi
 
