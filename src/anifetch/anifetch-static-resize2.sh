@@ -52,7 +52,11 @@ cleanup() {
   
   # Echo the captured key in background after a delay (only if key-exit is enabled)
   if [ "$key_exit_enabled" = true ] && [ -n "$pressed_key" ]; then
-    wtype "$pressed_key"
+    if [ -n "$WAYLAND_DISPLAY" ]; then
+      wtype "$pressed_key"
+    elif [ -n "$DISPLAY" ]; then
+      xdotool type "$pressed_key"
+    fi
   fi
   
   exit 0
