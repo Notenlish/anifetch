@@ -34,10 +34,17 @@ cleanup() {
   tput cnorm         # Show cursor
   if [ -t 0 ]; then
     stty echo        # Restore echo
-		stty icanon
+    stty icanon
   fi
   tput sgr0          # Reset terminal attributes
-  tput cup $(tput lines) 0  # Move cursor to bottom
+  
+  # Position cursor right under the neofetch output (bottom + 1)
+  cursor_pos=$((bottom + 1))
+  tput cup $cursor_pos 0
+  
+  # Small delay to ensure terminal is ready before key echo
+  sleep 0.1
+  
   exit 0
 }
 trap cleanup SIGINT SIGTERM
