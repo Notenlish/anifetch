@@ -46,7 +46,13 @@ cleanup() {
   
   # Echo the captured key in background after a delay
   if [ -n "$pressed_key" ]; then
-    (sleep 0.2 && printf "%s" "$pressed_key" | cat > /dev/tty) &
+    if command -v xdotool >/dev/null 2>&1; then
+      # Use xdotool to simulate actual keyboard input
+      (sleep 0.2 && xdotool type "$pressed_key") &
+    else
+      # Fallback: try to write to terminal input
+      (sleep 0.2 && printf "%s" "$pressed_key" > /dev/tty) &
+    fi
   fi
   
   exit 0
