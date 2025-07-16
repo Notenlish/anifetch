@@ -46,7 +46,7 @@ cleanup() {
   
   # Echo the captured key in background after a delay
   if [ -n "$pressed_key" ]; then
-    (sleep 0.2 && echo -n "$pressed_key") &
+    (sleep 0.2 && printf "%s" "$pressed_key" | cat > /dev/tty) &
   fi
   
   exit 0
