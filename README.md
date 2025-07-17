@@ -138,7 +138,16 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 ## Running Anifetch On Terminal Startup
 
-Add `anifetch [YOUR_FILENAME] [YOUR_ARGS]` to the bottom of your `.bashrc`
+Add this to the bottom of your `.bashrc` or `.zshrc`
+
+```sh
+# Only launch this program on direct terminal (tty) sessions
+if [[ -t 1 ]] && [[ $- == *i* ]]; then
+  anifetch [FILENAME] [ARGS]
+fi
+```
+
+also make sure PATH is available(for pipx installations) so it can find anifetch.
 
 ## 🚧 What's Next
 
