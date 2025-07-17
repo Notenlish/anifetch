@@ -260,7 +260,6 @@ while true; do
     
     # if behind schedule
     if (( $(echo "$sleep_duration < 0" | bc -l) )); then
-        echo "skipping frame $i (behind by ${sleep_duration}s)" >> "$HOME/Desktop/anifetch-debug.log"
         i=$((i + 1))
         
         continue  # skip to the next frame.
