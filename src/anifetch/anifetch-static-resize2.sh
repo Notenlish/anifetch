@@ -44,6 +44,11 @@ cleanup() {
     stty icanon
     fi
 
+  # Kill ffplay if it's running
+  if [[ -n "$ffplay_pid" ]] && ps -p "$ffplay_pid" > /dev/null 2>&1; then
+      kill "$ffplay_pid"
+  fi
+
   tput sgr0          # Reset terminal attributes
   tput cup $(tput lines) 0 # Move cursor to bottom
   exit 0
@@ -234,7 +239,7 @@ draw_static_template
 
 # Start audio if sound is provided
 if [ $# -eq 7 ]; then
-  ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
+  ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" & ffplay_pid=$!
 fi
 
 i=1
@@ -242,8 +247,25 @@ wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
   for frame in $(ls "$FRAME_DIR" | sort -n); do
+    wanted_epoch=$(echo "$i/$framerate" | bc -l)  
+    
+    # current time in seconds (with fractional part)
+    now=$(date +%s.%N)
+    
+    # Calculate how long to sleep to stay in sync
+    sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
+    
     lock=true
     current_top=$top
+    
+    # if behind schedule
+    if (( $(echo "$sleep_duration < 0" | bc -l) )); then
+        echo "skipping frame $i (behind by ${sleep_duration}s)" >> "$HOME/Desktop/anifetch-debug.log"
+        i=$((i + 1))
+        
+        continue  # skip to the next frame.
+    fi
+    
     while IFS= read -r line; do
         tput cup "$current_top" "$left"
         echo -ne "$line"
@@ -253,19 +275,12 @@ while true; do
         fi
     done < "$FRAME_DIR/$frame"
     lock=false
-    wanted_epoch=$(echo "$i/$framerate" | bc -l)
-
-    # current time in seconds (with fractional part)
-    now=$(date +%s.%N)
-
-    # Calculate how long to sleep to stay in sync
-    sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
 
     # Only sleep if ahead of schedule
     if (( $(echo "$sleep_duration > 0" | bc -l) )); then
         sleep "$sleep_duration"
     fi
-
+    
     i=$((i + 1))
     process_resize_if_needed
   done
