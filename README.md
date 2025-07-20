@@ -264,3 +264,7 @@ Neofetch: [Neofetch](https://github.com/dylanaraps/neofetch)
 I got the base neofetch config from here, spesifically the Bejkon 2 config file: [Neofetch Themes by Chick2D](https://github.com/Chick2D/neofetch-themes)
 
 I'd like to thank Pewdiepie for creating his Linux video. I got the inspiration for this tool from his video. [Video](https://m.youtube.com/watch?v=pVI_smLgTY0&t=878s&pp=ygUJcGV3ZGllcGll)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Notenlish/anifetch&type=Date)](https://www.star-history.com/#Notenlish/anifetch&Date)
