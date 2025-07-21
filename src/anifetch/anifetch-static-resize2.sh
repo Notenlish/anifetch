@@ -15,6 +15,7 @@ left=$3
 right=$4
 bottom=$5
 template_actual_width=$6
+# last arg(optional)
 soundname=$7
 
 num_lines=$((bottom - top))
@@ -32,17 +33,37 @@ tput civis
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
-  if [ -t 0 ]; then
-    stty echo        # Restore echo
-		stty icanon
+  # whats wrong with stty
+    if [ -c /dev/tty ]; then # Check if /dev/tty is a character device
+    stty echo < /dev/tty   # Restore echo
+    stty icanon < /dev/tty # Restore canonical mode
+    else
+    # Fallback for if /dev/tty is not available or not a character device.
+    # This might still fail though
+    stty echo
+    stty icanon
+    fi
+
+  # Kill ffplay if it's running
+  if [[ -n "$ffplay_pid" ]] && ps -p "$ffplay_pid" > /dev/null 2>&1; then
+      kill "$ffplay_pid"
   fi
+
   tput sgr0          # Reset terminal attributes
-  tput cup $(tput lines) 0  # Move cursor to bottom
+  tput cup $(tput lines) 0 # Move cursor to bottom
   exit 0
 }
+
 trap cleanup SIGINT SIGTERM
-stty -echo  # won't allow ^C to be printed when SIGINT signal comes.
+
+# Apply stty commands, redirect stdin from /dev/tty
+if [ -c /dev/tty ]; then
+stty -echo < /dev/tty
+stty -icanon < /dev/tty
+else
+stty -echo
 stty -icanon
+fi
 
 # Process the template once and store in memory buffer
 process_template() {
@@ -218,17 +239,32 @@ draw_static_template
 
 # Start audio if sound is provided
 if [ $# -eq 7 ]; then
-  ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
+  ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" & ffplay_pid=$!
 fi
 
 i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
-  
   for frame in $(ls "$FRAME_DIR" | sort -n); do
+    wanted_epoch=$(echo "$i/$framerate" | bc -l)  
+    
+    # current time in seconds (with fractional part)
+    now=$(date +%s.%N)
+    
+    # Calculate how long to sleep to stay in sync
+    sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
+    
     lock=true
     current_top=$top
+    
+    # if behind schedule
+    if (( $(echo "$sleep_duration < 0" | bc -l) )); then
+        i=$((i + 1))
+        
+        continue  # skip to the next frame.
+    fi
+    
     while IFS= read -r line; do
         tput cup "$current_top" "$left"
         echo -ne "$line"
@@ -238,22 +274,13 @@ while true; do
         fi
     done < "$FRAME_DIR/$frame"
     lock=false
-    
-    wanted_epoch=$(echo "$i/$framerate" | bc -l)
-
-    # current time in seconds (with fractional part)
-    now=$(date +%s.%N)
-
-    # Calculate how long to sleep to stay in sync
-    sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
 
     # Only sleep if ahead of schedule
     if (( $(echo "$sleep_duration > 0" | bc -l) )); then
         sleep "$sleep_duration"
     fi
-
-    i=$((i + 1))
     
+    i=$((i + 1))
     process_resize_if_needed
   done
   sleep 0.005

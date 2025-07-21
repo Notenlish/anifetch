@@ -51,7 +51,6 @@ You can then run the `anifetch` command **directly in your terminal**.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
-
 ---
 
 ### ❄️ NixOS installation via flakes
@@ -215,6 +214,19 @@ If you set animation resolution really big it may not be able to keep up with th
 
 Currently only the `symbols` format of chafa is supported, formats like kitty, iterm etc. are not supported. If you try to tell chafa to use iterm, kitty etc. it will just override your format with `symbols` mode.
 
+## Running Anifetch On Terminal Startup
+
+Add this to the bottom of your `.bashrc` or `.zshrc`
+
+```sh
+# Only launch this program on direct terminal (tty) sessions
+if [[ -t 1 ]] && [[ $- == *i* ]]; then
+  anifetch [FILENAME] [ARGS]
+fi
+```
+
+also make sure PATH is available(for pipx installations) so it can find anifetch.
+
 ## 🚧 What's Next
 
 - [x] Add music support
@@ -239,7 +251,7 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 - [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
 
-- [X] Fix transparent video frame seperation.
+- [x] Fix transparent video frame seperation.
 
 - [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 
