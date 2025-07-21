@@ -90,7 +90,7 @@ def parse_args():
         "-ff",
         "--fast-fetch",
         default=False,
-        help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
+        help="Add this argument if you want to use fastfetch instead of Neofetch.",
         action="store_true",
     )
     parser.add_argument(
