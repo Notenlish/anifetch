@@ -4,8 +4,8 @@ FRAME_DIR="$HOME/.local/share/anifetch/output"
 STATIC_TEMPLATE_FILE="$HOME/.local/share/anifetch/template.txt"
 
 # check for num of args
-if [[ $# -ne 6 && $# -ne 7 ]]; then
-  echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
+if [[ $# -ne 6 && $# -ne 7 && $# -ne 8 ]]; then
+  echo "Usage: $0 <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname] [--key-exit]"
   exit 1
 fi
 
@@ -15,7 +15,16 @@ left=$3
 right=$4
 bottom=$5
 template_actual_width=$6
-soundname=$7
+soundname=""
+if [ $# -ge 7 ] && [ "${7}" != "--key-exit" ]; then
+  soundname=$7
+fi
+
+# Check if key-exit functionality is enabled
+key_exit_enabled=false
+if [[ "${!#}" == "--key-exit" ]]; then
+  key_exit_enabled=true
+fi
 
 num_lines=$((bottom - top))
 sleep_time=$(echo "scale=4; 1 / $framerate" | bc)
@@ -29,15 +38,19 @@ last_term_width=0
 # Hide cursor
 tput civis
 
+# Global variable to store the pressed key
+pressed_key=""
+
 # exit handler
 cleanup() {
   tput cnorm         # Show cursor
   if [ -t 0 ]; then
     stty echo        # Restore echo
-		stty icanon
+    stty icanon
   fi
   tput sgr0          # Reset terminal attributes
-  tput cup $(tput lines) 0  # Move cursor to bottom
+  tput cup $(tput lines) 0 # Move cursor to bottom
+  
   exit 0
 }
 trap cleanup SIGINT SIGTERM
@@ -217,7 +230,7 @@ trap 'on_resize' SIGWINCH
 draw_static_template
 
 # Start audio if sound is provided
-if [ $# -eq 7 ]; then
+if [ -n "$soundname" ]; then
   ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
 fi
 
@@ -225,6 +238,10 @@ i=1
 wanted_epoch=0
 start_time=$(date +%s.%N)
 while true; do
+  # Check for any key press (non-blocking) - only if key-exit is enabled
+  if read -t 0 -n 1 pressed_key && [ "$key_exit_enabled" = true ]; then
+    cleanup
+  fi
   
   for frame in $(ls "$FRAME_DIR" | sort -n); do
     lock=true
@@ -248,8 +265,23 @@ while true; do
     sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
 
     # Only sleep if ahead of schedule
-    if (( $(echo "$sleep_duration > 0" | bc -l) )); then
-        sleep "$sleep_duration"
+    if [ "$key_exit_enabled" = true ]; then
+      if (( $(echo "$sleep_duration > 0" | bc -l) )); then
+          # Check for key press during sleep
+          if read -t "$sleep_duration" -n 1 pressed_key; then
+              cleanup
+          fi
+      else
+          # Check for key press (non-blocking)
+          if read -t 0 -n 1 pressed_key; then
+              cleanup
+          fi
+      fi
+    else
+      # If key-exit is not enabled, just sleep normally
+      if (( $(echo "$sleep_duration > 0" | bc -l) )); then
+          sleep "$sleep_duration"
+      fi
     fi
 
     i=$((i + 1))

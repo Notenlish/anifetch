@@ -9,9 +9,6 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 ### Prerequisites
 
 Recommended Python version: 3.12 and later
-
-You need the following tools installed on your system:
-
 - `bc`
 
   - Debian/Ubuntu: `sudo apt install bc`
@@ -163,11 +160,12 @@ Any video file you give to anifetch will be stored in `~/.local/share/anifetch/a
 ### Example usage:
 
 ```bash
-anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
+anifetch video.mp4 -k -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 ```
 
 ### Optional arguments:
 
+- `-k` / `--key-exit`: exits `anifetch` on any keypress. 
 - `-f` / `--file`: path to the video file (the path can be added without the `-f` argument)
 - `-s` / `--sound`: optional sound file to play alongside (requires `ffplay`)
 - `-r` / `--framerate`: frame rate of playback
