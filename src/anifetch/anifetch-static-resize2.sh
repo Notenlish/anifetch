@@ -15,7 +15,10 @@ left=$3
 right=$4
 bottom=$5
 template_actual_width=$6
-soundname=$7
+soundname=""
+if [ $# -ge 7 ] && [ "${7}" != "--key-exit" ]; then
+  soundname=$7
+fi
 
 # Check if key-exit functionality is enabled
 key_exit_enabled=false
@@ -46,18 +49,7 @@ cleanup() {
     stty icanon
   fi
   tput sgr0          # Reset terminal attributes
-  
-  cursor_pos=30
-  tput cup $cursor_pos 0
-  
-  # Echo the captured key in background after a delay (only if key-exit is enabled)
-  if [ "$key_exit_enabled" = true ] && [ -n "$pressed_key" ]; then
-    if [ -n "$WAYLAND_DISPLAY" ]; then
-      wtype "$pressed_key"
-    elif [ -n "$DISPLAY" ]; then
-      xdotool type "$pressed_key"
-    fi
-  fi
+  tput cup $(tput lines) 0 # Move cursor to bottom
   
   exit 0
 }
@@ -238,7 +230,7 @@ trap 'on_resize' SIGWINCH
 draw_static_template
 
 # Start audio if sound is provided
-if [ $# -eq 7 ]; then
+if [ -n "$soundname" ]; then
   ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
 fi
 

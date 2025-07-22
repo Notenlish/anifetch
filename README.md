@@ -9,13 +9,6 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 ### Prerequisites
 
 Recommended Python version: 3.12 and later
-
-You need the following tools installed on your system:
-
-- `wtype` (if using wayland) or `xdotool` (if using x11)
- - Debian/Ubuntu: `sudo apt install wtype` or `sudo apt install xdotool`
- - Arch: `sudo pacman -S wtype` or `sudo pacman -S xdotool`
-
 - `bc`
 
   - Debian/Ubuntu: `sudo apt install bc`
