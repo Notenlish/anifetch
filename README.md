@@ -165,7 +165,7 @@ anifetch video.mp4 -k -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 
 ### Optional arguments:
 
-- `-k` / `--key-exit`: exits `anifetch` on any keypress. The keypress will be logged in the terminal.
+- `-k` / `--key-exit`: exits `anifetch` on any keypress. 
 - `-f` / `--file`: path to the video file (the path can be added without the `-f` argument)
 - `-s` / `--sound`: optional sound file to play alongside (requires `ffplay`)
 - `-r` / `--framerate`: frame rate of playback
