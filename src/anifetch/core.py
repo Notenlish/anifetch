@@ -308,7 +308,7 @@ def run_anifetch(args):
 
         if (
             args.sound_flag_given
-        ):  #### Is this part really useful? Isn't it the same as the one on line 117?
+        ):  
             if args.sound:  # sound file given
                 print_verbose(args.verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)

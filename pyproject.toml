@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anifetch"
-version = "1.1.1"
+version = "0.1.2"
 description = "Animated terminal fetch with video/audio support."
 authors = [{name = "Notenlish"}, {name = "Immelancholy"}, {name = "Gallophostrix", email = "gallophostrix@gmail.com"}]
 readme = "README.md"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # check for num of args
-if [[ $# -ne 6 && $# -ne 7 ]]; then
+if [[ $# -ne 7 && $# -ne 8 ]]; then
   echo "Usage: $0 <cache_path> <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
   exit 1
 fi
@@ -218,7 +218,7 @@ trap 'on_resize' SIGWINCH
 draw_static_template
 
 # Start audio if sound is provided
-if [ $# -eq 7 ]; then
+if [ $# -eq 8 ]; then
   ffplay -nodisp -autoexit -loop 0 -loglevel quiet "$soundname" &
 fi
 
