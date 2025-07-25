@@ -28,6 +28,7 @@ from .utils import (
     hash_of_cache_args,
     get_caches_json,
     save_caches_json,
+    args_checker,
 )
 
 GAP = 2
@@ -36,6 +37,13 @@ PAD_LEFT = 4
 
 def run_anifetch(args):
     st = time.time()
+
+    allowed_alternatives = ["cache_list", "clear", "delete"]
+    try:
+        args_checker(allowed_alternatives, args)
+    except ValueError as e:
+        print(f"[ERROR] {e}")
+        sys.exit(1)
 
     args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
