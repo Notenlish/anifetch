@@ -125,5 +125,6 @@ parser.add_argument(
     help="Clear all saved cache configurations.",
 )
 
+
 def parse_args():
     return parser.parse_args()

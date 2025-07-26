@@ -314,9 +314,7 @@ def run_anifetch(args):
 
         print_verbose(args.verbose, args.sound_flag_given)
 
-        if (
-            args.sound_flag_given
-        ):  
+        if args.sound_flag_given:
             if args.sound:  # sound file given
                 print_verbose(args.verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)

@@ -260,9 +260,11 @@ def save_caches_json(CACHE_LIST_PATH, data):
     with open(CACHE_LIST_PATH, "w") as f:
         json.dump(data, f, indent=2)
 
+
 def args_checker(allowed_alternatives, args):
-    if (
-        args.filename is None
-        and not any(getattr(args, key) for key in allowed_alternatives)
+    if args.filename is None and not any(
+        getattr(args, key) for key in allowed_alternatives
     ):
-        raise ValueError("Missing input. Use a filename or a cache monitoring argument.\nUse --help for help.")
+        raise ValueError(
+            "Missing input. Use a filename or a cache monitoring argument.\nUse --help for help."
+        )
