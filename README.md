@@ -53,6 +53,75 @@ Since pipx installs packages in an isolated environment, you won't have to worry
 
 ---
 
+### ❄️ NixOS installation via flakes
+
+❄️ Add the anifetch repo as a flake input:
+
+```nix
+{
+    inputs = {
+        anifetch = {
+            url = "github:Notenlish/anifetch";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+    };
+}
+```
+
+Remember to add:
+
+```nix
+    specialArgs = {inherit inputs;};
+```
+
+to your nixos configuration, like I've done here on my system:
+
+```nix
+    nixosConfigurations = {
+      Enlil = nixpkgs.lib.nixosSystem {
+        specialArgs = {inherit inputs outputs;};
+```
+
+#### ❄️ As a package:
+
+Add anifetch to your packages list like so:
+
+```nix
+{inputs, pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+        inputs.anifetch.packages.${pkgs.system}.default
+        fastfetch # Choose either fastfetch or neofetch to run anifetch with
+        neofetch
+    ];
+}
+```
+
+#### ❄️ As an overlay:
+
+Add the overlay to nixpkgs overlays, then add the package to your package list as you would a package from the normal nixpkgs repo.
+
+```nix
+{inputs, pkgs, ...}: {
+    nixpkgs = {
+        overlays = [
+            inputs.anifetch.overlays.anifetch
+        ];
+    };
+
+    environment.systemPackages = with pkgs; [
+        anifetch
+        fastfetch # Choose either fastfetch or neofetch to run anifetch with
+        neofetch
+    ];
+}
+```
+
+The Nix package contains all the dependencies in a wrapper script for the application aside from fastfetch or neofetch, so you should only need to add one of those to your package list as well.
+
+After you've done these steps, rebuild your system.
+
+---
+
 ### 👨‍💻 Developer Installation (for contributors): via `pip` in a virtual environment
 
 ```bash
@@ -72,6 +141,15 @@ You can then run the program in two ways:
 
 ⚠️ Please avoid using `pip install` outside a virtual environment on systems like Ubuntu.
 This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
+
+On Nix you can run:
+
+```bash
+nix develop
+pip install -e .
+```
+
+inside the anifetch dir after cloning the repo. This creates a python venv you can re-enter by running `nix develop` inside the project dir.
 
 ## ▶️ How to Use It
 
@@ -201,3 +279,7 @@ Neofetch: [Neofetch](https://github.com/dylanaraps/neofetch)
 I got the base neofetch config from here, spesifically the Bejkon 2 config file: [Neofetch Themes by Chick2D](https://github.com/Chick2D/neofetch-themes)
 
 I'd like to thank Pewdiepie for creating his Linux video. I got the inspiration for this tool from his video. [Video](https://m.youtube.com/watch?v=pVI_smLgTY0&t=878s&pp=ygUJcGV3ZGllcGll)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Notenlish/anifetch&type=Date)](https://www.star-history.com/#Notenlish/anifetch&Date)
