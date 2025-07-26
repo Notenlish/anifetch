@@ -9,8 +9,7 @@ from .cli import parse_args
 def main():
     args = parse_args()
 
-    if args.filename:
-        run_anifetch(args)
+    run_anifetch(args)
 
 
 if __name__ == "__main__":
