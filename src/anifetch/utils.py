@@ -265,4 +265,4 @@ def args_checker(allowed_alternatives, args):
         args.filename is None
         and not any(getattr(args, key) for key in allowed_alternatives)
     ):
-        raise ValueError("Missing input. Use a filename or a cache monitoring argument.")
+        raise ValueError("Missing input. Use a filename or a cache monitoring argument.\nUse --help for help.")
