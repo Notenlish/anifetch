@@ -5,6 +5,7 @@ Anifetch utility module for common functions used across the application.
 """
 
 import pathlib
+import json
 import re
 import subprocess
 import sys
@@ -12,6 +13,8 @@ from importlib.resources import files
 from platformdirs import user_data_dir
 from importlib.metadata import version, PackageNotFoundError
 import shutil
+from copy import deepcopy
+from hashlib import sha256
 
 appname = "anifetch"
 appauthor = "anifetch"
@@ -81,8 +84,8 @@ def check_codec_of_file(file: str):
         return None
 
 
-def extract_audio_from_file(BASE_PATH, file: str, extension):
-    audio_file = BASE_PATH / f"output_audio.{extension}"
+def extract_audio_from_file(CACHE_PATH, file: str, extension):
+    audio_file = CACHE_PATH / f"output_audio.{extension}"
     extract_cmd = [
         "ffmpeg",
         "-i",
@@ -192,3 +195,76 @@ def get_video_dimensions(filename):
     except subprocess.CalledProcessError as e:
         print("FFPROBE FAILED WITH OUTPUT:", e.output)
         raise RuntimeError(f"Failed to get video dimensions: {filename}")
+
+
+def clean_cache_args(cache_args: dict) -> dict:
+    """Removes unimportant caching args that don't matter when caching/checking caches. Returns the cleaned dict."""
+    args_to_remove = (
+        "playback_rate",
+        "verbose",
+        "fast_fetch",
+        "benchmark",
+        "force_render",
+    )
+    cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
+    for key in args_to_remove:
+        if key in cleaned:
+            del cleaned[key]
+    return cleaned
+
+
+def check_args_hash_same(args1: dict, args2: dict):
+    for a in (args1, args2):
+        if a.get("hash", None) is None:
+            raise KeyError(f"{args1} doesn't have a hash!")
+    if args1["hash"] == args2["hash"]:
+        return True
+    return False
+
+
+def find_corresponding_cache(args: dict, all_saved_caches_list: list[dict]):
+    corresponding = None
+    for saved_cache_dict in all_saved_caches_list:
+        if check_args_hash_same(args, saved_cache_dict):
+            corresponding = saved_cache_dict
+    if corresponding is None:
+        raise LookupError("Couldn't find corresponding dict in all saved caches.")
+    return corresponding
+
+
+def hash_dict(d: dict):
+    json_str = json.dumps(d, sort_keys=True, ensure_ascii=False)
+    encoded = json_str.encode("utf-8")
+    hashed = sha256(encoded)
+    return hashed.hexdigest()
+
+
+def hash_of_cache_args(args: dict):
+    """Takes in the cleaned dictionary consisting of all the arguments for caching and generates an hash. If a 'hash' key already exists raises an KeyError."""
+    if "hash" in args.keys():
+        raise KeyError("Hash already exists for this cache args dictionary.")
+
+    hash = hash_dict(args)
+    return hash
+
+
+def get_caches_json(CACHE_LIST_PATH):
+    if (CACHE_LIST_PATH).exists():
+        with open(CACHE_LIST_PATH, "r") as f:
+            caches_data: list[dict] = json.load(f)
+        return caches_data
+    return []
+
+
+def save_caches_json(CACHE_LIST_PATH, data):
+    with open(CACHE_LIST_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def args_checker(allowed_alternatives, args):
+    if args.filename is None and not any(
+        getattr(args, key) for key in allowed_alternatives
+    ):
+        raise ValueError(
+            "Missing input. Use a filename or a cache monitoring argument.\nUse --help for help."
+        )
