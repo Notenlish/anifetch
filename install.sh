@@ -67,6 +67,8 @@ else
         echo "No common package manager found. Please install bc, chafa, ffmpeg, and pipx manually."
         echo "You might need to install Python 3 and pip first."
     fi
+    
+    pipx ensurepath
     install_anifetch
 fi
 
