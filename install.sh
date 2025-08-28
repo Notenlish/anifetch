@@ -38,6 +38,7 @@ elif [[ "$ID" == "arch" || "$ID" == "manjaro" || "$ID_LIKE" =~ "arch" ]]; then
 elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "rocky" || "$ID" == "almalinux" || "$ID_LIKE" =~ "fedora" || "$ID_LIKE" =~ "rhel" ]]; then
     echo "Detected Fedora/RHEL-based distribution. Using dnf."
     sudo dnf install -y bc chafa ffmpeg python3-pip git
+    sudo dnf install -y neofetch
     sudo dnf install -y pipx
     # what is -y
     pipx ensurepath
@@ -45,8 +46,8 @@ elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "r
 
 elif [[ "$ID" == "opensuse" || "$ID_LIKE" =~ "suse" ]]; then
     echo "Detected openSUSE-based distribution. Using zypper."
-    sudo zypper install --non-interactive bc chafa ffmpeg python3-pip git
-    sudo zypper install --non-interactive python3-pipx
+    sudo zypper --non-interactive install bc chafa ffmpeg python3-pip git
+    sudo zypper --non-interactive install  python3-pipx
     # what is -y
     pipx ensurepath
     install_anifetch
@@ -67,10 +68,11 @@ else
         sudo pacman -Sy --noconfirm python-pipx
     elif command -v dnf &> /dev/null; then
         sudo dnf install -y bc chafa ffmpeg python3-pip git
+        sudo dnf install -y neofetch
         sudo dnf install -y pipx
     elif command -v zypper &> /dev/null; then
-        sudo zypper install bc chafa ffmpeg python3-pip git
-        sudo zypper install --non-interactive python3-pipx
+        sudo zypper --non-interactive install bc chafa ffmpeg python3-pip git
+        sudo zypper --non-interactive install python3-pipx
     else
         echo "No common package manager found. Please install bc, chafa, ffmpeg, git, and pipx manually."
         echo "You might need to install Python 3 and pip first."
