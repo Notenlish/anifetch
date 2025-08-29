@@ -500,7 +500,7 @@ def run_anifetch(args):
                 str(BOTTOM),
                 str(template_actual_width),
                 str(LOOP),
-                str(len_fetch)
+                str(len_fetch),
             ]
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
