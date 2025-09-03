@@ -153,6 +153,12 @@ def run_anifetch(args):
                 file=sys.stderr,
             )
             sys.exit(1)
+        elif neofetch_status == "permission error":
+            print(
+                "Encountered permission error when running neofetch. Please run with sudo or use Fastfetch via -ff flag.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
         else:
             print(

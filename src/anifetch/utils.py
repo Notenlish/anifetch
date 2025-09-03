@@ -124,14 +124,15 @@ def get_neofetch_status():  # will still save the rendered chafa in cache in any
             ["neofetch", "--version"], capture_output=True, text=True
         )
         output = result.stdout + result.stderr
-        if (
-            "fastfetch" in output.lower()
-        ):  # if the output contains "fastfetch", return wrapper
+        # if the output contains "fastfetch", return wrapper
+        if "fastfetch" in output.lower():
             return "wrapper"
         else:
             return "neofetch"  # neofetch works
     except FileNotFoundError:
         return "uninstalled"  # neofetch is not installed
+    except PermissionError:
+        return "permission error"
 
 
 def render_frame(path, width, height, chafa_args: str) -> str:

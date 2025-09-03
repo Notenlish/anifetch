@@ -39,6 +39,7 @@ elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "r
     echo "Detected Fedora/RHEL-based distribution. Using dnf."
     sudo dnf install -y bc chafa ffmpeg python3-pip git
     sudo dnf install -y neofetch
+    sudo dnf install -y fastfetch
     sudo dnf install -y pipx
     # what is -y
     pipx ensurepath
@@ -69,6 +70,7 @@ else
     elif command -v dnf &> /dev/null; then
         sudo dnf install -y bc chafa ffmpeg python3-pip git
         sudo dnf install -y neofetch
+        sudo dnf install -y fastfetch
         sudo dnf install -y pipx
     elif command -v zypper &> /dev/null; then
         sudo zypper --non-interactive install bc chafa ffmpeg python3-pip git
