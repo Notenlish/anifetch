@@ -33,7 +33,10 @@ def run_anifetch(args):
 
     args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
-    neofetch_status = get_neofetch_status()
+    
+    neofetch_status = "uninstalled"
+    if not args.fast_fetch:
+        neofetch_status = get_neofetch_status()
 
     BASE_PATH = get_data_path()
 
@@ -150,12 +153,6 @@ def run_anifetch(args):
         elif neofetch_status == "uninstalled":
             print(
                 "Neofetch is not installed. Please install Neofetch or Fastfetch.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        elif neofetch_status == "permission error":
-            print(
-                "Encountered permission error when running neofetch. Please run with sudo or use Fastfetch via -ff flag.",
                 file=sys.stderr,
             )
             sys.exit(1)

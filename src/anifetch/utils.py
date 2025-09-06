@@ -131,8 +131,6 @@ def get_neofetch_status():  # will still save the rendered chafa in cache in any
             return "neofetch"  # neofetch works
     except FileNotFoundError:
         return "uninstalled"  # neofetch is not installed
-    except PermissionError:
-        return "permission error"
 
 
 def render_frame(path, width, height, chafa_args: str) -> str:
