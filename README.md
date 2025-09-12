@@ -59,7 +59,8 @@ pipx install git+https://github.com/Notenlish/anifetch.git
 This installs `anifetch` in an isolated environment, keeping your system Python clean.
 You can then run the `anifetch` command **directly in your terminal**.
 
-`anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
+Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
+
 
 ---
 
@@ -175,6 +176,8 @@ Any video file you give to anifetch will be stored in `~/.local/share/anifetch/a
 anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 ```
 
+_Note : by default, the video `example.mp4` can directly be used as an example._
+
 ### Optional arguments:
 
 - `-s` / `--sound`: Plays sound along with the video. If you provide a sound file, it will use it, otherwise will use ffmpg to extract audio from the video.
@@ -188,6 +191,20 @@ anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
 - `-b` / `--benchmark`: For testing, prints how long it took to process.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma <hex-color>:<similiarity>:<blend>'
+
+### Cached files:
+
+Anifetch automatically caches rendered animations to speed up future runs. Each unique combination of video and render options generates a cache stored in `~/.local/share/anifetch/`, organized by hash. This includes frames, output, and audio.
+
+Cache-related commands:
+
+`anifetch --cache-list` — View all cached configurations and orders them.
+
+`anifetch --cache-delete <number>` — Delete a specific cache.
+
+`anifetch --clear` — Delete all cached files.
+
+Note that modifying the content of a video file but keeping the same name makes Anifetch still use the old cache. In that case, use `--force-render` to bypass the cache and generate a new version.
 
 For full help:
 
@@ -246,7 +263,7 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 - [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
 
-- [X] Fix transparent video frame seperation.
+- [x] Fix transparent video frame seperation.
 
 - [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 
