@@ -127,9 +127,8 @@ def get_neofetch_status():  # will still save the rendered chafa in cache in any
             ["neofetch", "--version"], capture_output=True, text=True
         )
         output = result.stdout + result.stderr
-        if (
-            "fastfetch" in output.lower()
-        ):  # if the output contains "fastfetch", return wrapper
+        # if the output contains "fastfetch", return wrapper
+        if "fastfetch" in output.lower():
             return "wrapper"
         else:
             return "neofetch"  # neofetch works

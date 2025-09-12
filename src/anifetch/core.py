@@ -47,7 +47,10 @@ def run_anifetch(args):
 
     args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
-    neofetch_status = get_neofetch_status()
+
+    neofetch_status = "uninstalled"
+    if not args.fast_fetch:
+        neofetch_status = get_neofetch_status()
 
     BASE_PATH = get_data_path()
 
