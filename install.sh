@@ -12,7 +12,7 @@ install_anifetch() {
         echo "anifetch upgraded successfully (or was already at the latest version from GitHub)."
     else
         echo "anifetch not found or upgrade failed. Performing initial installation from GitHub..."
-        pipx install git+https://github.com/Notenlish/anifetch.git
+        pipx install git+https://github.com/Notenlish/anifetch.git#egg=anifetch
         echo "anifetch installed successfully."
     fi
     echo "anifetch installation/upgrade process completed."
