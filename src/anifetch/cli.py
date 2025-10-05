@@ -124,6 +124,7 @@ parser.add_argument(
     action="store_true",
     help="Clear all saved cache configurations.",
 )
+parser.add_argument("-l", "--loop", default=" -1 ", help="Define the loop iteration")
 
 
 def parse_args():
