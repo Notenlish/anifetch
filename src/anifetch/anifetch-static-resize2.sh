@@ -1,4 +1,5 @@
 #!/bin/bash
+# rewrite the renderer: https://chatgpt.com/c/69468faf-54d0-8332-a802-77237793269e
 
 # check for num of args
 if [[ $# -ne 7 && $# -ne 8 ]]; then
@@ -61,11 +62,11 @@ process_template() {
 
     # Process each line and store in buffer
     local line_num=0
-    while IFS= read -r line || [ -n "$line" ]; do
+    while IFS="" read -r line || [ -n "$line" ]; do  # read everything line by line raw, if read fails at last line but the $line variable isnt empty then continute the loop still.
       # Process the line and store in buffer
       template_buffer[$line_num]=$(truncate_line "$line" "$term_width")
       ((line_num++))
-    done < "$STATIC_TEMPLATE_FILE"
+    done < "$STATIC_TEMPLATE_FILE"  # put the path to the static template file as stdin for the loop.(open the file for reading)
 
     # Update the last terminal width
     last_term_width=$term_width
@@ -166,7 +167,7 @@ on_resize() {
 }
 
 process_resize_if_needed() {
-  current_time=$(date +%s.%N)
+  current_time=$(date +%s.%N)  
 
   # If we're already processing a resize, don't start working on another one
   if [ "$resize_in_progress" = true ]; then

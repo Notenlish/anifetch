@@ -8,16 +8,117 @@ import pathlib
 import json
 import re
 import subprocess
+import os
 import sys
 from importlib.resources import files
-from platformdirs import user_data_dir
 from importlib.metadata import version, PackageNotFoundError
 import shutil
 from copy import deepcopy
 from hashlib import sha256
 
+from platformdirs import user_data_dir
+import wcwidth
+
 appname = "anifetch"
 appauthor = "anifetch"
+
+# Source - https://stackoverflow.com/a
+# Posted by James Spencer, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-12-21, License - CC BY-SA 4.0
+
+if os.name == "nt":
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int), ("visible", ctypes.c_byte)]
+
+
+def clear_screen():
+    sys.stdout.write("\x1b[2J")
+    sys.stdout.flush()
+
+
+def tput_cup(row: int, col: int):
+    sys.stdout.write(f"\x1b[{row + 1};{col + 1}H")
+    sys.stdout.flush()
+
+
+def tput_el():  # tput clear to end of the line
+    sys.stdout.write("\x1b[K")
+    sys.stdout.flush()
+
+
+def hide_cursor():
+    if os.name == "nt":
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == "posix":
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+
+
+def show_cursor():
+    if os.name == "nt":
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == "posix":
+        sys.stdout.write("\033[?25h")
+        sys.stdout.flush()
+
+
+ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+def clean_ansi(raw_text: str):
+    return ANSI_RE.sub("", raw_text)
+
+
+def get_character_width(raw: str):
+    """Gives the raw terminal width of a particular string by stripping ANSI codes and using wcwidth to get the actual character width."""
+    return wcwidth.wcwidth(clean_ansi(raw))
+
+
+def truncate_line(line: str, max_width: int):
+    if max_width <= 0 or not line:
+        return ""
+
+    # Remove ANSI codes to get visible text length
+    visible_length = get_character_width(line)
+
+    if visible_length <= max_width:
+        return f"{line}\r"  # go back to the start of the line
+    else:
+        out: list[str] = []
+        width = 0
+        i = 0
+
+        while i < len(line) and width < max_width:
+            # if ansi sequence starts, copy it to out
+            m = ANSI_RE.match(line, i)
+            if m:
+                out.append(m.group(0))
+                i = m.end()
+                continue
+            ch = line[i]
+            i += 1
+
+            w: int = wcwidth.wcwidth(ch)
+            if w < 0:
+                w = 0
+
+            if width + w > max_width:
+                break
+            out.append(ch)
+            width += w
+        out.append("\x1b[0m")
+    return "".join(out)
 
 
 def get_version_of_anifetch():
