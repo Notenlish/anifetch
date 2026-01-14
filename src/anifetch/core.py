@@ -242,7 +242,7 @@ def run_anifetch(args):
 
         elif neofetch_status == "uninstalled":
             print(
-                "Neofetch is not installed. Please install Neofetch or Fastfetch.",
+                "Neofetch is not installed. Please install Neofetch or Fastfetch. To use FastFetch add '-ff' to the end of the command.",
                 file=sys.stderr,
             )
             sys.exit(1)
