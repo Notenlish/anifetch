@@ -38,6 +38,14 @@ parser.add_argument(
     help="Height of the chafa animation.",
     type=int,
 )
+parser.add_argument(
+    "-t",
+    "-T",
+    "--top",
+    default=2,
+    help="Sets the starting row(top) position.",
+    type=int,
+)
 parser.add_argument("-v", "--verbose", default=False, action="store_true")
 parser.add_argument(
     "-r",

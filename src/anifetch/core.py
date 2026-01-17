@@ -470,12 +470,12 @@ def run_anifetch(args):
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
     # writing the tempate to a file.
-    with open(CACHE_PATH / "template.txt", "w") as f:
+    with open(BASE_PATH / "template.txt", "w") as f:
         f.writelines(template)
     print_verbose(args.verbose, "Template updated")
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
-    TOP = 2
+    TOP = args.top
     LEFT = PAD_LEFT
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
@@ -489,12 +489,16 @@ def run_anifetch(args):
     else:
         from .renderer import Renderer
 
-        if not args.sound_saved_path:
+        try:
+            if not args.sound_saved_path:
+                args.sound_saved_path = ""
+        except AttributeError:
             args.sound_saved_path = ""
 
         framerate_to_use = args.playback_rate
 
         renderer = Renderer(
+            str(BASE_PATH),
             str(CACHE_PATH),
             framerate_to_use,
             TOP,

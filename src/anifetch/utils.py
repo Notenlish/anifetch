@@ -41,11 +41,15 @@ def clear_screen():
 
 
 def tput_cup(row: int, col: int):
+    """Moves the cursor to positions row and col.
+    https://man7.org/linux/man-pages/man1/tput.1.html
+    """
     sys.stdout.write(f"\x1b[{row + 1};{col + 1}H")
     sys.stdout.flush()
 
 
 def tput_el():  # tput clear to end of the line
+    """Clears from the cursor to the end of the line."""
     sys.stdout.write("\x1b[K")
     sys.stdout.flush()
 

@@ -29,6 +29,7 @@ def cleanup():
 class Renderer:
     def __init__(
         self,
+        base_path: str,
         cache_path: str,
         framerate_to_use: int,
         top: int,
@@ -38,6 +39,7 @@ class Renderer:
         template_width: int,
         sound_saved_path: str = "",
     ):
+        self.base_path: str = base_path
         self.cache_path: str = cache_path
         self.framerate_to_use: int = framerate_to_use
         self.top: int = top
@@ -47,7 +49,7 @@ class Renderer:
         self.template_width: int = template_width
         self.sound_saved_path: str = sound_saved_path
         self.frame_dir: str = f"{cache_path}/output"
-        self.static_template_path: str = f"{cache_path}/template.txt"
+        self.static_template_path: str = f"{base_path}/template.txt"
         logging.info("static template path", self.static_template_path)
         num_lines = bottom - top
         sleep_time = 1 / framerate_to_use
@@ -131,14 +133,15 @@ class Renderer:
 
         # Clear screen and position cursor
         clear_screen()
-        tput_cup(self.top, 0)
+        tput_cup(self.top, 0)  # problem originates in here? 
 
         # Print the buffer in one go(faster than one by line)
         # for line in self.template_buffer:
         # Clear to end of line before printing to eliminate any potential artifacts
         # tput_el()
-        # print("".join(self.template_buffer))  # TODO: maybe use a "\n".join() instead?
+        # print("".join(self.template_buffer))
         print("\n".join(self.template_buffer))
+        raise SystemExit
         # raise KeyError
 
         # TODO: this works fine atm. I just need to clean the screen without causing the black refresh thing and that should be it
