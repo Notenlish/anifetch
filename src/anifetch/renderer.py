@@ -48,6 +48,7 @@ class Renderer:
         self.sound_saved_path: str = sound_saved_path
         self.frame_dir: str = f"{cache_path}/output"
         self.static_template_path: str = f"{cache_path}/template.txt"
+        logging.info("static template path", self.static_template_path)
         num_lines = bottom - top
         sleep_time = 1 / framerate_to_use
         self.adjusted_sleep_time: float = sleep_time / num_lines
@@ -65,9 +66,7 @@ class Renderer:
         self.key_reader = KeyReader()
 
     def process_resize_if_requested(self):
-        logging.info(
-            "THIS BETTER BE RUN EVERY FRAME"
-        )  # edit: it is being run every frame
+        """This is being run every frame of the animation."""
         current_time = time.time()
 
         if self.resize_in_progress:
@@ -95,7 +94,7 @@ class Renderer:
         for line in self.template_buffer:
             # First clear to end of line to ensure no artifacts
             tput_el()
-            print(f"{line}\n")
+            print(f"{line}")
             pass
 
         # Reset flag
