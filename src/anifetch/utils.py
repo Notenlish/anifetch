@@ -35,8 +35,9 @@ if os.name == "nt":
 
 
 def clear_screen():
-    sys.stdout.write("\x1b[2J")
-    sys.stdout.flush()
+    _ = os.system("cls" if os.name == "nt" else "clear")
+    # sys.stdout.write("\x1b[2J")
+    # sys.stdout.flush()
 
 
 def tput_cup(row: int, col: int):
@@ -47,6 +48,16 @@ def tput_cup(row: int, col: int):
 def tput_el():  # tput clear to end of the line
     sys.stdout.write("\x1b[K")
     sys.stdout.flush()
+
+
+def get_terminal_width():
+    """Returns terminal width(columns)"""
+    return os.get_terminal_size().columns
+
+
+def get_terminal_height():
+    """Returns terminal height(lines)"""
+    return os.get_terminal_size().lines
 
 
 def hide_cursor():
@@ -82,7 +93,8 @@ def clean_ansi(raw_text: str):
 
 def get_character_width(raw: str):
     """Gives the raw terminal width of a particular string by stripping ANSI codes and using wcwidth to get the actual character width."""
-    return wcwidth.wcwidth(clean_ansi(raw))
+    print(raw)
+    return wcwidth.wcswidth(clean_ansi(raw))
 
 
 def truncate_line(line: str, max_width: int):
@@ -92,8 +104,9 @@ def truncate_line(line: str, max_width: int):
     # Remove ANSI codes to get visible text length
     visible_length = get_character_width(line)
 
+    total_output = ""
     if visible_length <= max_width:
-        return f"{line}\r"  # go back to the start of the line
+        total_output = f"{line}\r"
     else:
         out: list[str] = []
         width = 0
@@ -118,7 +131,11 @@ def truncate_line(line: str, max_width: int):
             out.append(ch)
             width += w
         out.append("\x1b[0m")
-    return "".join(out)
+        total_output = "".join(out)
+    # total_output = total_output.removeprefix("\n")
+    total_output = total_output.replace("\n", "")
+    total_output = total_output.replace("\r", "")
+    return total_output
 
 
 def get_version_of_anifetch():

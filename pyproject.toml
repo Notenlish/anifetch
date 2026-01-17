@@ -4,15 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anifetch"
-version = "0.1.2"
+version = "0.1.4"
 description = "Animated terminal fetch with video/audio support."
-authors = [{name = "Notenlish"}, {name = "Immelancholy"}, {name = "Gallophostrix", email = "gallophostrix@gmail.com"}]
+authors = [
+    { name = "Notenlish" },
+    { name = "Immelancholy" },
+    { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
+]
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.7"
 dependencies = [
     "platformdirs",
-    "wcwidth"
+    "wcwidth",
+    # "windows-curses; platform_system == 'Windows'"
     # Example : "rich>=13.0.0"
 ]
 
@@ -24,7 +29,4 @@ packages = ["anifetch"]
 package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-anifetch = [
-    "assets/*",
-    "anifetch-static-resize2.sh"
-]
+anifetch = ["assets/*", "anifetch-static-resize2.sh"]

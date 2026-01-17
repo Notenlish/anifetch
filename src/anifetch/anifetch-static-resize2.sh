@@ -231,7 +231,7 @@ while true; do
   for frame in $(ls "$FRAME_DIR" | sort -n); do   #### for frame in $(find "$FRAME_DIR" -type f | sort -V); do
     lock=true
     current_top=$top
-    while IFS= read -r line; do
+    while IFS="" read -r line; do
         tput cup "$current_top" "$left"
         echo -ne "$line"
         current_top=$((current_top + 1))
