@@ -18,6 +18,8 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
+# TODO: add an argument to also update the system info over time. The timing period could be changed over time.
+
 
 def cleanup():
     show_cursor()
@@ -69,9 +71,13 @@ class Renderer:
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
+        if self.resize_in_progress:  # TODO: dont know whether I should keep this or not
+            return
+
         current_time = time.time()
 
-        if self.resize_in_progress:
+        changed = self.process_template()
+        if not changed:
             return
 
         if self.last_resize_time != 0:
@@ -85,7 +91,7 @@ class Renderer:
         self.last_resize_time = current_time
 
         # calculate the new template
-        self.process_template()
+        changed_template = self.process_template()
 
         # clear_screen()
         tput_cup(self.top, 0)
@@ -128,12 +134,13 @@ class Renderer:
         # TODO: disallow characters to be written and disallow line by line mode.
 
     def draw_static_template(self):
-        # Process template first
-        self.process_template()
+        """Only ran once."""
+
+        changed_template = self.process_template()
 
         # Clear screen and position cursor
         clear_screen()
-        tput_cup(self.top, 0)  # problem originates in here? 
+        tput_cup(self.top, 0)  # problem originates in here?
 
         # Print the buffer in one go(faster than one by line)
         # for line in self.template_buffer:
@@ -141,24 +148,28 @@ class Renderer:
         # tput_el()
         # print("".join(self.template_buffer))
         print("\n".join(self.template_buffer))
-        raise SystemExit
-        # raise KeyError
+        # raise SystemExit
 
         # TODO: this works fine atm. I just need to clean the screen without causing the black refresh thing and that should be it
         # TODO: also maybe truncate stuff for height(lines) as well?
         # Oh and check the issues on github, try to do all of them, then do 1.0 release and also include a tutorial as well.
 
-    def process_template(self):
+    def process_template(self) -> bool:
+        """Returns whether it changed anything or not. Responsible for returning a truncated version of the saved template."""
         terminal_width = get_terminal_width()
+        changed = False
 
-        if not self.template_buffer:  # if empty
-            logging.info(self.static_template_path)
+        # initial fill(if empty)
+        if not self.template_buffer:
+            logging.info(
+                f"Empty so doing initial fill, heres template path: {self.static_template_path}"
+            )
             with open(self.static_template_path, "r") as f:
-                for template_line in f.readlines():
-                    truncated = truncate_line(template_line, terminal_width)
-                    self.template_buffer.append(truncated)
-
-        # only reprocess template if the terminal width has changed.
+                self.template_buffer = [
+                    truncate_line(line, terminal_width) for line in f.readlines()
+                ]
+            changed = True
+        # reprocess template if the terminal width has changed.
         if terminal_width != self.last_terminal_width:
             self.template_buffer = []
 
@@ -167,12 +178,14 @@ class Renderer:
 
             line_num = 0
             with open(self.static_template_path, "r") as f:
-                for template_line in f.readlines():
-                    self.template_buffer.append(
-                        truncate_line(template_line, terminal_width)
-                    )
+                self.template_buffer = [
+                    truncate_line(line, terminal_width) for line in f.readlines()
+                ]
 
             self.last_terminal_width = terminal_width
+            changed = True
+
+        return changed
 
     def draw_loop(self):
         i = 1

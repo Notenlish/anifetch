@@ -102,6 +102,7 @@ def get_character_width(raw: str):
 
 
 def truncate_line(line: str, max_width: int):
+    """Does not keep the trailing \n"""
     if max_width <= 0 or not line:
         return ""
 
