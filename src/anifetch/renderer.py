@@ -69,7 +69,7 @@ class Renderer:
         print(self.last_terminal_width)
         self.resize_requested: bool = False
         self.resize_in_progress: bool = False
-        self.resize_delay: float = 0.2  # seconds
+        self.resize_delay: float = 0.05  # seconds
         self.last_resize_time: float = 0
 
         self.sound_process: subprocess.Popen[bytes] | None = None
@@ -100,16 +100,16 @@ class Renderer:
         # calculate the new template
         changed_template = self.process_template()
 
-        # clear_screen()
+        clear_screen()
         tput_cup(self.top, 0)
 
         # print(self.template_buffer)
 
         # Print buffer all at once with terminal control codes to prevent wrapping
-        for line in self.template_buffer:
+        for line in self.template_buffer:  # TODO: move this to some function, mayhaps?
             # First clear to end of line to ensure no artifacts
             tput_el()
-            print(f"{line}")
+            print(f"{line}")  # TODO: do it all at once instead, like at the start.
             pass
 
         # Reset flag
