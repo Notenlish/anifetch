@@ -19,10 +19,17 @@ logging.basicConfig(
 )
 
 # TODO: add an argument to also update the system info over time. The timing period could be changed over time.
+# TODO: nix flake update needed
+# TODO: Install script for macos/windows
+# TODO: multithreading (also add ability to specify num of threads to use)
+# TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
+# TODO: add a "nocache" mode.
+# TODO: add an option to not clear the screen when animation loop ends
 
 
 def cleanup():
     show_cursor()
+    # clear_screen()  # TODO: uncomment this line when done testing
 
     # stty echo  # display typed characters on the terminal
     # stty icanon  # input is line based(input buffered until you press enter).
@@ -171,6 +178,9 @@ class Renderer:
             changed = True
         # reprocess template if the terminal width has changed.
         if terminal_width != self.last_terminal_width:
+            logging.info(
+                f"Window size changed, remaking template buffer. Max size is {terminal_width}"
+            )
             self.template_buffer = []
 
             if terminal_width < 1:

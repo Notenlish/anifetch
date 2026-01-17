@@ -35,6 +35,7 @@ if os.name == "nt":
 
 
 def clear_screen():
+    """Clears screen using cls or clear depending on OS."""
     _ = os.system("cls" if os.name == "nt" else "clear")
     # sys.stdout.write("\x1b[2J")
     # sys.stdout.flush()
@@ -96,9 +97,10 @@ def clean_ansi(raw_text: str):
 
 
 def get_character_width(raw: str):
-    """Gives the raw terminal width of a particular string by stripping ANSI codes and using wcwidth to get the actual character width."""
-    print(raw)
-    return wcwidth.wcswidth(clean_ansi(raw))
+    """Gives the raw terminal width of a particular string by stripping ANSI codes, removing \n \t \r and using wcwidth to get the actual character width."""
+    return wcwidth.wcswidth(
+        clean_ansi(raw).replace("\n", "").replace("\r", "").replace("\t", "")
+    )
 
 
 def truncate_line(line: str, max_width: int):
@@ -137,7 +139,6 @@ def truncate_line(line: str, max_width: int):
             width += w
         out.append("\x1b[0m")
         total_output = "".join(out)
-    # total_output = total_output.removeprefix("\n")
     total_output = total_output.replace("\n", "")
     total_output = total_output.replace("\r", "")
     return total_output
@@ -390,3 +391,10 @@ def args_checker(allowed_alternatives, args):
         raise ValueError(
             "Missing input. Use a filename or a cache monitoring argument.\nUse --help for help."
         )
+
+
+if __name__ == "__main__":
+    a = "                                                [m[1m[33mGPU 2[m: [mNVIDIA GeForce RTX 3050 Ti Laptop GPU @ 2.10 GHz (3.87 GiB) [Discrete]\n"
+    print(a)
+    b = truncate_line(a, 111)
+    print(b)
