@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # check for num of args
-if [[ $# -ne 7 && $# -ne 8 ]]; then
-  echo "Usage: $0 <cache_path> <framerate> <top> <left> <right> <bottom> <template_actual_width> [soundname]"
+if [[ $# -ne 7 && $# -ne 9 ]]; then
+  echo "Usage: $0 <cache_path> <framerate> <top> <left> <right> <bottom> <template_actual_width> <loop> <lenfetch> [soundname]"
   exit 1
 fi
 
@@ -13,7 +13,9 @@ left=$4
 right=$5
 bottom=$6
 template_actual_width=$7
-soundname=$8
+loop=$8
+lenfetch=$9
+soundname=$10
 
 FRAME_DIR="$CACHE_DIR/output"
 STATIC_TEMPLATE_FILE="$CACHE_DIR/template.txt"
@@ -32,17 +34,17 @@ tput civis
 
 # exit handler
 cleanup() {
-  tput cnorm         # Show cursor
+  tput cnorm # Show cursor
   if [ -t 0 ]; then
-    stty echo        # Restore echo
+    stty echo # Restore echo
     stty icanon
   fi
-  tput sgr0          # Reset terminal attributes
-  tput cup $(tput lines) 0  # Move cursor to bottom
+  tput sgr0                # Reset terminal attributes
+  tput cup $(tput lines) 0 # Move cursor to bottom
   exit 0
 }
 trap cleanup SIGINT SIGTERM
-stty -echo  # won't allow ^C to be printed when SIGINT signal comes.
+stty -echo # won't allow ^C to be printed when SIGINT signal comes.
 stty -icanon
 
 # Process the template once and store in memory buffer
@@ -65,7 +67,7 @@ process_template() {
       # Process the line and store in buffer
       template_buffer[$line_num]=$(truncate_line "$line" "$term_width")
       ((line_num++))
-    done < "$STATIC_TEMPLATE_FILE"
+    done <"$STATIC_TEMPLATE_FILE"
 
     # Update the last terminal width
     last_term_width=$term_width
@@ -158,7 +160,7 @@ draw_static_template() {
 
 resize_requested=false
 resize_in_progress=false
-resize_delay=0.2  # seconds
+resize_delay=0.2 # seconds
 last_resize_time=0
 
 on_resize() {
@@ -180,7 +182,7 @@ process_resize_if_needed() {
   # Check if enough time has passed since last resize
   if [ "$last_resize_time" != "0" ]; then
     time_diff=$(echo "$current_time - $last_resize_time" | bc)
-    if (( $(echo "$time_diff < $resize_delay" | bc -l) )); then
+    if (($(echo "$time_diff < $resize_delay" | bc -l))); then
       # Not enough time has passed, wait more
       return
     fi
@@ -223,23 +225,25 @@ if [ $# -eq 8 ]; then
 fi
 
 i=1
+count=0
 wanted_epoch=0
 start_time=$(date +%s.%N)
-while true; do
-  
-  for frame in $(ls "$FRAME_DIR" | sort -n); do   #### for frame in $(find "$FRAME_DIR" -type f | sort -V); do
+while [ "$count" -lt "$loop" ] || [ "$loop" -eq "-1" ]; do
+  for frame in $( #### for frame in $(find "$FRAME_DIR" -type f | sort -V); do
+    ls "$FRAME_DIR" | sort -n
+  ); do
     lock=true
     current_top=$top
     while IFS= read -r line; do
-        tput cup "$current_top" "$left"
-        echo -ne "$line"
-        current_top=$((current_top + 1))
-        if [[ $current_top -gt $bottom ]]; then
-            break
-        fi
-    done < "$FRAME_DIR/$frame"
+      tput cup "$current_top" "$left"
+      echo -ne "$line"
+      current_top=$((current_top + 1))
+      if [[ $current_top -gt $bottom ]]; then
+        break
+      fi
+    done <"$FRAME_DIR/$frame"
     lock=false
-    
+
     wanted_epoch=$(echo "$i/$framerate" | bc -l)
 
     # current time in seconds (with fractional part)
@@ -249,13 +253,36 @@ while true; do
     sleep_duration=$(echo "$wanted_epoch - ($now - $start_time)" | bc -l)
 
     # Only sleep if ahead of schedule
-    if (( $(echo "$sleep_duration > 0" | bc -l) )); then
-        sleep "$sleep_duration"
+    if (($(echo "$sleep_duration > 0" | bc -l))); then
+      sleep "$sleep_duration"
     fi
 
     i=$((i + 1))
-    
     process_resize_if_needed
   done
+  count=$((count + 1))
   sleep 0.005
 done
+
+reset() {
+  echo -en "\E[6n"
+  read -sdR CURPOS
+  CURPOS=${CURPOS#*[}
+  cursorend=${CURPOS%;*}
+
+  if [ "$lenfetch" -gt "$cursorend" ]; then
+    cursorend=$((lenfetch + 2))
+  fi
+
+  tput cnorm # Show cursor
+  tput cup $((cursorend + 2)) 0
+  stty sane
+  if [ -t 0 ]; then
+    stty echo # Restore echo
+    stty icanon
+  fi
+  tput sgr0 # Reset terminal attributes
+  exit 0
+}
+
+reset
