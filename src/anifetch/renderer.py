@@ -1,5 +1,6 @@
 from anifetch.utils import get_terminal_width
 import os
+import sys
 import time
 from .utils import (
     hide_cursor,
@@ -8,6 +9,8 @@ from .utils import (
     tput_cup,
     tput_el,
     truncate_line,
+    enable_autowrap,
+    disable_autowrap,
 )
 import subprocess
 from .keyreader import KeyReader
@@ -69,7 +72,7 @@ class Renderer:
         print(self.last_terminal_width)
         self.resize_requested: bool = False
         self.resize_in_progress: bool = False
-        self.resize_delay: float = 0.05  # seconds
+        self.resize_delay: float = 0.033  # seconds
         self.last_resize_time: float = 0
 
         self.sound_process: subprocess.Popen[bytes] | None = None
@@ -97,20 +100,13 @@ class Renderer:
         self.resize_in_progress = True
         self.last_resize_time = current_time
 
-        # calculate the new template
-        changed_template = self.process_template()
-
         clear_screen()
         tput_cup(self.top, 0)
 
         # print(self.template_buffer)
 
         # Print buffer all at once with terminal control codes to prevent wrapping
-        for line in self.template_buffer:  # TODO: move this to some function, mayhaps?
-            # First clear to end of line to ensure no artifacts
-            tput_el()
-            print(f"{line}")  # TODO: do it all at once instead, like at the start.
-            pass
+        print("\n".join(self.template_buffer), flush=False)
 
         # Reset flag
         self.resize_in_progress = False
@@ -134,9 +130,12 @@ class Renderer:
                 ]
             )
         try:
+            # disable_autowrap()
             self.draw_loop()
+            # enable_autowrap()
         except KeyboardInterrupt:
             cleanup()
+            # enable_autowrap()
             # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
         # TODO: disallow characters to be written and disallow line by line mode.
 
@@ -150,10 +149,6 @@ class Renderer:
         tput_cup(self.top, 0)  # problem originates in here?
 
         # Print the buffer in one go(faster than one by line)
-        # for line in self.template_buffer:
-        # Clear to end of line before printing to eliminate any potential artifacts
-        # tput_el()
-        # print("".join(self.template_buffer))
         print("\n".join(self.template_buffer))
         # raise SystemExit
 
@@ -162,7 +157,7 @@ class Renderer:
         # Oh and check the issues on github, try to do all of them, then do 1.0 release and also include a tutorial as well.
 
     def process_template(self) -> bool:
-        """Returns whether it changed anything or not. Responsible for returning a truncated version of the saved template."""
+        """Returns whether it changed anything or not. Responsible for updating template_buffer with a truncated version of the saved template."""
         terminal_width = get_terminal_width()
         changed = False
 
@@ -212,7 +207,9 @@ class Renderer:
 
                         # dont echo new line and enable special characters
                         # echo -ne "$line"
-                        print(line, end="")  # there may be a faster way to do this.
+                        print(
+                            line, end="", flush=False
+                        )  # there may be a faster way to do this.
                         current_top += 1
                         if current_top > self.bottom:
                             break
@@ -240,4 +237,5 @@ class Renderer:
                     raise KeyboardInterrupt
 
                 self.process_resize_if_requested()
+                sys.stdout.flush()
             time.sleep(0.0000005)  # TODO: is this even required?

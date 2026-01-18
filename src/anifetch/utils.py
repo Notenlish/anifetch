@@ -41,12 +41,32 @@ def clear_screen():
     # sys.stdout.flush()
 
 
+def disable_autowrap():
+    """Returns whether it was able to disable autowrap."""
+    if sys.stdout.isatty():
+        sys.stdout.write("\x1b[?7l")
+        sys.stdout.flush()
+        return True
+    return False
+
+
+def enable_autowrap():
+    """Returns whether it was able to enable autowrap."""
+    if sys.stdout.isatty():
+        sys.stdout.write("\x1b[?7h")
+        sys.stdout.flush()
+        return True
+    return False
+
+
 def tput_cup(row: int, col: int):
     """Moves the cursor to positions row and col.
     https://man7.org/linux/man-pages/man1/tput.1.html
+
+    Does not flush.
     """
     sys.stdout.write(f"\x1b[{row + 1};{col + 1}H")
-    sys.stdout.flush()
+    # sys.stdout.flush()  # not needed appearently
 
 
 def tput_el():  # tput clear to end of the line
