@@ -396,7 +396,9 @@ def run_anifetch(args):
                     len_chafa = len(chafa_lines)
                     pad = abs(len_fetch - len_chafa) // 2
                     remind = abs(len_fetch - len_chafa) % 2
-                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
+                    HEIGHT = (
+                        len(chafa_lines) + (2 * pad + remind) * WIDTH
+                    )  # why is there width here??
 
             frames.append("\n".join(chafa_lines))
 
