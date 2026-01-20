@@ -304,7 +304,8 @@ def threaded_chafa_frame_gen(
             )
 
         elif (
-            len_fetch < len_chafa and i == 0  # I only need one thread to update the fetch_lines(template)
+            len_fetch < len_chafa
+            and i == 0  # I only need one thread to update the fetch_lines(template)
         ):  # if the chafa animation is longer than the fetch output
             pad = (len_chafa - len_fetch) // 2
             remind = (len_chafa - len_fetch) % 2
