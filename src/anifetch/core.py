@@ -29,10 +29,14 @@ from .utils import (
     get_caches_json,
     save_caches_json,
     args_checker,
+    threaded_chafa_frame_gen,
 )
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 GAP = 2
 PAD_LEFT = 4
+
+# TODO: if its not using the cached dataset, it should delete the video/[filename].png files
 
 
 def run_anifetch(args):
@@ -142,8 +146,8 @@ def run_anifetch(args):
 
     CACHE_PATH = BASE_PATH / cleaned_dict["hash"]
 
-    VIDEO_DIR = CACHE_PATH / "video"
-    OUTPUT_DIR = CACHE_PATH / "output"
+    VIDEO_DIR: pathlib.Path = CACHE_PATH / "video"
+    OUTPUT_DIR: pathlib.Path = CACHE_PATH / "output"
 
     CACHE_PATH.mkdir(parents=True, exist_ok=True)
     (VIDEO_DIR).mkdir(exist_ok=True)
@@ -171,6 +175,7 @@ def run_anifetch(args):
 
     # check cache
     should_update = args.force_render  # True if --force-render
+    print_verbose("SHOULD UPdate", should_update)
 
     if not should_update:
         try:
@@ -268,7 +273,7 @@ def run_anifetch(args):
                 raise Exception(e)
 
     # put cached frames here
-    frames: list[str] = []
+    frames: dict[int, str] = {}  # {frame_id : frame}
 
     # copy the fetch output to the fetch_lines variable
     fetch_lines = fetch_output[:]
@@ -348,70 +353,47 @@ def run_anifetch(args):
 
         print_verbose(args.verbose, "Emptied the output folder.")
 
+        print("LES GOO MULTITHREADING BABY!!")
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
         animation_files.sort()
-        for i, f in enumerate(animation_files):
-            # f = 00001.png
-            chafa_args = args.chafa_arguments.strip()
+        futures = []
+        max_workers: int = max(1, (os.cpu_count() or 2) - 1)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            chafa_args: str = args.chafa_arguments.strip()
             chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
-            path = VIDEO_DIR / f
-            frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
-
-            chafa_lines = frame.splitlines()
-
-            if args.center:
-                # centering the fetch output or the chafa animation if needed.
-                len_chafa = len(chafa_lines)
-
-                if (
-                    len_chafa < len_fetch
-                ):  # if the chafa animation is shorter than the fetch output
-                    pad = (len_fetch - len_chafa) // 2
-                    remind = (len_fetch - len_chafa) % 2
-                    chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
-                    chafa_lines = (
-                        [" " * WIDTH] * pad
-                        + chafa_lines
-                        + [" " * WIDTH] * (pad + remind)
-                    )
-
-                elif (
-                    len_fetch < len_chafa
-                ):  # if the chafa animation is longer than the fetch output
-                    pad = (len_chafa - len_fetch) // 2
-                    remind = (len_chafa - len_fetch) % 2
-                    fetch_lines = (
-                        [" " * WIDTH] * pad
-                        + fetch_output
-                        + [" " * WIDTH] * (pad + remind)
-                    )
-
-                if i == 0:
-                    # updating the HEIGHT variable from the first frame
-                    HEIGHT = len(chafa_lines)
-            else:
-                if i == 0:
-                    len_chafa = len(chafa_lines)
-                    pad = abs(len_fetch - len_chafa) // 2
-                    remind = abs(len_fetch - len_chafa) % 2
-                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
-
-            frames.append("\n".join(chafa_lines))
-
-            with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
-                file.write("\n".join(chafa_lines))
-
-            # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
-            # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
+            for i, f in enumerate(animation_files):
+                future = executor.submit(
+                    threaded_chafa_frame_gen,
+                    i,
+                    f,
+                    VIDEO_DIR,
+                    OUTPUT_DIR,
+                    WIDTH,
+                    HEIGHT,
+                    chafa_args,
+                    args.center,
+                    len_fetch,
+                    fetch_output,
+                    frames,
+                )
+                futures.append(future)
+                # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
+                # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
+            for future in as_completed(futures):
+                _fetch_lines: list[str] | None = future.result()
+                if _fetch_lines:  # needed in case the function modified fetch_lines
+                    fetch_lines = _fetch_lines
     else:
         # just use cached
-        for filename in os.listdir(OUTPUT_DIR):
+        animation_files = os.listdir(OUTPUT_DIR)
+        animation_files.sort()
+        for i, filename in enumerate(animation_files):
             path = OUTPUT_DIR / filename
             with open(path, "r") as file:
                 frame = file.read()
-                frames.append(frame)
+                frames[i] = frame
             break  # first frame used for the template and the height
 
         if args.center:
@@ -423,8 +405,9 @@ def run_anifetch(args):
                     [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
                 )
 
-        with open(CACHE_PATH / "frame.txt", "w") as f:
-            f.writelines(frames)
+        # TODO: what is the point of this??
+        # with open(CACHE_PATH / "frame.txt", "w") as f:
+        #     f.writelines(frames)
 
         HEIGHT = len(frames[0].splitlines())
 
@@ -483,6 +466,7 @@ def run_anifetch(args):
     bash_script_name = "anifetch-static-resize2.sh"
     script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
+    print(bash_script_path)
 
     if not args.benchmark:  # opitional?
         try:
@@ -508,6 +492,7 @@ def run_anifetch(args):
 
             print_verbose(args.verbose, script_args)
             # raise SystemExit
+            print(script_args)
             subprocess.call(
                 script_args,
                 text=True,
