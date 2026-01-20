@@ -87,6 +87,13 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
+    "--quality",
+    "-q",
+    default=6,
+    help="Quality when extracting frames. 2-5 high quality, 6-10 lower quality.",
+    type=int,
+)
+parser.add_argument(
     "-ff",
     "--fast-fetch",
     default=False,
