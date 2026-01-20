@@ -288,6 +288,7 @@ def threaded_chafa_frame_gen(
 
     chafa_lines = frame.splitlines()
     fetch_lines: list[str] | None = None
+    updated_height = False
 
     if centered:  # TODO: should i check for i == 0?
         # centering the fetch output or the chafa animation if needed.
@@ -316,12 +317,14 @@ def threaded_chafa_frame_gen(
         if i == 0:
             # updating the HEIGHT variable from the first frame
             HEIGHT = len(chafa_lines)
+            updated_height = True
     else:
         if i == 0:
             len_chafa = len(chafa_lines)
             pad = abs(len_fetch - len_chafa) // 2
             remind = abs(len_fetch - len_chafa) % 2
             HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
+            updated_height = Tree
 
     out = "\n".join(chafa_lines)
 
@@ -330,4 +333,4 @@ def threaded_chafa_frame_gen(
     with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
         file.write(out)
 
-    return fetch_lines
+    return fetch_lines, HEIGHT if updated_height else None

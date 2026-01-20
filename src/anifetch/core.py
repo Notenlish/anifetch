@@ -382,7 +382,11 @@ def run_anifetch(args):
                 # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
                 # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
             for future in as_completed(futures):
-                _fetch_lines: list[str] | None = future.result()
+                _fetch_lines, _HEIGHT = future.result()
+                _fetch_lines: list[str] | None
+                _HEIGHT: int | None
+                if _HEIGHT:
+                    HEIGHT = _HEIGHT
                 if _fetch_lines:  # needed in case the function modified fetch_lines
                     fetch_lines = _fetch_lines
     else:
