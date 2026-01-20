@@ -35,8 +35,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 GAP = 2
 PAD_LEFT = 4
 
-# TODO: if its not using the cached dataset, it should delete the video/[filename].png files
-
 
 def run_anifetch(args):
     st = time.time()
@@ -468,7 +466,6 @@ def run_anifetch(args):
     bash_script_name = "anifetch-static-resize2.sh"
     script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
-    print(bash_script_path)
 
     if not args.benchmark:  # opitional?
         try:
@@ -494,7 +491,6 @@ def run_anifetch(args):
 
             print_verbose(args.verbose, script_args)
             # raise SystemExit
-            print(script_args)
             subprocess.call(
                 script_args,
                 text=True,

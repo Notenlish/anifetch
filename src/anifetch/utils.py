@@ -298,7 +298,7 @@ def threaded_chafa_frame_gen(
         ):  # if the chafa animation is shorter than the fetch output
             pad = (len_fetch - len_chafa) // 2
             remind = (len_fetch - len_chafa) % 2
-            chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
+            # chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
             chafa_lines = (
                 [" " * WIDTH] * pad + chafa_lines + [" " * WIDTH] * (pad + remind)
             )
