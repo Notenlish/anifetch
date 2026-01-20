@@ -328,6 +328,5 @@ def threaded_chafa_frame_gen(
         frames[i] = out
     with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
         file.write(out)
-        print("wrote the file")
 
     return fetch_lines
