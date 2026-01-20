@@ -267,3 +267,70 @@ def args_checker(allowed_alternatives, args):
         raise ValueError(
             "Missing input. Use a filename or a cache monitoring argument.\nUse --help for help."
         )
+
+
+def threaded_chafa_frame_gen(
+    i: int,
+    f: str,
+    VIDEO_DIR: pathlib.Path,
+    OUTPUT_DIR: pathlib.Path,
+    WIDTH: int,
+    HEIGHT: int,
+    chafa_args: str,
+    centered: bool,
+    len_fetch: int,
+    fetch_output: list[str],
+    frames: dict[int, str],
+) -> list[str] | None:
+    # f = 00001.png
+    path = VIDEO_DIR / f
+    frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
+
+    chafa_lines = frame.splitlines()
+    fetch_lines: list[str] | None = None
+    updated_height = False
+
+    if centered:  # TODO: should i check for i == 0?
+        # centering the fetch output or the chafa animation if needed.
+        len_chafa = len(chafa_lines)
+
+        if (
+            len_chafa < len_fetch
+        ):  # if the chafa animation is shorter than the fetch output
+            pad = (len_fetch - len_chafa) // 2
+            remind = (len_fetch - len_chafa) % 2
+            # chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
+            chafa_lines = (
+                [" " * WIDTH] * pad + chafa_lines + [" " * WIDTH] * (pad + remind)
+            )
+
+        elif (
+            len_fetch < len_chafa
+            and i == 0  # I only need one thread to update the fetch_lines(template)
+        ):  # if the chafa animation is longer than the fetch output
+            pad = (len_chafa - len_fetch) // 2
+            remind = (len_chafa - len_fetch) % 2
+            fetch_lines = (
+                [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+            )
+
+        if i == 0:
+            # updating the HEIGHT variable from the first frame
+            HEIGHT = len(chafa_lines)
+            updated_height = True
+    else:
+        if i == 0:
+            len_chafa = len(chafa_lines)
+            pad = abs(len_fetch - len_chafa) // 2
+            remind = abs(len_fetch - len_chafa) % 2
+            HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
+            updated_height = True
+
+    out = "\n".join(chafa_lines)
+
+    if i == 0:
+        frames[i] = out
+    with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
+        file.write(out)
+
+    return fetch_lines, HEIGHT if updated_height else None
