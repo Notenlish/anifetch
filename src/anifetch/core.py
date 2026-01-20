@@ -19,7 +19,6 @@ from .utils import (
     default_asset_presence_check,
     get_video_dimensions,
     get_neofetch_status,
-    render_frame,
     print_verbose,
     check_sound_flag_given,
     clean_cache_args,
