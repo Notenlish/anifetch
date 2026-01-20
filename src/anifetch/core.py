@@ -301,7 +301,9 @@ def run_anifetch(args):
                     f"{args.filename}",
                     "-vf",
                     f"fps={args.framerate},format=rgba",
-                    str(CACHE_PATH / "video/%05d.png"),
+                    "-q:v",
+                    "7",  # 2-5 high quality, 6-10 lower
+                    str(CACHE_PATH / "video/%05d.jpg"),
                 ],
                 stdout=stdout,
                 stderr=stderr,
