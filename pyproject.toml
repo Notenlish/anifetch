@@ -29,4 +29,4 @@ packages = ["anifetch"]
 package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-anifetch = ["assets/*", "anifetch-static-resize2.sh"]
+anifetch = ["assets/*"]
