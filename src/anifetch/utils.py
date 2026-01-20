@@ -324,7 +324,7 @@ def threaded_chafa_frame_gen(
             pad = abs(len_fetch - len_chafa) // 2
             remind = abs(len_fetch - len_chafa) % 2
             HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
-            updated_height = Tree
+            updated_height = True
 
     out = "\n".join(chafa_lines)
 
