@@ -353,7 +353,6 @@ def run_anifetch(args):
 
         print_verbose(args.verbose, "Emptied the output folder.")
 
-        print("LES GOO MULTITHREADING BABY!!")
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
         animation_files.sort()
