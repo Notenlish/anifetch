@@ -6,7 +6,6 @@ Only works with 'pip' installation.
 """
 
 import subprocess
-import subprocess
 import time
 import shlex
 import platform
