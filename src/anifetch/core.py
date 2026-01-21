@@ -485,7 +485,7 @@ def run_anifetch(args):
     bash_script_path = script_dir / bash_script_name
 
     if args.benchmark:
-        print("Not implemented yet")  # TODO: implement it
+        print(f"It took {time.time() - st} seconds.")
     else:
         from .renderer import Renderer
 
@@ -510,40 +510,6 @@ def run_anifetch(args):
         )
 
         renderer.start_rendering()
-
-    # if not args.benchmark:  # optional?
-    #     try:
-    #         framerate_to_use = args.playback_rate
-    #         if args.sound_flag_given:
-    #             framerate_to_use = (
-    #                 args.framerate
-    #             )  # ignore wanted playback rate so that desync doesn't happen
-
-    #         script_args = [
-    #             "bash",
-    #             str(bash_script_path),
-    #             str(CACHE_PATH),
-    #             str(framerate_to_use),
-    #             str(TOP),
-    #             str(LEFT),
-    #             str(RIGHT),
-    #             str(BOTTOM),
-    #             str(template_actual_width),
-    #         ]
-    #         if args.sound_flag_given:  # if user requested for sound to be played
-    #             script_args.append(str(args.sound_saved_path))
-
-    #         print_verbose(args.verbose, script_args)
-    #         # raise SystemExit
-    #         subprocess.call(
-    #             script_args,
-    #             text=True,
-    #         )
-    #     except KeyboardInterrupt:
-    #         # Reset the terminal in case it doesnt render the user inputted text after Ctrl+C
-    #         subprocess.call(["stty", "sane"])
-    # else:
-    #     print(f"It took {time.time() - st} seconds.")
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.
