@@ -38,6 +38,11 @@ def print_verbose(verbose, *msg):
         print(*msg)
 
 
+def normal_print(should_print: bool, *msg):
+    if should_print:
+        print(*msg)
+
+
 def strip_ansi(text):
     ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
     return ansi_escape.sub("", text)

@@ -6,8 +6,17 @@ Only works with 'pip' installation.
 """
 
 import subprocess
+import subprocess
 import time
 import shlex
+import platform
+
+OS = platform.system()
+py_name = ""
+if OS == "Linux" or OS == "Darwin":
+    py_name = "python3"
+elif OS == "Windows":
+    py_name = "py"
 
 
 def time_check(
@@ -17,10 +26,16 @@ def time_check(
     if preheat:  # Preheat the cache by running the command once before timing
         subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    start = time.time()
+    total = 0
     for _ in range(count):
-        subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    total = time.time() - start
+        if command.startswith("neofetch") or command.startswith("fastfetch"):
+            st = time.time()
+            subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            total += time.time() - st
+        else:
+            output = subprocess.check_output(args, stderr=subprocess.DEVNULL)
+            total += float(output)
+
     average = total / count
     return command, total, average
 
@@ -35,18 +50,18 @@ def run_all():
         ("Fastfetch", "fastfetch", True),
         (
             "Anifetch (no cache, Neofetch)",
-            f"python3 -m anifetch {common_args} --force-render",
+            f"{py_name} -m anifetch {common_args} --force-render",
             False,
         ),
-        ("Anifetch (cached, Neofetch)", f"python3 -m anifetch {common_args}", True),
+        ("Anifetch (cached, Neofetch)", f"{py_name} -m anifetch {common_args}", True),
         (
             "Anifetch (no cache, Fastfetch)",
-            f"python3 -m anifetch {common_args} -ff --force-render",
+            f"{py_name} -m anifetch {common_args} -ff --force-render",
             False,
         ),
         (
             "Anifetch (cached, Fastfetch)",
-            f"python3 -m anifetch {common_args} -ff",
+            f"{py_name} -m anifetch {common_args} -ff",
             True,
         ),
     ]
@@ -65,6 +80,7 @@ def run_all():
             print(f" failed: {e}")
 
     print("\n=== BENCHMARK RESULTS ===\n")
+    print(f"Common args: {common_args}")
     for name, total, avg in results:
         if total is None:
             print(f"{name}: failed")

@@ -20,6 +20,7 @@ from .utils import (
     get_video_dimensions,
     get_neofetch_status,
     print_verbose,
+    normal_print,
     check_sound_flag_given,
     clean_cache_args,
     check_args_hash_same,
@@ -38,6 +39,9 @@ PAD_LEFT = 4
 
 def run_anifetch(args):
     st = time.time()
+
+    should_print: bool = not args.benchmark
+    should_print_verbose: bool = args.verbose
 
     allowed_alternatives = ["cache_list", "clear", "delete"]
     try:
@@ -65,12 +69,12 @@ def run_anifetch(args):
     if args.cache_list:
         all_caches = get_caches_json(CACHE_LIST_PATH)
         if not all_caches:
-            print("No cached configurations found.")
+            normal_print(should_print, "No cached configurations found.")
         else:
-            print("Available caches:")
+            normal_print(should_print, "Available caches:")
             for i, cache in enumerate(all_caches, 1):
                 line = f"[{i}] video: {cache.get('filename', '?')} | width: {cache.get('width')} | chroma: {cache.get('chroma')}"
-                print(line)
+                normal_print(should_print, line)
         sys.exit(0)
 
     if args.delete:
@@ -90,9 +94,12 @@ def run_anifetch(args):
 
             if cache_dir.exists():
                 shutil.rmtree(cache_dir)
-                print(f"Deleted cache directory: {cache_dir}")
+                normal_print(should_print, f"Deleted cache directory: {cache_dir}")
             else:
-                print(f"[WARNING] Cache directory {cache_dir} already missing.")
+                normal_print(
+                    should_print,
+                    f"[WARNING] Cache directory {cache_dir} already missing.",
+                )
 
             # Supprimer du cache JSON
             del all_caches[real_index]
@@ -109,9 +116,9 @@ def run_anifetch(args):
                 cache_dir = BASE_PATH / hash_id
                 if cache_dir.exists():
                     shutil.rmtree(cache_dir)
-                    print(f"Deleted cache directory: {cache_dir}")
+                    normal_print(should_print, f"Deleted cache directory: {cache_dir}")
         save_caches_json(CACHE_LIST_PATH, [])
-        print("All cache entries have been cleared.")
+        normal_print(should_print, "All cache entries have been cleared.")
         sys.exit(0)
 
     filename = pathlib.Path(args.filename)
@@ -172,7 +179,7 @@ def run_anifetch(args):
 
     # check cache
     should_update = args.force_render  # True if --force-render
-    print_verbose("SHOULD UPdate", should_update)
+    print_verbose(args.verbose, should_update)
 
     if not should_update:
         try:
@@ -182,8 +189,9 @@ def run_anifetch(args):
                 if check_args_hash_same(cache_args, cleaned_dict):
                     break
             else:
-                print_verbose(
-                    "Couldn't find a corresponding cache. Will cache the animation."
+                normal_print(
+                    should_print,
+                    "Couldn't find a corresponding cache. Will cache the animation.",
                 )
                 should_update = True
 
@@ -191,32 +199,14 @@ def run_anifetch(args):
             should_update = True
 
     if not (CACHE_PATH / "output").exists() and not should_update:
-        print("[WARNING] Cache folder found but output is missing. Will regenerate.")
-        should_update = True
-
-    if not should_update:
-        try:
-            with open(CACHE_LIST_PATH, "r") as f:
-                all_caches = json.load(f)
-
-            for cache_args in all_caches:
-                if check_args_hash_same(cache_args, cleaned_dict):
-                    break
-            else:
-                print_verbose(
-                    "Couldn't find a corresponding cache. Will cache the animation."
-                )
-                should_update = True
-
-        except FileNotFoundError:
-            should_update = True
-
-    if not (CACHE_PATH / "output").exists():
-        print("[WARNING] Cache folder found but output is missing. Will regenerate.")
+        normal_print(
+            should_print,
+            "[WARNING] Cache folder found but output is missing. Will regenerate.",
+        )
         should_update = True
 
     if should_update:
-        print("Caching...")
+        normal_print(should_print, "Caching...")
 
     WIDTH = args.width
     # automatically calculate height if not given
@@ -500,10 +490,13 @@ def run_anifetch(args):
                 text=True,
             )
         except KeyboardInterrupt:
+            import platform
+
+            if platform.system == "Linux" or platform.system == "Darwin":
+                subprocess.call("stty sane")
             # Reset the terminal in case it doesnt render the user inputted text after Ctrl+C
-            subprocess.call(["stty", "sane"])
-    else:
-        print(f"It took {time.time() - st} seconds.")
+    else:  # benchmark mode
+        print(time.time() - st)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.
