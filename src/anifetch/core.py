@@ -179,7 +179,7 @@ def run_anifetch(args):
 
     # check cache
     should_update = args.force_render  # True if --force-render
-    print_verbose(args.verbose, should_update)
+    print_verbose(should_print_verbose, should_update)
 
     if not should_update:
         try:
@@ -268,7 +268,7 @@ def run_anifetch(args):
 
     # cache is invalid, re-render
     if should_update:
-        print_verbose(args.verbose, "SHOULD RENDER WITH CHAFA")
+        print_verbose(should_print_verbose, "SHOULD RENDER WITH CHAFA")
 
         # deletes the old cache
         if CACHE_PATH.exists():
@@ -311,11 +311,11 @@ def run_anifetch(args):
                 print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
                 sys.exit(1)
 
-        print_verbose(args.verbose, args.sound_flag_given)
+        print_verbose(should_print_verbose, args.sound_flag_given)
 
         if args.sound_flag_given:
             if args.sound:  # sound file given
-                print_verbose(args.verbose, "Sound file to use:", args.sound)
+                print_verbose(should_print_verbose, "Sound file to use:", args.sound)
                 source = pathlib.Path(args.sound)
                 dest = CACHE_PATH / source.with_name(f"output_audio{source.suffix}")
                 shutil.copy(source, dest)
@@ -328,7 +328,7 @@ def run_anifetch(args):
                 codec = check_codec_of_file(args.filename)
                 ext = get_ext_from_codec(codec)
                 audio_file = extract_audio_from_file(CACHE_PATH, args.filename, ext)
-                print_verbose(args.verbose, "Extracted audio file.")
+                print_verbose(should_print_verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
 
@@ -336,13 +336,13 @@ def run_anifetch(args):
 
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
-            print_verbose(args.verbose, args.sound_saved_path)
+            print_verbose(should_print_verbose, args.sound_saved_path)
 
         # If the new anim frames is shorter than the old one, then in /output there will be both new and old frames.
         # Empty the directory to fix this.
         os.mkdir(OUTPUT_DIR)
 
-        print_verbose(args.verbose, "Emptied the output folder.")
+        print_verbose(should_print_verbose, "Emptied the output folder.")
 
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
@@ -417,8 +417,8 @@ def run_anifetch(args):
         else:
             args.sound_saved_path = None
 
-    print_verbose(args.verbose, "-----------")
-    print_verbose(args.verbose, "ARGS FOR SAVING CACHES.JSON")
+    print_verbose(should_print_verbose, "-----------")
+    print_verbose(should_print_verbose, "ARGS FOR SAVING CACHES.JSON")
 
     # save the caching arguments
     caches_data = get_caches_json(CACHE_LIST_PATH)
@@ -449,7 +449,7 @@ def run_anifetch(args):
     # writing the tempate to a file.
     with open(CACHE_PATH / "template.txt", "w") as f:
         f.writelines(template)
-    print_verbose(args.verbose, "Template updated")
+    print_verbose(should_print_verbose, "Template updated")
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
     TOP = 2
@@ -483,7 +483,7 @@ def run_anifetch(args):
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
 
-            print_verbose(args.verbose, script_args)
+            print_verbose(should_print_verbose, script_args)
             # raise SystemExit
             subprocess.call(
                 script_args,
