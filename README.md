@@ -8,7 +8,7 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 
 ### Automatic Installation
 
-Recommended Python version: 3.12 and later. Linux only. If you use nix refer to [Installation for NixOS via flakes](### ❄️ Installation for NixOS via flakes) or 
+Recommended Python version: 3.12 and later. Linux only. If you use nix refer to [Installation for NixOS via flakes](### Installation for NixOS) or 
 
 Run this in the terminal.
 
@@ -64,7 +64,7 @@ Since pipx installs packages in an isolated environment, you won't have to worry
 
 ---
 
-### Installation for NixOS 
+### Installation for NixOS
 #### ❄️ As a flake:
 Add the anifetch repo as a flake input:
 
