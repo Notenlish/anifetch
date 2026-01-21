@@ -8,7 +8,7 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 
 ### Automatic Installation
 
-Recommended Python version: 3.12 and later.
+Recommended Python version: 3.12 and later. **Linux only**. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
 
 Run this in the terminal.
 
@@ -57,16 +57,16 @@ pipx install git+https://github.com/Notenlish/anifetch.git
 ```
 
 This installs `anifetch` in an isolated environment, keeping your system Python clean.
-You can then run the `anifetch` command **directly in your terminal**.
+You can then run the `anifetch` command directly in your terminal.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
 
 ---
 
-### ❄️ Installation for NixOS via flakes
-
-❄️ Add the anifetch repo as a flake input:
+### Installation for NixOS
+#### ❄️ As a flake:
+Add the anifetch repo as a flake input:
 
 ```nix
 {
@@ -191,6 +191,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `-b` / `--benchmark`: For testing, prints how long it took to process.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma <hex-color>:<similiarity>:<blend>'
+- `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this.
 
 ### Cached files:
 
@@ -214,18 +215,15 @@ anifetch --help
 
 ## 📊 Benchmarks
 
-Here's the benchmark from running each cli 10 times. Tested on Linux Mint with Intel I5-12500H.
+Here's the benchmark from running each cli 10 times. Tested on Windows 11 with Intel I5-12500H processor.
 
-| CLI                          | Time Taken(total) | Time Taken (avg) |
-| ---------------------------- | ----------------- | ---------------- |
-| neofetch                     | 4.996 seconds     | 0.500 seconds    |
-| fastfetch                    | 0.083 seconds     | 0.008 seconds    |
-| anifetch(nocache)(neofetch)  | 77.071 seconds    | 7.707 seconds    |
-| anifetch(cache)(neofetch)    | 5.348 seconds     | 0.535 seconds    |
-| anifetch(nocache)(fastfetch) | 73.414 seconds    | 7.341 seconds    |
-| anifetch(cache)(fastfetch)   | 0.382 seconds     | 0.038 seconds    |
+| CLI                            | Time Taken(total) | Time Taken (avg) |
+| ------------------------------ | ----------------- | ---------------- |
+| fastfetch                      | 0.27 seconds      | 0.03 seconds     |
+| anifetch (nocache) (fastfetch) | 20.18 seconds     | 2.02 seconds     |
+| anifetch (cached) (fastfetch)  | 0.78 seconds      | 0.08 seconds     |
 
-As it can be seen, **Anifetch** is quite fast if you cache the animations, especially when paired with fastfetch.
+As it can be seen, **Anifetch** is quite fast if you cache the animations, especially when paired with fastfetch. Please note that you need to add `-ff` to the command for anifetch to use fastfetch.
 
 ## Troubleshooting
 
