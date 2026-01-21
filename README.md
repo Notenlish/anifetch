@@ -8,7 +8,7 @@ This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows 
 
 ### Automatic Installation
 
-Recommended Python version: 3.12 and later. Linux only. If you use nix refer to [Installation for NixOS via flakes](### Installation for NixOS) or 
+Recommended Python version: 3.12 and later. **Linux only**. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
 
 Run this in the terminal.
 
@@ -57,7 +57,7 @@ pipx install git+https://github.com/Notenlish/anifetch.git
 ```
 
 This installs `anifetch` in an isolated environment, keeping your system Python clean.
-You can then run the `anifetch` command **directly in your terminal**.
+You can then run the `anifetch` command directly in your terminal.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
