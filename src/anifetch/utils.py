@@ -305,14 +305,16 @@ def render_frame(path, width, height, chafa_args: str) -> str:
         path.as_posix(),
     ]
 
-    try:
-        return subprocess.check_output(chafa_cmd, text=True)
-    except subprocess.CalledProcessError as e:
+    p = subprocess.run(
+        chafa_cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    if p.returncode != 0:
         print(
-            f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {e.stderr}",
+            f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {p.stderr}",
             file=sys.stderr,
         )
         sys.exit(1)
+    return p.stdout
 
 
 def get_video_dimensions(filename):
