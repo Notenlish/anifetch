@@ -217,9 +217,9 @@ def run_anifetch(args):
         print("Caching...")
 
     WIDTH = args.width
-    
+
     # automatically calculate height if not given
-    if "--height" not in sys.argv and "-H" not in sys.argv:
+    if should_update and ("--height" not in sys.argv and "-H" not in sys.argv):
         try:
             vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
