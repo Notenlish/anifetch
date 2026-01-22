@@ -3,23 +3,41 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anifetch"
+name = "anifetch-cli_Notenlish"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Topic :: Terminals",
+]
+keywords = [
+    "fetch",
+    "terminal",
+    "cli",
+    "animated",
+    "neofetch",
+    "fastfetch",
+    "anifetch",
+]
 version = "0.1.4"
-description = "Animated terminal fetch with video/audio support."
+description = "Animated terminal fetch with video and audio support."
 authors = [
-    { name = "Notenlish" },
+    { name = "Notenlish", email = "notenlish@gmail.com" },
     { name = "Immelancholy" },
     { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
 ]
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 dependencies = [
     "platformdirs",
     "wcwidth",
     # "windows-curses; platform_system == 'Windows'"
     # Example : "rich>=13.0.0"
 ]
+
+[project.urls]
+Homepage = "https://github.com/Notenlish/anifetch"
+Issues = "https://github.com/Notenlish/anifetch/issues"
 
 [project.scripts]
 anifetch = "anifetch.__init__:main"
