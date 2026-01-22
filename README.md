@@ -28,11 +28,6 @@ anifetch example.mp4
 
 You need the following tools installed on your system:
 
-- `bc`
-
-  - Debian/Ubuntu: `sudo apt install bc`
-  - Arch: `sudo pacman -S bc`
-
 - `chafa`
 
   - Debian/Ubuntu: `sudo apt install chafa`
