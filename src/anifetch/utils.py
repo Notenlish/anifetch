@@ -300,7 +300,7 @@ def render_frame(path, width, height, chafa_args: str) -> str:
         "chafa",
         *chafa_args.strip().split(),
         "--format",
-        "symbols",  # Fix issue #1 by forcing consistent rendering
+        "symbols",  # Fixes https://github.com/Notenlish/anifetch/issues/1
         f"--size={width}x{height}",
         path.as_posix(),
     ]

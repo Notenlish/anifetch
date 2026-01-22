@@ -355,7 +355,6 @@ def run_anifetch(args):
         for i, f in enumerate(animation_files):
             # f = 00001.png
             chafa_args = args.chafa_arguments.strip()
-            chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
 
             path = VIDEO_DIR / f
             frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
