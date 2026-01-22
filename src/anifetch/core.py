@@ -217,10 +217,11 @@ def run_anifetch(args):
         print("Caching...")
 
     WIDTH = args.width
+    
     # automatically calculate height if not given
     if "--height" not in sys.argv and "-H" not in sys.argv:
         try:
-            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)  #### Zob
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -469,11 +470,6 @@ def run_anifetch(args):
     output_width = get_text_length_of_formatted_text(output)
     template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
 
-    # writing the tempate to a file.
-    with open(BASE_PATH / "template.txt", "w") as f:
-        f.writelines(template)
-    print_verbose(args.verbose, "Template updated")
-
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
     TOP = args.top
     LEFT = PAD_LEFT
@@ -506,6 +502,7 @@ def run_anifetch(args):
             RIGHT,
             BOTTOM,
             template_actual_width,
+            template,
             sound_saved_path=args.sound_saved_path,
         )
 

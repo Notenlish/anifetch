@@ -1,3 +1,4 @@
+from copy import deepcopy
 from anifetch.utils import get_terminal_width
 import os
 import sys
@@ -56,6 +57,7 @@ class Renderer:
         right: int,
         bottom: int,
         template_width: int,
+        template: list[str],
         sound_saved_path: str = "",
     ):
         self.base_path: str = base_path
@@ -68,15 +70,16 @@ class Renderer:
         self.template_width: int = template_width
         self.sound_saved_path: str = sound_saved_path
         self.frame_dir: str = f"{cache_path}/output"
-        self.static_template_path: str = f"{base_path}/template.txt"
-        logging.info("static template path", self.static_template_path)
+
+        self.last_terminal_width: int = get_terminal_width()
+        self.original_template_buffer: list[str] = template
+        self.template_buffer: list[str] = []
+        self._make_truncated_template(self.last_terminal_width)
+
         num_lines = bottom - top
         sleep_time = 1 / framerate_to_use
         self.adjusted_sleep_time: float = sleep_time / num_lines
-        self.template_buffer: list[str] = []
 
-        self.last_terminal_width: int = get_terminal_width()
-        print(self.last_terminal_width)
         self.resize_requested: bool = False
         self.resize_in_progress: bool = False
         self.resize_delay: float = 0.033  # seconds
@@ -163,36 +166,26 @@ class Renderer:
         # TODO: also maybe truncate stuff for height(lines) as well?
         # Oh and check the issues on github, try to do all of them, then do 1.0 release and also include a tutorial as well.
 
+    def _make_truncated_template(self, terminal_width: int):
+        self.template_buffer = [
+            truncate_line(line, terminal_width)
+            for line in self.original_template_buffer
+        ]
+
     def process_template(self) -> bool:
         """Returns whether it changed anything or not. Responsible for updating template_buffer with a truncated version of the saved template."""
         terminal_width = get_terminal_width()
         changed = False
 
-        # initial fill(if empty)
-        if not self.template_buffer:
-            logging.info(
-                f"Empty so doing initial fill, heres template path: {self.static_template_path}"
-            )
-            with open(self.static_template_path, "r") as f:
-                self.template_buffer = [
-                    truncate_line(line, terminal_width) for line in f.readlines()
-                ]
-            changed = True
         # reprocess template if the terminal width has changed.
         if terminal_width != self.last_terminal_width:
             logging.info(
                 f"Window size changed, remaking template buffer. Max size is {terminal_width}"
             )
-            self.template_buffer = []
-
             if terminal_width < 1:
                 terminal_width = 1
 
-            line_num = 0
-            with open(self.static_template_path, "r") as f:
-                self.template_buffer = [
-                    truncate_line(line, terminal_width) for line in f.readlines()
-                ]
+            self._make_truncated_template(terminal_width)
 
             self.last_terminal_width = terminal_width
             changed = True
