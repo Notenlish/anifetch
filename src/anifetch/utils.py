@@ -15,6 +15,9 @@ from importlib.metadata import version, PackageNotFoundError
 import shutil
 from copy import deepcopy
 from hashlib import sha256
+from typing import Literal
+import errno
+
 
 from platformdirs import user_data_dir
 import wcwidth
@@ -278,6 +281,50 @@ def get_neofetch_status():  # will still save the rendered chafa in cache in any
             return "neofetch"  # neofetch works
     except FileNotFoundError:
         return "uninstalled"  # neofetch is not installed
+
+
+def get_fetch_output(
+    use_fastfetch: bool,
+    neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
+    force_neofetch: bool,
+):
+    fetch_output: list[str]
+    if not use_fastfetch:
+        if (
+            neofetch_status == "wrapper" and force_neofetch
+        ) or neofetch_status == "neofetch":
+            # Get Neofetch Output
+            fetch_output = subprocess.check_output(
+                ["neofetch", "--off"], text=True
+            ).splitlines()
+
+        elif neofetch_status == "uninstalled":
+            print(
+                "Neofetch is not installed. Please install Neofetch or Fastfetch.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        else:
+            print(
+                "Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    else:
+        try:
+            fetch_output = subprocess.check_output(
+                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
+            ).splitlines()
+        except FileNotFoundError as e:
+            if e.errno == errno.ENOENT:
+                print(
+                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file#installation\n If you installed Fastfetch but it still doesn't work, check your PATH."
+                )
+                raise SystemExit
+            else:
+                raise Exception(e)
+    return fetch_output
 
 
 def render_frame(path, width, height, chafa_args: str) -> str:

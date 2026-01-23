@@ -29,7 +29,9 @@ from .utils import (
     get_caches_json,
     save_caches_json,
     args_checker,
+    get_fetch_output,
 )
+from typing import Literal
 
 GAP = 2
 PAD_LEFT = 4
@@ -48,7 +50,7 @@ def run_anifetch(args):
     args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
 
-    neofetch_status = "uninstalled"
+    neofetch_status: Literal["neofetch", "uninstalled", "wrapper"] = "uninstalled"
     if not args.fast_fetch:
         neofetch_status = get_neofetch_status()
 
@@ -232,48 +234,14 @@ def run_anifetch(args):
         HEIGHT = args.height
 
     # Get the fetch output(neofetch/fastfetch)
-    if not args.fast_fetch:
-        if (
-            neofetch_status == "wrapper" and args.force
-        ) or neofetch_status == "neofetch":
-            # Get Neofetch Output
-            fetch_output = subprocess.check_output(
-                ["neofetch", "--off"], text=True
-            ).splitlines()
-
-        elif neofetch_status == "uninstalled":
-            print(
-                "Neofetch is not installed. Please install Neofetch or Fastfetch.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
-        else:
-            print(
-                "Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-    else:
-        try:
-            fetch_output = subprocess.check_output(
-                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
-            ).splitlines()
-        except FileNotFoundError as e:
-            if e.errno == errno.ENOENT:
-                print(
-                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH."
-                )
-                raise SystemExit
-            else:
-                raise Exception(e)
+    fetch_output: list[str] = get_fetch_output(
+        args.fast_fetch, neofetch_status, args.force
+    )
+    fetch_lines: list[str] = fetch_output[:]
+    len_fetch = len(fetch_lines)
 
     # put cached frames here
     frames: list[str] = []
-
-    # copy the fetch output to the fetch_lines variable
-    fetch_lines = fetch_output[:]
-    len_fetch = len(fetch_lines)
 
     # cache is invalid, re-render
     if should_update:
@@ -348,6 +316,10 @@ def run_anifetch(args):
         os.mkdir(OUTPUT_DIR)
 
         print_verbose(args.verbose, "Emptied the output folder.")
+
+        # make sure height and width are at least 1
+        WIDTH = max(WIDTH, 1)
+        HEIGHT = max(HEIGHT, 1)
 
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
@@ -502,6 +474,7 @@ def run_anifetch(args):
             BOTTOM,
             template_actual_width,
             template,
+            refresh_interval=args.interval,
             sound_saved_path=args.sound_saved_path,
         )
 

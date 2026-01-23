@@ -109,6 +109,14 @@ parser.add_argument(
     type=str,
 )
 parser.add_argument(
+    "-i",
+    "--interval",
+    required=False,
+    type=float,
+    help="Set fetch refresh interval in seconds. Default is -1(never).",
+    default=-1,
+)
+parser.add_argument(
     "--version",
     action="version",
     version="%(prog)s {version}".format(version=get_version_of_anifetch()),

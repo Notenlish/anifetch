@@ -22,10 +22,13 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
+# TODO: You thought you fixed terminal mode changing? No you didnt because the bug is still there and happens only when it should update the cache.
+# Oh and when you want to reproduce it you MUST open up a new terminal, cd into anifetch, activate venv and THEN call a command that makes anifetch cache the result
+
+# TODO: change the default from neofetch to fastfetch and make neofetch only be able to be ran with -nf
 # TODO: add an argument to also update the system info over time. The timing period could be changed over time.
 # TODO: nix flake update needed
-# TODO: Install script for macos/windows
-# TODO: multithreading (also add ability to specify num of threads to use)
+# TODO: pypi release
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
 # TODO: add a "nocache" mode.
 # TODO: add an option to not clear the screen when animation loop ends
@@ -58,6 +61,7 @@ class Renderer:
         bottom: int,
         template_width: int,
         template: list[str],
+        refresh_interval: float,
         sound_saved_path: str = "",
     ):
         self.base_path: str = base_path
@@ -70,6 +74,9 @@ class Renderer:
         self.template_width: int = template_width
         self.sound_saved_path: str = sound_saved_path
         self.frame_dir: str = f"{cache_path}/output"
+
+        self.refresh_interval: float = refresh_interval
+        self.last_refresh_time = time.time()
 
         self.last_terminal_width: int = get_terminal_width()
         self.original_template_buffer: list[str] = template
@@ -88,6 +95,14 @@ class Renderer:
         self.sound_process: subprocess.Popen[bytes] | None = None
 
         self.key_reader = KeyReader()
+
+    def check_template_buffer_refresh(self):
+        return
+        dif = time.time() - self.last_refresh_time
+
+        if dif > self.refresh_interval:
+            self.last_refresh_time = time.time()
+            # TODO: finish this
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
@@ -196,6 +211,7 @@ class Renderer:
         i = 1
         wanted_epoch = 0
         start_time = time.time()
+        self.last_refresh_time = time.time()
         while True:
             for frame_name in sorted(os.listdir(self.frame_dir)):
                 frame_path = f"{self.frame_dir}/{frame_name}"
@@ -210,6 +226,8 @@ class Renderer:
                         print(
                             line, end="", flush=False
                         )  # there may be a faster way to do this.
+                        # TODO: make this better.
+
                         current_top += 1
                         if current_top > self.bottom:
                             break
@@ -229,13 +247,13 @@ class Renderer:
                 i += 1
 
                 # runs every frame.
-                logger.info(f"kafayı yicem {self.last_terminal_width}")
 
                 k = self.key_reader.poll()
                 if k is not None:
                     # if k in ("q", "Q"):
                     raise KeyboardInterrupt
 
+                self.check_template_buffer_refresh()
                 self.process_resize_if_requested()
                 sys.stdout.flush()
             time.sleep(0.0000005)  # TODO: is this even required?
