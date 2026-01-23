@@ -4,6 +4,7 @@
 Anifetch utility module for common functions used across the application.
 """
 
+from pathlib import Path
 import pathlib
 import json
 import re
@@ -327,22 +328,7 @@ def get_fetch_output(
     return fetch_output
 
 
-def render_frame(path, width, height, chafa_args: str) -> str:
-    """
-    Renders a single frame using chafa.
-
-    Args:
-        path (Path): Path to the image file.
-        width (int): Target width for rendering.
-        height (int): Target height for rendering.
-        chafa_args (str): Additional CLI arguments for chafa (space-separated).
-
-    Returns:
-        str: Rendered frame as ASCII text.
-
-    Raises:
-        SystemExit: If chafa fails to render the frame.
-    """
+def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
     chafa_cmd = [
         "chafa",
         *chafa_args.strip().split(),
@@ -353,14 +339,18 @@ def render_frame(path, width, height, chafa_args: str) -> str:
     ]
 
     p = subprocess.run(
-        chafa_cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        chafa_cmd,
+        text=True,
+        stdin=subprocess.DEVNULL,  # Fixes terminal mode switching(^[[A etc. being printed and past commands not showing up when up/down arrows are being used)
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     if p.returncode != 0:
         print(
             f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {p.stderr}",
             file=sys.stderr,
         )
-        sys.exit(1)
+        raise SystemExit
     return p.stdout
 
 

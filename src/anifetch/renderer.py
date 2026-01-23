@@ -27,6 +27,7 @@ logging.basicConfig(
 
 # TODO: change the default from neofetch to fastfetch and make neofetch only be able to be ran with -nf
 # TODO: add an argument to also update the system info over time. The timing period could be changed over time.
+
 # TODO: nix flake update needed
 # TODO: pypi release
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
