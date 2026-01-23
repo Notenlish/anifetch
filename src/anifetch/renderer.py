@@ -121,7 +121,7 @@ class Renderer:
         dif = time.time() - self.last_refresh_time
         if dif < self.refresh_interval:  # not enough time passed
             return
-        self.len_chafa: int
+        self.len_chafa: int  # trick pyright
 
         self.last_refresh_time = time.time()
 
