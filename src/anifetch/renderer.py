@@ -95,6 +95,7 @@ class Renderer:
         self.len_chafa: int | None = len_chafa
         self.width: int = width
         self.gap: int = gap
+        self.refetched = False
 
         self.last_terminal_width: int = get_terminal_width()
         self.original_template_buffer: list[str] = template
@@ -141,8 +142,7 @@ class Renderer:
         )
         self.original_template_buffer = template
         self.template_width = template_width
-        self._make_truncated_template(self.last_terminal_width)
-        # raise SystemExit
+        self.refetched = True
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
@@ -233,10 +233,11 @@ class Renderer:
         changed = False
 
         # reprocess template if the terminal width has changed.
-        if terminal_width != self.last_terminal_width:
+        if terminal_width != self.last_terminal_width or self.refetched:
             logging.info(
-                f"Window size changed, remaking template buffer. Max size is {terminal_width}"
+                f"Window size changed / refreshed the fetch, remaking template buffer. Max size is {terminal_width}"
             )
+            self.refetched = False
             if terminal_width < 1:
                 terminal_width = 1
 
