@@ -12,10 +12,14 @@ from .utils import (
     truncate_line,
     enable_autowrap,
     disable_autowrap,
+    get_fetch_output,
+    center_template_to_animation,
+    make_template_from_fetch_lines,
 )
 import subprocess
 from .keyreader import KeyReader
 import logging
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -59,6 +63,13 @@ class Renderer:
         bottom: int,
         template_width: int,
         template: list[str],
+        use_fastfetch: bool,
+        neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
+        force_neofetch: bool,
+        is_centered: bool,
+        len_chafa: int | None,
+        width: int,
+        gap: int,
         refresh_interval: float,
         sound_saved_path: str = "",
     ):
@@ -74,7 +85,16 @@ class Renderer:
         self.frame_dir: str = f"{cache_path}/output"
 
         self.refresh_interval: float = refresh_interval
-        self.last_refresh_time = time.time()
+        self.last_refresh_time: float = time.time()
+        self.use_fastfetch: bool = use_fastfetch
+        self.neofetch_status: Literal["neofetch", "uninstalled", "wrapper"] = (
+            neofetch_status
+        )
+        self.force_neofetch: bool = force_neofetch
+        self.is_centered: bool = is_centered
+        self.len_chafa: int | None = len_chafa
+        self.width: int = width
+        self.gap: int = gap
 
         self.last_terminal_width: int = get_terminal_width()
         self.original_template_buffer: list[str] = template
@@ -97,12 +117,32 @@ class Renderer:
     def check_template_buffer_refresh(self):
         if self.refresh_interval == -1:
             return
-        
         dif = time.time() - self.last_refresh_time
+        if dif < self.refresh_interval:  # not enough time passed
+            return
+        self.len_chafa: int
 
-        if dif > self.refresh_interval:
-            self.last_refresh_time = time.time()
-            # TODO: finish this
+        self.last_refresh_time = time.time()
+
+        fetch_output: list[str] = get_fetch_output(
+            self.use_fastfetch, self.neofetch_status, self.force_neofetch
+        )
+
+        len_fetch = len(fetch_output)
+        if self.is_centered and len_fetch < self.len_chafa:
+            fetch_lines: list[str] = center_template_to_animation(
+                self.width, self.len_chafa, len_fetch, fetch_output
+            )
+        else:
+            fetch_lines: list[str] = fetch_output[:]  # copy
+
+        template, template_width = make_template_from_fetch_lines(
+            fetch_lines, self.left, self.gap, self.width
+        )
+        self.original_template_buffer = template
+        self.template_width = template_width
+        self._make_truncated_template(self.last_terminal_width)
+        # raise SystemExit
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""

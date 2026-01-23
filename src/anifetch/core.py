@@ -13,7 +13,6 @@ import time
 from .utils import (
     check_codec_of_file,
     extract_audio_from_file,
-    get_text_length_of_formatted_text,
     get_ext_from_codec,
     get_data_path,
     default_asset_presence_check,
@@ -30,6 +29,8 @@ from .utils import (
     save_caches_json,
     args_checker,
     get_fetch_output,
+    center_template_to_animation,
+    make_template_from_fetch_lines,
 )
 from typing import Literal
 
@@ -216,11 +217,15 @@ def run_anifetch(args):
     fetch_output: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force
     )
+
+    # copy fetch_output to fetch_lines
     fetch_lines: list[str] = fetch_output[:]
     len_fetch = len(fetch_lines)
 
     # put cached frames here
     frames: list[str] = []
+
+    len_chafa = None
 
     # cache is invalid, re-render
     if should_update:
@@ -331,12 +336,8 @@ def run_anifetch(args):
                 elif (
                     len_fetch < len_chafa
                 ):  # if the chafa animation is longer than the fetch output
-                    pad = (len_chafa - len_fetch) // 2
-                    remind = (len_chafa - len_fetch) % 2
-                    fetch_lines = (
-                        [" " * WIDTH] * pad
-                        + fetch_output
-                        + [" " * WIDTH] * (pad + remind)
+                    fetch_lines: list[str] = center_template_to_animation(
+                        WIDTH, len_chafa, len_fetch, fetch_output
                     )
 
                 if i == 0:
@@ -368,10 +369,8 @@ def run_anifetch(args):
         if args.center:
             len_chafa = len(frame.splitlines())
             if len_fetch < len_chafa:
-                pad = (len_chafa - len_fetch) // 2
-                remind = (len_chafa - len_fetch) % 2
-                fetch_lines = (
-                    [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+                fetch_lines: list[str] = center_template_to_animation(
+                    WIDTH, len_chafa, len_fetch, fetch_output
                 )
 
         with open(CACHE_PATH / "frame.txt", "w") as f:
@@ -411,14 +410,9 @@ def run_anifetch(args):
     if len(fetch_lines) == 0:
         raise Exception("fetch_lines has no items in it:", fetch_lines)
 
-    template = []
-    for fetch_line in fetch_lines:
-        output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
-        template.append(output + "\n")
-
-    # Only do this once instead of for every line.
-    output_width = get_text_length_of_formatted_text(output)
-    template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
+    template, template_actual_width = make_template_from_fetch_lines(
+        fetch_lines, PAD_LEFT, GAP, WIDTH
+    )
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
     TOP = args.top
@@ -426,12 +420,8 @@ def run_anifetch(args):
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
 
-    bash_script_name = "anifetch-static-resize2.sh"
-    script_dir = pathlib.Path(__file__).parent
-    bash_script_path = script_dir / bash_script_name
-
     if args.benchmark:
-        print(f"It took {time.time() - st} seconds.")
+        print(time.time() - st)
     else:
         from .renderer import Renderer
 
@@ -453,6 +443,13 @@ def run_anifetch(args):
             BOTTOM,
             template_actual_width,
             template,
+            not args.neofetch,
+            neofetch_status,
+            args.force,
+            args.center,
+            len_chafa or None,
+            WIDTH,
+            GAP,
             refresh_interval=args.interval,
             sound_saved_path=args.sound_saved_path,
         )

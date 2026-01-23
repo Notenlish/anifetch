@@ -328,6 +328,30 @@ def get_fetch_output(
     return fetch_output
 
 
+def center_template_to_animation(
+    WIDTH, len_chafa, len_fetch, fetch_output
+) -> list[str]:
+    pad = (len_chafa - len_fetch) // 2
+    remind = (len_chafa - len_fetch) % 2
+    fetch_lines: list[str] = (
+        [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+    )
+    return fetch_lines
+
+
+def make_template_from_fetch_lines(
+    fetch_lines: list[str], PAD_LEFT, GAP, WIDTH
+) -> tuple[list[str], int]:
+    template: list[str] = []
+    for fetch_line in fetch_lines:
+        output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}\n"
+        template.append(output)
+
+    # Only do this once instead of for every line.
+    template_actual_width = get_text_length_of_formatted_text(output)
+    return (template, template_actual_width)
+
+
 def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
     chafa_cmd = [
         "chafa",
@@ -387,6 +411,9 @@ def clean_cache_args(cache_args: dict) -> dict:
         "fast_fetch",
         "benchmark",
         "force_render",
+        "force",
+        "neofetch",
+        "interval",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:
