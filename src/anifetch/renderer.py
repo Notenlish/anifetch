@@ -26,13 +26,13 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
-# TODO: change the default from neofetch to fastfetch and make neofetch only be able to be ran with -nf
-# TODO: add an argument to also update the system info over time. The timing period could be changed over time.
+
+# TODO: when renderer is done it should move the cursor to an appropriate position(the bottom) not the center.
 
 # TODO: nix flake update needed
 # TODO: pypi release
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
-# TODO: add a "nocache" mode.
+# TODO: add a "nocache" mode(for streaming mode).
 # TODO: add an option to not clear the screen when animation loop ends
 # TODO: Make installation process easier for nixos(tell users to use flakes or smth), MacOS and Windows
 # TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk.
