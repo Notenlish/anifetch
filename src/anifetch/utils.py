@@ -290,7 +290,7 @@ def get_fetch_output(
     force_neofetch: bool,
 ):
     fetch_output: list[str]
-    if not use_fastfetch:
+    if not use_fastfetch:  # use neofetch
         if (
             neofetch_status == "wrapper" and force_neofetch
         ) or neofetch_status == "neofetch":
@@ -301,14 +301,14 @@ def get_fetch_output(
 
         elif neofetch_status == "uninstalled":
             print(
-                "Neofetch is not installed. Please install Neofetch or Fastfetch.",
+                "Neofetch is not installed. Please install Neofetch.",
                 file=sys.stderr,
             )
             sys.exit(1)
 
         else:
             print(
-                "Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.",
+                "Neofetch is deprecated. Try fastfetch by removing the '-nf' / '--neofetch' argument or force neofetch to run by adding '--force' argument.",
                 file=sys.stderr,
             )
             sys.exit(1)

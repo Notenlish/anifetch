@@ -51,7 +51,7 @@ def run_anifetch(args):
     args.chroma_flag_given = args.chroma is not None
 
     neofetch_status: Literal["neofetch", "uninstalled", "wrapper"] = "uninstalled"
-    if not args.fast_fetch:
+    if args.neofetch:
         neofetch_status = get_neofetch_status()
 
     BASE_PATH = get_data_path()
@@ -194,27 +194,6 @@ def run_anifetch(args):
         print("[WARNING] Cache folder found but output is missing. Will regenerate.")
         should_update = True
 
-    if not should_update:
-        try:
-            with open(CACHE_LIST_PATH, "r") as f:
-                all_caches = json.load(f)
-
-            for cache_args in all_caches:
-                if check_args_hash_same(cache_args, cleaned_dict):
-                    break
-            else:
-                print_verbose(
-                    "Couldn't find a corresponding cache. Will cache the animation."
-                )
-                should_update = True
-
-        except FileNotFoundError:
-            should_update = True
-
-    if not (CACHE_PATH / "output").exists():
-        print("[WARNING] Cache folder found but output is missing. Will regenerate.")
-        should_update = True
-
     if should_update:
         print("Caching...")
 
@@ -235,7 +214,7 @@ def run_anifetch(args):
 
     # Get the fetch output(neofetch/fastfetch)
     fetch_output: list[str] = get_fetch_output(
-        args.fast_fetch, neofetch_status, args.force
+        not args.neofetch, neofetch_status, args.force
     )
     fetch_lines: list[str] = fetch_output[:]
     len_fetch = len(fetch_lines)

@@ -22,9 +22,6 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
-# TODO: You thought you fixed terminal mode changing? No you didnt because the bug is still there and happens only when it should update the cache.
-# Oh and when you want to reproduce it you MUST open up a new terminal, cd into anifetch, activate venv and THEN call a command that makes anifetch cache the result
-
 # TODO: change the default from neofetch to fastfetch and make neofetch only be able to be ran with -nf
 # TODO: add an argument to also update the system info over time. The timing period could be changed over time.
 
@@ -98,7 +95,9 @@ class Renderer:
         self.key_reader = KeyReader()
 
     def check_template_buffer_refresh(self):
-        return
+        if self.refresh_interval == -1:
+            return
+        
         dif = time.time() - self.last_refresh_time
 
         if dif > self.refresh_interval:

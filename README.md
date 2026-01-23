@@ -2,7 +2,7 @@
 
 # Anifetch - Neofetch but animated.
 
-This is a small tool built with neofetch/fastfetch, ffmpeg and chafa. It allows you to use neofetch or fastfetch while having animations.
+This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows you to use neofetch or fastfetch while having animations.
 
 ## Installation
 
@@ -22,6 +22,8 @@ After installation, run this to test if anifetch was installed correctly:
 anifetch example.mp4
 ```
 
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
+
 ---
 
 ### Manual Installation
@@ -38,6 +40,12 @@ You need the following tools installed on your system:
   - Debian/Ubuntu: `sudo apt install ffmpeg`
   - [Other systems – Download](https://www.ffmpeg.org/download.html)
 
+- `fastfetch / neofetch` (Fastfetch is recommended)
+
+  - Debian/Ubuntu: `sudo apt install fastfetch`
+  - [Other systems - Instructions for Fastfetch](https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file#installation)
+  - Neofetch installation _(Not recommended)_ can be found [here](https://github.com/dylanaraps/neofetch/wiki/Installation)
+
 🔧 Make sure `pipx` is installed:
 
 ```bash
@@ -52,7 +60,7 @@ pipx install git+https://github.com/Notenlish/anifetch.git
 ```
 
 This installs `anifetch` in an isolated environment, keeping your system Python clean.
-You can then run the `anifetch` command **directly in your terminal**.
+You can then run the `anifetch` command directly in your terminal.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
@@ -137,18 +145,17 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 ```
-> on windows do this instead: `venv\Scripts\activate`
+> on windows do this to activate the venv instead: `venv\Scripts\activate`
 
 
-This installs `anifetch` in **editable mode** within a local virtual environment for development.
+This installs `anifetch` in editable mode within a local virtual environment for development.
 
 You can then run the program in two ways:
 
 - As a CLI: `anifetch`
 - Or as a module: `python3 -m anifetch` (useful for debugging or internal testing)
 
-⚠️ Please avoid using `pip install` outside a virtual environment on systems like Ubuntu.
-This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
+> Please avoid using `pip install` outside a virtual environment on systems like Ubuntu. This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
 
 On Nix you can run:
 
@@ -159,18 +166,20 @@ pip install -e .
 
 inside the anifetch dir after cloning the repo. This creates a python venv you can re-enter by running `nix develop` inside the project dir.
 
-## ▶️ How to Use It
+## User Guide
 
-You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that at least one of these must be installed, otherwise anifetch won't work. To use **fastfetch**, you must append `-ff` to the anifetch command.
+You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that at least one of these must be installed, otherwise anifetch won't work. **By default, `anifetch` will use fastfetch**. 
 
-Simply `cd` to the directory your video file is located in and do `anifetch [relative_path]`. You can also use absolute paths. Anifetch is packaged with an `example.mp4` video by default. You can use that to test anifetch.
+> We dont recommend using neofetch as it is archived. **To use neofetch**, you must append `-nf` to the anifetch command. For some distros you may need to append `--force` to the command since neofetch is deprecated.
 
-Any video file you give to anifetch will be stored in `~/.local/share/anifetch/assets` folder for linux and `C:\\Users\\[Username]\\AppData\\Local\\anifetch\\anifetch\\assets` folder for windows. After running `anifetch` with this video file once, next time use anifetch, you will be able to use that same video file in any location by just using its filename, since the video file has been saved in `/assets`.
+Simply `cd` to the directory your video file is located in and do `anifetch [path_to_video_file]`. Both relative and absolute paths are supported. Anifetch is packaged with an `example.mp4` video by default. You can use that to test anifetch.
+
+Any video file you give to anifetch will be stored in `~/.local/share/anifetch/assets` folder for linux and `C:\\Users\\[Username]\\AppData\\Local\\anifetch\\anifetch\\assets` folder for windows. After running `anifetch` with this video file once, next time you use anifetch, you will be able to use that same video file in any location by just using its filename, since the video file has been saved in `assets`.
 
 ### Example usage:
 
 ```bash
-anifetch video.mp4 -r 10 -W 40 -H 20 -c "--symbols wide --fg-only"
+anifetch video.mp4 -W 40 -H 20 -c "--symbols wide --fg-only"
 ```
 
 _Note : by default, the video `example.mp4` can directly be used as an example._
@@ -183,11 +192,12 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `-H` / `--height`: video height (may be automatically fixed with the width)
 - `-c` / `--chafa`: extra arguments to pass to `chafa`
 - `-C` / `--center`: centers the terminal animation vertically
-- `-ff` / `--fast-fetch`: uses `fastfetch` instead of `neofetch` if available
+- `-nf` / `--neofetch`: uses `neofetch` instead of `fastfetch`
 - `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken or the contents of the video file has changed.
-- `-b` / `--benchmark`: For testing, prints how long it took to process.
+- `-i` / `--interval`: Use this to make anifetch update the fetch information over time, sets fetch refresh interval in seconds. Default is -1(never). 
+- `-b` / `--benchmark`: For testing, prints how long it took to process in seconds.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
-- `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma <hex-color>:<similiarity>:<blend>'
+- `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
 
 ### Cached files:
 
@@ -201,7 +211,7 @@ Cache-related commands:
 
 `anifetch --clear` — Delete all cached files.
 
-Note that modifying the content of a video file but keeping the same name makes Anifetch still use the old cache. In that case, use `--force-render` to bypass the cache and generate a new version.
+Note that modifying the content of a video file but keeping the same name makes Anifetch still use the old cache. In that case, use `--force-render` or `-fr` to bypass the cache and generate a new version.
 
 For full help:
 
@@ -222,7 +232,7 @@ Here's the benchmark from running each cli 10 times. Tested on Linux Mint with I
 | anifetch(nocache)(fastfetch) | 73.414 seconds    | 7.341 seconds    |
 | anifetch(cache)(fastfetch)   | 0.382 seconds     | 0.038 seconds    |
 
-As it can be seen, **Anifetch** is quite fast if you cache the animations, especially when paired with fastfetch.
+As it can be seen, Anifetch is quite fast if you cache the animations, especially when paired with fastfetch.
 
 ## Troubleshooting
 
@@ -238,39 +248,15 @@ Currently only the `symbols` format of chafa is supported, formats like kitty, i
 
 ## What's Next
 
-- [x] Add music support
-
-- [x] Cache chafa output
-
-- [x] Make it faster
-
-- [x] Only save the template + animation frames, dont save the animation frames with the layout applied to them.
-
-- [x] Add fastfetch support.
-
-- [x] Instead of just saving the filename for cache validation, save the width and height as well.
-
-- [x] Seperate frame generation framerate(ffmpeg) and video playback framerate
-
-- [x] Fix audio sync issues.
-
 - [ ] Add an info text that updates itself when caching.
 
 - [ ] Allow setting ffmpeg args.
-
-- [ ] Use threading when seperating video into frames and process them with chafa at the same time. This should speed up caching significantly.
-
-- [x] Fix transparent video frame seperation.
-
-- [ ] Figure out a way to display animations faster. Either optimize the bash script or use Python/C.
 
 - [ ] Support different formats like iterm, kitty, sixel etc.
 
 - [ ] Allow the user to provide their own premade frames in a folder instead of an video.
 
 - [ ] Update the animated logo on the readme so that its resolution is smaller + each individual symbol is bigger.
-
-- [x] Create an installer bash script to provide an easy installation option for people.
 
 ## Dev commands
 
@@ -280,7 +266,7 @@ Devs can use additional tools in the `tools` folder in order to test new feature
 
 Neofetch: [Neofetch](https://github.com/dylanaraps/neofetch)
 
-I got the base neofetch config from here, spesifically the Bejkon 2 config file: [Neofetch Themes by Chick2D](https://github.com/Chick2D/neofetch-themes)
+Fastfetch: [Fastfetch](https://github.com/fastfetch-cli/fastfetch)
 
 I got the inspiration for Anifetch from Pewdiepie's Linux video. [Video](https://m.youtube.com/watch?v=pVI_smLgTY0&t=878s&pp=ygUJcGV3ZGllcGll)
 
