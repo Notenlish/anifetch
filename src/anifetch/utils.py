@@ -73,6 +73,12 @@ def tput_cup(row: int, col: int):
     # sys.stdout.flush()  # not needed appearently
 
 
+def get_lowest_y_pos(template_len: int, HEIGHT: int, TOP: int):
+    template_row = TOP + template_len
+    chafa_row = TOP + HEIGHT
+    return max(template_row, max(chafa_row, 0))
+
+
 def tput_el():  # tput clear to end of the line
     """Clears from the cursor to the end of the line."""
     sys.stdout.write("\x1b[K")
@@ -414,6 +420,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "force",
         "neofetch",
         "interval",
+        "cleanup",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:

@@ -179,7 +179,7 @@ Any video file you give to anifetch will be stored in `~/.local/share/anifetch/a
 ### Example usage:
 
 ```bash
-anifetch video.mp4 -W 40 -H 20 -c "--symbols wide --fg-only"
+anifetch video.mp4 -W 40 -H 20 -ca "--symbols wide --fg-only"
 ```
 
 _Note : by default, the video `example.mp4` can directly be used as an example._
@@ -190,8 +190,9 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `-r` / `--framerate`: frame rate of playback
 - `-W` / `--width`: video width
 - `-H` / `--height`: video height (may be automatically fixed with the width)
-- `-c` / `--chafa`: extra arguments to pass to `chafa`
+- `-ca` / `--chafa-arguments`: extra arguments to pass to `chafa`
 - `-C` / `--center`: centers the terminal animation vertically
+- `--cleanup`: Clears the screen on program exit.
 - `-nf` / `--neofetch`: uses `neofetch` instead of `fastfetch`
 - `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken or the contents of the video file has changed.
 - `-i` / `--interval`: Use this to make anifetch update the fetch information over time, sets fetch refresh interval in seconds. Default is -1(never). 
@@ -218,6 +219,13 @@ For full help:
 ```bash
 anifetch --help
 ```
+
+## Customizing Fastfetch/Neofetch output
+
+For customizing fastfetch/neofetch output, you can check out these pages:
+- [Fastfetch Customization](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration)
+- [Neofetch Customization](https://github.com/dylanaraps/neofetch/wiki/Customizing-Info)
+
 
 ## 📊 Benchmarks
 

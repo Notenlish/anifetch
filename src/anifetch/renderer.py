@@ -20,6 +20,7 @@ import subprocess
 from .keyreader import KeyReader
 import logging
 from typing import Literal
+from threading import Thread
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -96,6 +97,7 @@ class Renderer:
         self.width: int = width
         self.gap: int = gap
         self.refetched = False
+        self.stop_fetch_thread = False
 
         self.last_terminal_width: int = get_terminal_width()
         self.original_template_buffer: list[str] = template
@@ -116,33 +118,46 @@ class Renderer:
         self.key_reader = KeyReader()
 
     def check_template_buffer_refresh(self):
-        if self.refresh_interval == -1:
-            return
-        dif = time.time() - self.last_refresh_time
-        if dif < self.refresh_interval:  # not enough time passed
-            return
-        self.len_chafa: int  # trick pyright
+        def _():
+            if self.refresh_interval == -1:
+                return
+            dif = time.time() - self.last_refresh_time
+            if dif < self.refresh_interval:  # not enough time passed
+                return
+            self.len_chafa: int  # trick pyright
 
-        self.last_refresh_time = time.time()
+            self.last_refresh_time = time.time()
 
-        fetch_output: list[str] = get_fetch_output(
-            self.use_fastfetch, self.neofetch_status, self.force_neofetch
-        )
-
-        len_fetch = len(fetch_output)
-        if self.is_centered and len_fetch < self.len_chafa:
-            fetch_lines: list[str] = center_template_to_animation(
-                self.width, self.len_chafa, len_fetch, fetch_output
+            if self.stop_fetch_thread:
+                return
+            fetch_output: list[str] = get_fetch_output(
+                self.use_fastfetch, self.neofetch_status, self.force_neofetch
             )
-        else:
-            fetch_lines: list[str] = fetch_output[:]  # copy
 
-        template, template_width = make_template_from_fetch_lines(
-            fetch_lines, self.left, self.gap, self.width
-        )
-        self.original_template_buffer = template
-        self.template_width = template_width
-        self.refetched = True
+            if self.stop_fetch_thread:
+                return
+            len_fetch = len(fetch_output)
+            if self.is_centered and len_fetch < self.len_chafa:
+                fetch_lines: list[str] = center_template_to_animation(
+                    self.width, self.len_chafa, len_fetch, fetch_output
+                )
+            else:
+                fetch_lines: list[str] = fetch_output[:]  # copy
+
+            if self.stop_fetch_thread:
+                return
+            template, template_width = make_template_from_fetch_lines(
+                fetch_lines, self.left, self.gap, self.width
+            )
+            if self.stop_fetch_thread:
+                return
+            self.original_template_buffer = template
+            self.template_width = template_width
+            self.refetched = True
+
+        while not self.stop_fetch_thread:
+            _()
+            time.sleep(0.05)
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
@@ -167,8 +182,6 @@ class Renderer:
 
         clear_screen()
         tput_cup(self.top, 0)
-
-        # print(self.template_buffer)
 
         # Print buffer all at once with terminal control codes to prevent wrapping
         print("\n".join(self.template_buffer), flush=False)
@@ -195,6 +208,9 @@ class Renderer:
                 ]
             )
         try:
+            self.fetch_update_thread = Thread(target=self.check_template_buffer_refresh)
+            self.fetch_update_thread.start()
+
             # disable_autowrap()
             self.draw_loop()
             # enable_autowrap()
@@ -202,6 +218,8 @@ class Renderer:
             cleanup()
             # enable_autowrap()
             # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
+        self.stop_fetch_thread = True
+        self.fetch_update_thread.join()
         # TODO: disallow characters to be written and disallow line by line mode.
 
     def draw_static_template(self):
@@ -294,7 +312,6 @@ class Renderer:
                     # if k in ("q", "Q"):
                     raise KeyboardInterrupt
 
-                self.check_template_buffer_refresh()
                 self.process_resize_if_requested()
                 sys.stdout.flush()
             time.sleep(0.0000005)  # TODO: is this even required?

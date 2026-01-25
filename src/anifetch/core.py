@@ -31,6 +31,9 @@ from .utils import (
     get_fetch_output,
     center_template_to_animation,
     make_template_from_fetch_lines,
+    tput_cup,
+    get_lowest_y_pos,
+    clear_screen,
 )
 from typing import Literal
 
@@ -455,6 +458,14 @@ def run_anifetch(args):
         )
 
         renderer.start_rendering()
+        # stopped rendering
+        sys.stdout.flush()
+
+        if args.cleanup:
+            clear_screen()
+        else:
+            lowest = get_lowest_y_pos(len(template), HEIGHT, TOP)
+            tput_cup(lowest, 0)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

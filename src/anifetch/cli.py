@@ -83,10 +83,16 @@ parser.add_argument(
     help="Disabled by default. Use this argument to center the animation relative to the fetch output. Note that centering may slow down the execution.",
 )
 parser.add_argument(
-    "-c",
+    "-ca",
     "--chafa-arguments",
     default="--symbols ascii --fg-only",
     help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
+)
+parser.add_argument(
+    "--cleanup",
+    default=False,
+    help="Clears the screen when the program quits. Default is False.",
+    action="store_true",
 )
 parser.add_argument(
     "--force",
