@@ -30,14 +30,12 @@ logging.basicConfig(
 )
 
 
-
 # TODO: nix flake update needed
 # TODO: pypi release
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
 # TODO: add a "nocache" mode(for streaming mode).
-# TODO: add an option to not clear the screen when animation loop ends
-# TODO: Make installation process easier for nixos(tell users to use flakes or smth), MacOS and Windows
-# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk.
+# TODO: Make installation process easier for nixos on setup script(tell users to use flakes or smth), installation script for MacOS and Windows(maybe?)
+# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk. 
 # TODO: remove bc from readme and setup.sh and the nixos config stuff
 # TODO: remove the old bash script
 # TODO: if possible find the origin of the example.mp4 file, for licensing and whatnot
