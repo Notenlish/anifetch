@@ -37,12 +37,12 @@ from .utils import (
 )
 from typing import Literal
 
+GAP = 2
+PAD_LEFT = 4
+LEFT = PAD_LEFT
+
 
 def run_anifetch(args):
-    GAP = args.gap
-    PAD_LEFT = args.left
-    LEFT = PAD_LEFT
-
     st = time.time()
 
     allowed_alternatives = ["cache_list", "clear", "delete"]

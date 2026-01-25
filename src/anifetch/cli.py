@@ -43,23 +43,7 @@ parser.add_argument(
     "-T",
     "--top",
     default=2,
-    help="Sets the starting row(top) position. Default is 2.",
-    type=int,
-)
-parser.add_argument(
-    "-l",
-    "-L",
-    "--left",
-    default=4,
-    help="Sets the starting column(left) position. Default is 4.",
-    type=int,
-)
-parser.add_argument(
-    "-g",
-    "-G",
-    "--gap",
-    default=2,
-    help="Sets the gap between chafa animation and fetch info. Default is 2.",
+    help="Sets the starting row(top) position.",
     type=int,
 )
 parser.add_argument("-v", "--verbose", default=False, action="store_true")
