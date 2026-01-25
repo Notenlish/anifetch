@@ -226,10 +226,7 @@ class Renderer:
             self.fetch_update_thread.start()
 
             # disable_autowrap()
-            with self.terminal.scroll_region(
-                top=0, height=self.terminal.height + self.top + 1000
-            ):
-                self.draw_loop()
+            self.draw_loop()
             # enable_autowrap()
         except KeyboardInterrupt:
             pass
