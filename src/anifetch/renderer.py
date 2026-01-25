@@ -191,7 +191,7 @@ class Renderer:
 
     def start_rendering(self):
         hide_cursor()
-        cleanup()
+        #cleanup()
 
         self.draw_static_template()
         if self.sound_saved_path:
@@ -215,7 +215,8 @@ class Renderer:
             self.draw_loop()
             # enable_autowrap()
         except KeyboardInterrupt:
-            cleanup()
+            pass
+        cleanup()
             # enable_autowrap()
             # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
         self.stop_fetch_thread = True
@@ -275,21 +276,13 @@ class Renderer:
             for frame_name in sorted(os.listdir(self.frame_dir)):
                 frame_path = f"{self.frame_dir}/{frame_name}"
 
-                current_top = self.top
                 with open(frame_path) as f:
-                    for line in f.readlines():
-                        tput_cup(current_top, self.left)
+                    tput_cup(self.top, 0)
 
-                        # dont echo new line and enable special characters
-                        # echo -ne "$line"
-                        print(
-                            line, end="", flush=False
-                        )  # there may be a faster way to do this.
-                        # TODO: make this better.
-
-                        current_top += 1
-                        if current_top > self.bottom:
-                            break
+                    # TODO: It should only read the file if it hasnt read it yet
+                    print(
+                        "".join(f.readlines()), end="", flush=False
+                    )  # TODO: WHY AM I READING ALL THE FILES OVER AND OVER AGAIN!?!?
 
                 wanted_epoch = i / self.framerate_to_use
 

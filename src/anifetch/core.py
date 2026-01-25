@@ -39,6 +39,7 @@ from typing import Literal
 
 GAP = 2
 PAD_LEFT = 4
+LEFT = PAD_LEFT
 
 
 def run_anifetch(args):
@@ -319,6 +320,9 @@ def run_anifetch(args):
             frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
 
             chafa_lines = frame.splitlines()
+            # add LEFT number of spaces to each line
+            for i, l in enumerate(chafa_lines):
+                chafa_lines[i] = " " * LEFT + l
 
             if args.center:
                 # centering the fetch output or the chafa animation if needed.
@@ -419,7 +423,6 @@ def run_anifetch(args):
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
     TOP = args.top
-    LEFT = PAD_LEFT
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
 
