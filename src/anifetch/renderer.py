@@ -1,8 +1,7 @@
-from copy import deepcopy
-from anifetch.utils import get_terminal_width
 import os
 import sys
 import time
+import blessed
 from .utils import (
     hide_cursor,
     show_cursor,
@@ -15,6 +14,9 @@ from .utils import (
     get_fetch_output,
     center_template_to_animation,
     make_template_from_fetch_lines,
+    clear_screen_soft,
+    get_terminal_width,
+    get_terminal_height,
 )
 import subprocess
 from .keyreader import KeyReader
@@ -116,6 +118,7 @@ class Renderer:
         self.sound_process: subprocess.Popen[bytes] | None = None
 
         self.key_reader = KeyReader()
+        self.terminal: blessed.Terminal = blessed.Terminal()
 
     def check_template_buffer_refresh(self):
         def _():
@@ -159,6 +162,17 @@ class Renderer:
             _()
             time.sleep(0.05)
 
+    def draw_stuff(self, chafa_frame: str):
+        """My brain is melting"""
+        t_w, t_h = get_terminal_width(), get_terminal_height()
+
+        out = []
+        out.append(self.terminal.move(self.top, 0))
+        out.append("\n".join(self.template_buffer))
+        out.append(self.terminal.move(self.top, 0))
+        out.append(chafa_frame)
+        sys.stdout.write("".join(out))
+
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
         if self.resize_in_progress:  # TODO: dont know whether I should keep this or not
@@ -180,18 +194,21 @@ class Renderer:
         self.resize_in_progress = True
         self.last_resize_time = current_time
 
-        clear_screen()
-        tput_cup(self.top, 0)
+        # clear_screen()
+        # clear_screen_soft()
+        # tput_cup(self.top, 0)
 
         # Print buffer all at once with terminal control codes to prevent wrapping
-        print("\n".join(self.template_buffer), flush=False)
+        # print("\n".join(self.template_buffer), flush=False)
 
         # Reset flag
         self.resize_in_progress = False
 
     def start_rendering(self):
-        hide_cursor()
-        #cleanup()
+        sys.stdout.write(self.terminal.enter_fullscreen())
+        sys.stdout.write(self.terminal.hide_cursor())
+        # hide_cursor()
+        # cleanup()
 
         self.draw_static_template()
         if self.sound_saved_path:
@@ -217,8 +234,8 @@ class Renderer:
         except KeyboardInterrupt:
             pass
         cleanup()
-            # enable_autowrap()
-            # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
+        # enable_autowrap()
+        # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
         # TODO: disallow characters to be written and disallow line by line mode.
@@ -277,12 +294,11 @@ class Renderer:
                 frame_path = f"{self.frame_dir}/{frame_name}"
 
                 with open(frame_path) as f:
-                    tput_cup(self.top, 0)
+                    chafa_frame = f.read()
+                    # tput_cup(self.top, 0)
 
                     # TODO: It should only read the file if it hasnt read it yet
-                    print(
-                        "".join(f.readlines()), end="", flush=False
-                    )  # TODO: WHY AM I READING ALL THE FILES OVER AND OVER AGAIN!?!?
+                    # sys.stdout.write("".join(f.readlines()))
 
                 wanted_epoch = i / self.framerate_to_use
 
@@ -298,13 +314,12 @@ class Renderer:
 
                 i += 1
 
-                # runs every frame.
-
                 k = self.key_reader.poll()
                 if k is not None:
                     # if k in ("q", "Q"):
                     raise KeyboardInterrupt
 
                 self.process_resize_if_requested()
+                self.draw_stuff(chafa_frame)
                 sys.stdout.flush()
-            time.sleep(0.0000005)  # TODO: is this even required?
+            # time.sleep(0.0000005)  # TODO: is this even required?

@@ -26,6 +26,18 @@ import wcwidth
 appname = "anifetch"
 appauthor = "anifetch"
 
+ESC = "\x1b["
+
+HIDE_CURSOR = ESC + "?25l"
+SHOW_CURSOR = ESC + "?25h"
+HOME = ESC + "H"          # cursor to 1;1
+CLEAR_TO_END = ESC + "J"  # clear from cursor to end of screen
+CLEAR_LINE = ESC + "K"    # clear from cursor to end of line
+
+SYNC_BEGIN = ESC + "?2026h"  # optional (terminals that support it)
+SYNC_END   = ESC + "?2026l"
+
+
 # Source - https://stackoverflow.com/a
 # Posted by James Spencer, modified by community. See post 'Timeline' for change history
 # Retrieved 2025-12-21, License - CC BY-SA 4.0
@@ -37,12 +49,31 @@ if os.name == "nt":
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int), ("visible", ctypes.c_byte)]
 
+def enable_vt_mode_windows():
+    if os.name != "nt":
+        return
+    # Many modern Windows terminals support ANSI already.
+    os.system("")
+
+
+def write_atomic(text: str, *, sync: bool = True) -> None:
+    """Write one full frame update without intermediate visible states."""
+    if sync:
+        sys.stdout.write(SYNC_BEGIN)
+    sys.stdout.write(text)
+    if sync:
+        sys.stdout.write(SYNC_END)
+    sys.stdout.flush()
 
 def clear_screen():
     """Clears screen using cls or clear depending on OS."""
     _ = os.system("cls" if os.name == "nt" else "clear")
     # sys.stdout.write("\x1b[2J")
     # sys.stdout.flush()
+
+def clear_screen_soft():
+    sys.stdout.write(HOME + CLEAR_TO_END)
+
 
 
 def disable_autowrap():

@@ -145,7 +145,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 ```
-> on windows do this to activate the venv instead: `venv\Scripts\activate`
+> on windows do this to activate the venv instead: `venv\Scripts\activate`. Also on windows you should call `py` instead of `python3`.
 
 
 This installs `anifetch` in editable mode within a local virtual environment for development.
