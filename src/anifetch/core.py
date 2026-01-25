@@ -467,18 +467,8 @@ def run_anifetch(args):
         if args.cleanup:
             clear_screen()
         else:
-            # I am losing my fucking mind
-            print(renderer.terminal.height)
-            sys.stdout.write(renderer.terminal.move(28, 0))
-            pass
-            # lowest = get_lowest_y_pos(len(template), HEIGHT, TOP)
-            # tput_cup(lowest, 0)
-            # sys.stdout.write(renderer.terminal.normal_cursor)
-            # sys.stdout.write(renderer.terminal.move_xy(0, renderer.terminal.height - 3))
-            # sys.stdout.write(renderer.terminal.clear_eol)
-            # sys.stdout.write("\n")
-            # sys.stdout.flush()
-            # print(args)
+            lowest = get_lowest_y_pos(len(template), HEIGHT, TOP)
+            tput_cup(lowest, 0)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.
