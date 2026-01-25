@@ -467,9 +467,13 @@ def run_anifetch(args):
         if args.cleanup:
             clear_screen()
         else:
-            # I am losing my fucking mind
-            print(renderer.terminal.height)
-            sys.stdout.write(renderer.terminal.move(28, 0))
+            # reset scroll region (DECSTBM) => removes the “clamp to bottom margin” behavior
+            sys.stdout.write("\x1b[r")
+            sys.stdout.write("\x1b[0m")  # reset SGR
+            sys.stdout.write("\x1b[?25h")  # show cursor
+            sys.stdout.flush()
+
+            tput_cup(28, 0)
             pass
             # lowest = get_lowest_y_pos(len(template), HEIGHT, TOP)
             # tput_cup(lowest, 0)
