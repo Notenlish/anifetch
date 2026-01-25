@@ -35,7 +35,7 @@ logging.basicConfig(
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
 # TODO: add a "nocache" mode(for streaming mode).
 # TODO: Make installation process easier for nixos on setup script(tell users to use flakes or smth), installation script for MacOS and Windows(maybe?)
-# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk. 
+# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk.
 # TODO: remove bc from readme and setup.sh and the nixos config stuff
 # TODO: remove the old bash script
 # TODO: if possible find the origin of the example.mp4 file, for licensing and whatnot
@@ -165,7 +165,7 @@ class Renderer:
 
         out = []
         out.append(self.terminal.move(self.top, 0))
-        out.append("\n".join(self.template_buffer))
+        out.append("\n".join(self.template_buffer[:t_h]))
         out.append(self.terminal.move(self.top, 0))
         out.append(chafa_frame)
         sys.stdout.write("".join(out))

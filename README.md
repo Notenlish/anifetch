@@ -197,6 +197,8 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken or the contents of the video file has changed.
 - `-i` / `--interval`: Use this to make anifetch update the fetch information over time, sets fetch refresh interval in seconds. Default is -1(never). 
 - `-b` / `--benchmark`: For testing, prints how long it took to process in seconds.
+- `-t` / `--top`: Sets top position, default is 0.
+- `-l` / `--left`: Sets top position, default is 0.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
 
