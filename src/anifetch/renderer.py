@@ -35,7 +35,7 @@ logging.basicConfig(
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
 # TODO: add a "nocache" mode(for streaming mode).
 # TODO: Make installation process easier for nixos on setup script(tell users to use flakes or smth), installation script for MacOS and Windows(maybe?)
-# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk. 
+# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk.
 # TODO: remove bc from readme and setup.sh and the nixos config stuff
 # TODO: remove the old bash script
 # TODO: if possible find the origin of the example.mp4 file, for licensing and whatnot
@@ -230,12 +230,13 @@ class Renderer:
             # enable_autowrap()
         except KeyboardInterrupt:
             pass
-        cleanup()
-        # enable_autowrap()
-        # subprocess.call(["stty", "sane"])  # TODO: find cross platform version of this
+
+        # cleanup()
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
-        # TODO: disallow characters to be written and disallow line by line mode.
+
+        # sys.stdout.write(self.terminal.exit_fullscreen())
+        sys.stdout.write(self.terminal.normal_cursor())
 
     def draw_static_template(self):
         """Only ran once."""

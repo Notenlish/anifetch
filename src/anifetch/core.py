@@ -461,14 +461,16 @@ def run_anifetch(args):
         )
 
         renderer.start_rendering()
+
         # stopped rendering
-        sys.stdout.flush()
+        # sys.stdout.flush()
 
         if args.cleanup:
             clear_screen()
         else:
-            lowest = get_lowest_y_pos(len(template), HEIGHT, TOP)
-            tput_cup(lowest, 0)
+            _bottom = get_lowest_y_pos(len(template), HEIGHT, TOP)
+            sys.stdout.write(renderer.terminal.move(_bottom, 0))
+            sys.stdout.flush()
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.
