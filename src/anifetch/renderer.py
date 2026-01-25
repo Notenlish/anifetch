@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 
 
-# TODO: when renderer is done it should move the cursor to an appropriate position(the bottom) not the center.
 
 # TODO: nix flake update needed
 # TODO: pypi release
