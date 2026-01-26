@@ -443,7 +443,8 @@ def run_anifetch(args):
         # sys.stdout.flush()
 
         if args.cleanup:
-            clear_screen()
+            pass
+            # clear_screen()
         else:
             pass
             #

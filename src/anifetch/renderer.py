@@ -27,6 +27,7 @@ from rich.live import Live
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
+from rich.console import Console
 
 
 logger = logging.getLogger(__name__)
@@ -239,12 +240,36 @@ class Renderer:
             self.fetch_update_thread.start()
 
             # disable_autowrap()
-            with Live(self.layout, refresh_per_second=20, screen=True) as live:
+            self.draw_stuff(
+                self.chafa_frames[0]
+            )  # avoid Live container drawing the placeholder boxes with borders
+            with Live(
+                self.layout,
+                refresh_per_second=20,
+                screen=True,
+                transient=True,  # if false, keep the last frame
+            ) as live:
                 self.draw_loop()
             # enable_autowrap()
         except KeyboardInterrupt:
             pass
 
+        def layout_to_ansi(layout, width: int) -> str:
+            console = Console(
+                force_terminal=True,  # emit ANSI
+                color_system="truecolor",  # keep 24-bit colors when available
+                width=width,
+                legacy_windows=False,  # helps on modern Windows terminals
+            )
+            with console.capture() as cap:
+                console.print(layout, end="")  # render exactly once
+            return cap.get()
+
+        text = layout_to_ansi(self.layout, width=get_terminal_width())
+        lines = text.splitlines()
+        while lines and not lines[-1].strip():
+            lines.pop()
+        print("\n".join(lines), end="")
         # cleanup()
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
