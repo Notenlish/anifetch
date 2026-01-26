@@ -334,7 +334,7 @@ def run_anifetch(args):
                     pad = abs(len_fetch - len_chafa) // 2
                     remind = abs(len_fetch - len_chafa) % 2
                     # still dont know whats the deal with this
-                    HEIGHT = (len(chafa_lines) + (2 * pad + remind) * WIDTH)
+                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
 
             frames.append(frame)
 

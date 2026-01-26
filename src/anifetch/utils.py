@@ -408,13 +408,9 @@ def center_template_to_animation(
 def make_template_from_fetch_lines(
     fetch_lines: list[str], PAD_LEFT, GAP, WIDTH
 ) -> tuple[list[str], int]:
-    template: list[str] = []
-    for fetch_line in fetch_lines:
-        output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}\n"
-        template.append(output)
-
+    template: list[str] = "\n".join(fetch_lines)
     # Only do this once instead of for every line.
-    template_actual_width = get_text_length_of_formatted_text(output)
+    template_actual_width = get_text_length_of_formatted_text(fetch_lines[0])
     return (template, template_actual_width)
 
 

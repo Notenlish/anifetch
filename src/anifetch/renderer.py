@@ -22,8 +22,11 @@ from .keyreader import KeyReader
 import logging
 from typing import Literal
 from threading import Thread
-import blessed
-
+import rich
+from rich.live import Live
+from rich.layout import Layout
+from rich.panel import Panel
+from rich.text import Text
 
 
 logger = logging.getLogger(__name__)
@@ -126,9 +129,15 @@ class Renderer:
         self.sound_process: subprocess.Popen[bytes] | None = None
 
         self.key_reader = KeyReader()
-        self.terminal: blessed.Terminal = blessed.Terminal()
 
         self.chafa_frames = chafa_frames
+        self.layout = Layout()
+        self.layout.split_row(
+            Layout(name="chafa", size=self.width),  # left
+            Layout(
+                name="template",
+            ),  # right
+        )
 
     def check_template_buffer_refresh(self):
         def _():
@@ -173,15 +182,12 @@ class Renderer:
             time.sleep(0.05)
 
     def draw_stuff(self, chafa_frame: str):
-        """My brain is melting"""
-        t_w, t_h = get_terminal_width(), get_terminal_height()
+        self.layout["chafa"].update(Text.from_ansi(chafa_frame))
 
-        out = []
-        out.append(self.terminal.move(self.top, 0))
-        out.append("\n".join(self.template_buffer))
-        out.append(self.terminal.move(self.top, 0))
-        out.append(chafa_frame)
-        sys.stdout.write("".join(out))
+        _template_str = "".join(self.original_template_buffer)
+        self.layout["template"].update(
+            Text.from_ansi(_template_str, justify="left", no_wrap=True)
+        )
 
     def process_resize_if_requested(self):
         """This is being run every frame of the animation."""
@@ -215,13 +221,6 @@ class Renderer:
         self.resize_in_progress = False
 
     def start_rendering(self):
-        sys.stdout.write(self.terminal.exit_fullscreen())  # dont question it
-        sys.stdout.write(self.terminal.enter_fullscreen())
-        sys.stdout.write(self.terminal.hide_cursor())
-        # hide_cursor()
-        # cleanup()
-
-        self.draw_static_template()
         if self.sound_saved_path:
             self.sound_process = subprocess.Popen(
                 [
@@ -240,7 +239,8 @@ class Renderer:
             self.fetch_update_thread.start()
 
             # disable_autowrap()
-            self.draw_loop()
+            with Live(self.layout, refresh_per_second=20, screen=True) as live:
+                self.draw_loop()
             # enable_autowrap()
         except KeyboardInterrupt:
             pass
@@ -248,26 +248,6 @@ class Renderer:
         # cleanup()
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
-
-        # sys.stdout.write(self.terminal.exit_fullscreen())
-        sys.stdout.write(self.terminal.normal_cursor())
-
-    def draw_static_template(self):
-        """Only ran once."""
-
-        changed_template = self.process_template()
-
-        # Clear screen and position cursor
-        clear_screen()
-        tput_cup(self.top, 0)  # problem originates in here?
-
-        # Print the buffer in one go(faster than one by line)
-        print("\n".join(self.template_buffer))
-        # raise SystemExit
-
-        # TODO: this works fine atm. I just need to clean the screen without causing the black refresh thing and that should be it
-        # TODO: also maybe truncate stuff for height(lines) as well?
-        # Oh and check the issues on github, try to do all of them, then do 1.0 release and also include a tutorial as well.
 
     def _make_truncated_template(self, terminal_width: int):
         self.template_buffer = [
@@ -302,7 +282,11 @@ class Renderer:
         start_time = time.time()
         self.last_refresh_time = time.time()
         while True:
-            for chafa_frame in self.chafa_frames:
+            for frame_name in os.listdir(self.frame_dir):
+                frame_path = f"{self.frame_dir}/{frame_name}"
+                with open(frame_path) as f:
+                    chafa_frame = f.read()
+
                 wanted_epoch = i / self.framerate_to_use
 
                 # current time in seconds (with fractional part)
@@ -325,4 +309,4 @@ class Renderer:
                 self.process_resize_if_requested()
                 self.draw_stuff(chafa_frame)
                 sys.stdout.flush()
-            # time.sleep(0.0000005)  # TODO: is this even required?
+            # time.sleep(0.0000005)
