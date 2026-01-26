@@ -320,47 +320,26 @@ def run_anifetch(args):
             frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
 
             chafa_lines = frame.splitlines()
-            # add LEFT number of spaces to each line
-            for i, l in enumerate(chafa_lines):
-                chafa_lines[i] = " " * LEFT + l
+            frame = "\n".join(chafa_lines)  # in case \r or \t exists
 
             if args.center:
                 # centering the fetch output or the chafa animation if needed.
                 len_chafa = len(chafa_lines)
-
-                if (
-                    len_chafa < len_fetch
-                ):  # if the chafa animation is shorter than the fetch output
-                    pad = (len_fetch - len_chafa) // 2
-                    remind = (len_fetch - len_chafa) % 2
-                    chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
-                    chafa_lines = (
-                        [" " * WIDTH] * pad
-                        + chafa_lines
-                        + [" " * WIDTH] * (pad + remind)
-                    )
-
-                elif (
-                    len_fetch < len_chafa
-                ):  # if the chafa animation is longer than the fetch output
-                    fetch_lines: list[str] = center_template_to_animation(
-                        WIDTH, len_chafa, len_fetch, fetch_output
-                    )
-
                 if i == 0:
                     # updating the HEIGHT variable from the first frame
                     HEIGHT = len(chafa_lines)
-            else:
+            else:  # not centered
                 if i == 0:
                     len_chafa = len(chafa_lines)
                     pad = abs(len_fetch - len_chafa) // 2
                     remind = abs(len_fetch - len_chafa) % 2
-                    HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
+                    # still dont know whats the deal with this
+                    HEIGHT = (len(chafa_lines) + (2 * pad + remind) * WIDTH)
 
-            frames.append("\n".join(chafa_lines))
+            frames.append(frame)
 
             with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
-                file.write("\n".join(chafa_lines))
+                file.write(frame)
 
             # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
             # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
@@ -375,17 +354,14 @@ def run_anifetch(args):
 
         if args.center:
             len_chafa = len(frame.splitlines())
-            if len_fetch < len_chafa:
-                fetch_lines: list[str] = center_template_to_animation(
-                    WIDTH, len_chafa, len_fetch, fetch_output
-                )
 
-        with open(CACHE_PATH / "frame.txt", "w") as f:
-            f.writelines(frames)
+        # TODO: instead of writing frames one by one just write them once to a single frame.txt
+        # with open(CACHE_PATH / "frame.txt", "w") as f:
+        #     f.writelines(frames)
 
         HEIGHT = len(frames[0].splitlines())
 
-        # reloarding the cached output
+        # reloading the cached output
         with open(CACHE_LIST_PATH, "r") as f:
             all_saved_caches = json.load(f)
             corresponding_cache = find_corresponding_cache(
@@ -449,6 +425,7 @@ def run_anifetch(args):
             BOTTOM,
             template_actual_width,
             template,
+            frames,
             not args.neofetch,
             neofetch_status,
             args.force,
@@ -468,9 +445,15 @@ def run_anifetch(args):
         if args.cleanup:
             clear_screen()
         else:
-            _bottom = get_lowest_y_pos(len(template), HEIGHT, TOP)
-            sys.stdout.write(renderer.terminal.move(_bottom, 0))
-            sys.stdout.flush()
+            pass
+            #
+            # _bottom = get_lowest_y_pos(len(template), HEIGHT, TOP)
+            # sys.stdout.write(renderer.terminal.enter_fullscreen())
+            # sys.stdout.write(renderer.terminal.show_cursor())
+            # TODO: MAYBE? JUST MAYBE? Clear out the bottom 2 rows with black, then move to _bottom and then flush?
+            # sys.stdout.write(renderer.terminal.move(_bottom, 0))
+            # sys.stdout.flush()
+            # TODO: sys.stdout.write(renderer.terminal.enter_fullscreen()) if I dont do this it fucks up anifetch sometimes?
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

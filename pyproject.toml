@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anifetch-cli_Notenlish"
+name = "anifetch-cli"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -22,7 +22,7 @@ keywords = [
     "fastfetch",
     "anifetch",
 ]
-version = "0.1.4"
+version = "1.0.0"
 description = "Animated terminal fetch with video and audio support."
 authors = [
     { name = "Notenlish", email = "notenlish@gmail.com" },
@@ -36,6 +36,7 @@ dependencies = [
     "platformdirs",
     "wcwidth",
     "blessed",
+    "rich",
     # "windows-curses; platform_system == 'Windows'"
     # Example : "rich>=13.0.0"
 ]
@@ -46,10 +47,11 @@ Issues = "https://github.com/Notenlish/anifetch/issues"
 
 [project.scripts]
 anifetch = "anifetch.__init__:main"
+anifetch-cli = "anifetch.__init__:main"
 
 [tool.setuptools]
 packages = ["anifetch"]
 package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-anifetch = ["assets/*"]
+anifetch = ["assets/**/*"]

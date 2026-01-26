@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import blessed
 from .utils import (
     hide_cursor,
     show_cursor,
@@ -23,11 +22,22 @@ from .keyreader import KeyReader
 import logging
 from typing import Literal
 from threading import Thread
+import blessed
+
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
+
+
+# TODO: Stop adding random whitespace to chafa and template, just use terminal control codes etc. to do it
+# TODO: move rendering to textual because fuck you. OR use rich module, live class?
+# OR just use prompt_toolkit
+
+# TODO: instead of writing frames one by one just write them once to a single frame.txt
+# TODO: instead of writing template.txt to somewhere just stop writing it to a file,
 
 
 # TODO: nix flake update needed
@@ -63,6 +73,7 @@ class Renderer:
         bottom: int,
         template_width: int,
         template: list[str],
+        chafa_frames: list[str],
         use_fastfetch: bool,
         neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
         force_neofetch: bool,
@@ -116,6 +127,8 @@ class Renderer:
 
         self.key_reader = KeyReader()
         self.terminal: blessed.Terminal = blessed.Terminal()
+
+        self.chafa_frames = chafa_frames
 
     def check_template_buffer_refresh(self):
         def _():
@@ -202,6 +215,7 @@ class Renderer:
         self.resize_in_progress = False
 
     def start_rendering(self):
+        sys.stdout.write(self.terminal.exit_fullscreen())  # dont question it
         sys.stdout.write(self.terminal.enter_fullscreen())
         sys.stdout.write(self.terminal.hide_cursor())
         # hide_cursor()
@@ -288,16 +302,7 @@ class Renderer:
         start_time = time.time()
         self.last_refresh_time = time.time()
         while True:
-            for frame_name in sorted(os.listdir(self.frame_dir)):
-                frame_path = f"{self.frame_dir}/{frame_name}"
-
-                with open(frame_path) as f:
-                    chafa_frame = f.read()
-                    # tput_cup(self.top, 0)
-
-                    # TODO: It should only read the file if it hasnt read it yet
-                    # sys.stdout.write("".join(f.readlines()))
-
+            for chafa_frame in self.chafa_frames:
                 wanted_epoch = i / self.framerate_to_use
 
                 # current time in seconds (with fractional part)

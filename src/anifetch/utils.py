@@ -11,7 +11,8 @@ import re
 import subprocess
 import os
 import sys
-from importlib.resources import files
+from importlib.resources import files, as_file
+from importlib.resources.abc import Traversable
 from importlib.metadata import version, PackageNotFoundError
 import shutil
 from copy import deepcopy
@@ -30,12 +31,12 @@ ESC = "\x1b["
 
 HIDE_CURSOR = ESC + "?25l"
 SHOW_CURSOR = ESC + "?25h"
-HOME = ESC + "H"          # cursor to 1;1
+HOME = ESC + "H"  # cursor to 1;1
 CLEAR_TO_END = ESC + "J"  # clear from cursor to end of screen
-CLEAR_LINE = ESC + "K"    # clear from cursor to end of line
+CLEAR_LINE = ESC + "K"  # clear from cursor to end of line
 
 SYNC_BEGIN = ESC + "?2026h"  # optional (terminals that support it)
-SYNC_END   = ESC + "?2026l"
+SYNC_END = ESC + "?2026l"
 
 
 # Source - https://stackoverflow.com/a
@@ -48,6 +49,7 @@ if os.name == "nt":
 
     class _CursorInfo(ctypes.Structure):
         _fields_ = [("size", ctypes.c_int), ("visible", ctypes.c_byte)]
+
 
 def enable_vt_mode_windows():
     if os.name != "nt":
@@ -65,15 +67,16 @@ def write_atomic(text: str, *, sync: bool = True) -> None:
         sys.stdout.write(SYNC_END)
     sys.stdout.flush()
 
+
 def clear_screen():
     """Clears screen using cls or clear depending on OS."""
     _ = os.system("cls" if os.name == "nt" else "clear")
     # sys.stdout.write("\x1b[2J")
     # sys.stdout.flush()
 
+
 def clear_screen_soft():
     sys.stdout.write(HOME + CLEAR_TO_END)
-
 
 
 def disable_autowrap():
@@ -207,7 +210,7 @@ def truncate_line(line: str, max_width: int):
 
 def get_version_of_anifetch():
     try:
-        return version("anifetch")
+        return version("anifetch-cli")
     except PackageNotFoundError:
         raise Exception("Anifetch package not found.")
 
@@ -299,10 +302,36 @@ def get_data_path():
     return base
 
 
-def default_asset_presence_check(asset_dir):
-    if not any(asset_dir.iterdir()):
-        packaged_asset = files("anifetch.assets") / "example.mp4"
-        shutil.copy(str(packaged_asset), asset_dir / "example.mp4")
+def _copy_tree(src_root: Path, dst_root: Path, overwrite: bool = False) -> None:
+    src_root = src_root.resolve()
+    dst_root.mkdir(parents=True, exist_ok=True)
+
+    for p in src_root.rglob("*"):
+        rel = p.relative_to(src_root)
+        dst = dst_root / rel
+
+        if p.is_dir():
+            dst.mkdir(parents=True, exist_ok=True)
+            continue
+
+        dst.parent.mkdir(parents=True, exist_ok=True)
+
+        if dst.exists() and not overwrite:
+            continue
+
+        shutil.copy2(p, dst)
+
+
+def default_asset_presence_check(asset_dir: Path):
+    """
+    Copies packaged example assets from anifetch.assets into asset_dir if theyre missing.
+    """
+    src_assets_dir = Path(__file__).resolve().parent / "assets"
+
+    if not src_assets_dir.exists():
+        raise FileNotFoundError(f"Assets folder not found: {src_assets_dir}")
+
+    _copy_tree(src_assets_dir, asset_dir, overwrite=False)
 
 
 def get_neofetch_status():  # will still save the rendered chafa in cache in any case

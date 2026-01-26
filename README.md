@@ -278,6 +278,8 @@ Fastfetch: [Fastfetch](https://github.com/fastfetch-cli/fastfetch)
 
 I got the inspiration for Anifetch from Pewdiepie's Linux video. [Video](https://m.youtube.com/watch?v=pVI_smLgTY0&t=878s&pp=ygUJcGV3ZGllcGll)
 
+I dont remember where I got the example.mp4 video from, if you know the source or license please open an issue. If you are the license owner and want this video removed please open an issue and I will remove it.
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Notenlish/anifetch&type=Date)](https://www.star-history.com/#Notenlish/anifetch&Date)
