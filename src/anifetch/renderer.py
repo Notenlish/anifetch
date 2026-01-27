@@ -4,7 +4,6 @@ import time
 from .utils import (
     hide_cursor,
     show_cursor,
-    clear_screen,
     tput_cup,
     tput_el,
     truncate_line,
@@ -13,6 +12,7 @@ from .utils import (
     get_fetch_output,
     center_template_to_animation,
     make_template_from_fetch_lines,
+    clear_screen,
     clear_screen_soft,
     get_terminal_width,
     get_terminal_height,
@@ -239,6 +239,7 @@ class Renderer:
             self.fetch_update_thread.start()
 
             # disable_autowrap()
+            clear_screen_soft()  
             self.draw_stuff(
                 self.chafa_frames[0]
             )  # avoid Live container drawing the placeholder boxes with borders
@@ -311,7 +312,7 @@ class Renderer:
         while True:
             # didnt read every file so we need to iterate over the files
             if first_reading:  # using_cached
-                for frame_name in os.listdir(self.frame_dir):
+                for frame_name in sorted(os.listdir(self.frame_dir)):
                     frame_path = f"{self.frame_dir}/{frame_name}"
                     with open(frame_path) as f:
                         chafa_frame = f.read()
@@ -321,6 +322,7 @@ class Renderer:
                     i += 1
                 first_reading = False
             else:
+                start_time = time.time()
                 # in here it is guaranteed that every frame already exists in the self.chafa_frames
                 for j, _chafa_frame in self.chafa_frames.items():
                     self._process_one_frame(j, start_time, _chafa_frame)

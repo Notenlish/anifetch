@@ -345,7 +345,7 @@ def run_anifetch(args):
             # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
     else:
         # just use cached
-        for filename in os.listdir(OUTPUT_DIR):
+        for filename in sorted(os.listdir(OUTPUT_DIR)):
             path = OUTPUT_DIR / filename
             with open(path, "r") as file:
                 frame = file.read()
