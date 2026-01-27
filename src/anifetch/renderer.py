@@ -131,13 +131,21 @@ class Renderer:
         self.key_reader = KeyReader()
 
         self.chafa_frames = {i: frame for i, frame in enumerate(chafa_frames)}
+
         self.layout = Layout()
-        self.layout.split_row(
+        self.layout.split_column(Layout(name="top", size=self.top), Layout(name="main"))
+
+        self.layout["main"].split_row(
+            Layout(name="left", size=self.left),
             Layout(name="chafa", size=self.width),  # left
+            Layout(name="gap", size=self.gap),
             Layout(
                 name="template",
             ),  # right
         )
+        self.layout["top"].update(Text(""))
+        self.layout["main"]["left"].update(Text(""))
+        self.layout["main"]["gap"].update(Text(""))
 
     def check_template_buffer_refresh(self):
         def _():
@@ -182,10 +190,10 @@ class Renderer:
             time.sleep(0.05)
 
     def draw_stuff(self, chafa_frame: str):
-        self.layout["chafa"].update(Text.from_ansi(chafa_frame))
+        self.layout["main"]["chafa"].update(Text.from_ansi(chafa_frame))
 
         _template_str = "".join(self.original_template_buffer)
-        self.layout["template"].update(
+        self.layout["main"]["template"].update(
             Text.from_ansi(_template_str, justify="left", no_wrap=True)
         )
 
@@ -239,7 +247,7 @@ class Renderer:
             self.fetch_update_thread.start()
 
             # disable_autowrap()
-            clear_screen_soft()  
+            clear_screen_soft()
             self.draw_stuff(
                 self.chafa_frames[0]
             )  # avoid Live container drawing the placeholder boxes with borders
