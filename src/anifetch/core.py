@@ -402,6 +402,8 @@ def run_anifetch(args):
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
 
+    using_cached: bool = not should_update
+
     if args.benchmark:
         print(time.time() - st)
     else:
@@ -423,6 +425,7 @@ def run_anifetch(args):
             LEFT,
             RIGHT,
             BOTTOM,
+            using_cached,
             template_actual_width,
             template,
             frames,

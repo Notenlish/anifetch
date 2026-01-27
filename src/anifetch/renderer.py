@@ -35,11 +35,6 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
-
-# TODO: Stop adding random whitespace to chafa and template, just use terminal control codes etc. to do it
-# TODO: move rendering to textual because fuck you. OR use rich module, live class?
-# OR just use prompt_toolkit
-
 # TODO: instead of writing frames one by one just write them once to a single frame.txt
 # TODO: instead of writing template.txt to somewhere just stop writing it to a file,
 
@@ -75,6 +70,7 @@ class Renderer:
         left: int,
         right: int,
         bottom: int,
+        using_cached: bool,
         template_width: int,
         template: list[str],
         chafa_frames: list[str],
@@ -95,6 +91,9 @@ class Renderer:
         self.left: int = left
         self.right: int = right
         self.bottom: int = bottom
+
+        self.using_cached = using_cached
+
         self.template_width: int = template_width
         self.sound_saved_path: str = sound_saved_path
         self.frame_dir: str = f"{cache_path}/output"
@@ -131,7 +130,7 @@ class Renderer:
 
         self.key_reader = KeyReader()
 
-        self.chafa_frames = chafa_frames
+        self.chafa_frames = {i: frame for i, frame in enumerate(chafa_frames)}
         self.layout = Layout()
         self.layout.split_row(
             Layout(name="chafa", size=self.width),  # left
@@ -302,36 +301,48 @@ class Renderer:
         return changed
 
     def draw_loop(self):
-        i = 1
-        wanted_epoch = 0
+        i = 0
         start_time = time.time()
         self.last_refresh_time = time.time()
+
+        print(self.using_cached)
+
+        first_reading = True if self.using_cached else False
         while True:
-            for frame_name in os.listdir(self.frame_dir):
-                frame_path = f"{self.frame_dir}/{frame_name}"
-                with open(frame_path) as f:
-                    chafa_frame = f.read()
+            # didnt read every file so we need to iterate over the files
+            if first_reading:  # using_cached
+                for frame_name in os.listdir(self.frame_dir):
+                    frame_path = f"{self.frame_dir}/{frame_name}"
+                    with open(frame_path) as f:
+                        chafa_frame = f.read()
+                        self.chafa_frames[i] = chafa_frame
 
-                wanted_epoch = i / self.framerate_to_use
+                    self._process_one_frame(i, start_time, chafa_frame)
+                    i += 1
+                first_reading = False
+            else:
+                # in here it is guaranteed that every frame already exists in the self.chafa_frames
+                for j, _chafa_frame in self.chafa_frames.items():
+                    self._process_one_frame(j, start_time, _chafa_frame)
 
-                # current time in seconds (with fractional part)
-                now = time.time()
-
-                # Calculate how long to sleep to stay in sync
-                sleep_duration = wanted_epoch - (now - start_time)
-
-                # Only sleep if ahead of schedule
-                if sleep_duration > 0:
-                    time.sleep(sleep_duration)
-
-                i += 1
-
-                k = self.key_reader.poll()
-                if k is not None:
-                    # if k in ("q", "Q"):
-                    raise KeyboardInterrupt
-
-                self.process_resize_if_requested()
-                self.draw_stuff(chafa_frame)
-                sys.stdout.flush()
             # time.sleep(0.0000005)
+
+    def _process_one_frame(self, index, start_time, chafa_frame):
+        wanted_epoch = index / self.framerate_to_use
+        now = time.time()
+        sleep_duration = wanted_epoch - (now - start_time)
+
+        # Only sleep if ahead of schedule
+        if sleep_duration > 0:
+            time.sleep(sleep_duration)
+
+        # index += 1
+
+        k = self.key_reader.poll()
+        if k is not None:
+            # if k in ("q", "Q"):
+            raise KeyboardInterrupt
+
+        self.process_resize_if_requested()
+        self.draw_stuff(chafa_frame)
+        sys.stdout.flush()
