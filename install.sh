@@ -18,7 +18,13 @@ install_anifetch() {
     echo "anifetch installation/upgrade process completed."
 }
 
-if [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_LIKE" =~ "debian" || "$ID_LIKE" =~ "ubuntu" ]]; then
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    echo "You should use choco to install it for windows."
+
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Use homebrew to install anifetch for macos."
+
+elif [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_LIKE" =~ "debian" || "$ID_LIKE" =~ "ubuntu" ]]; then
     echo "Detected Debian/Ubuntu-based distribution. Using apt."
     sudo apt update
     sudo apt install -y chafa ffmpeg python3-pip git

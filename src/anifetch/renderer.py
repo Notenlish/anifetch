@@ -36,7 +36,6 @@ logging.basicConfig(
 )
 
 # TODO: instead of writing frames one by one just write them once to a single frame.txt
-# TODO: instead of writing template.txt to somewhere just stop writing it to a file,
 
 
 # TODO: nix flake update needed
@@ -44,10 +43,9 @@ logging.basicConfig(
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
 # TODO: add a "nocache" mode(for streaming mode).
 # TODO: Make installation process easier for nixos on setup script(tell users to use flakes or smth), installation script for MacOS and Windows(maybe?)
-# TODO: For windows check PATH and autodownload chafa and ffmpeg binaries to anifetch installation folder or just use choco / winget idk.
-# TODO: remove bc from readme and setup.sh and the nixos config stuff
+# TODO: For windows just use scoop / winget idk.
+# TODO: nixos config stuff
 # TODO: remove the old bash script
-# TODO: if possible find the origin of the example.mp4 file, for licensing and whatnot
 # TODO: Make a documentation site with Astro(use a premade theme and configure to your liking)
 # TODO: Ship 1.0 version
 

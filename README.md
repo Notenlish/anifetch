@@ -6,7 +6,7 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-### Automatic Installation
+### Installation for Linux
 
 Recommended Python version: 3.12 and later.
 
@@ -25,6 +25,33 @@ anifetch example.mp4
 Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
+
+### Installation for Windows (Winget or Scoop)
+
+Check whether you have winget installed by running `winget` in the windows terminal. If you dont have it, install it [here](https://github.com/microsoft/winget-cli/?tab=readme-ov-file#installing-the-client). If you want, you can use [Scoop](https://scoop.sh/) instead. Just replace the `winget` part with `scoop`.
+
+Run this in the terminal after verifying winget works:
+
+```
+winget install chafa ffmpeg fastfetch
+```
+
+You can install neofetch too but it is deprecated and not recommended. Run this: `winget install neofetch`
+
+You can then install anifetch via `pip install anifetch-cli`. You can install it via pipx too via `pipx install anifetch-cli`
+
+### Installation for MacOS with Homebrew
+
+Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
+
+Run this in the terminal after verifying homebrew is installed:
+
+```
+brew install chafa ffmpeg fastfetch
+```
+
+You can then install anifetch via `pip install anifetch-cli`. You can install it via pipx too via `pipx install anifetch-cli`
+
 
 ### Manual Installation
 
