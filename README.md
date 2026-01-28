@@ -1,4 +1,4 @@
-![anifetch](docs/anifetch.webp)
+![anifetch](https://github.com/Notenlish/anifetch/blob/main/docs/anifetch.webp?raw=true)
 
 # Anifetch - Neofetch but animated.
 
