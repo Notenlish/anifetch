@@ -4,25 +4,213 @@
 Anifetch utility module for common functions used across the application.
 """
 
+from pathlib import Path
 import pathlib
 import json
 import re
 import subprocess
+import os
 import sys
-from importlib.resources import files
-from platformdirs import user_data_dir
+from importlib.resources import files, as_file
+from importlib.resources.abc import Traversable
 from importlib.metadata import version, PackageNotFoundError
 import shutil
 from copy import deepcopy
 from hashlib import sha256
+from typing import Literal
+import errno
+
+
+from platformdirs import user_data_dir
+import wcwidth
 
 appname = "anifetch"
 appauthor = "anifetch"
 
+ESC = "\x1b["
+
+HIDE_CURSOR = ESC + "?25l"
+SHOW_CURSOR = ESC + "?25h"
+HOME = ESC + "H"  # cursor to 1;1
+CLEAR_TO_END = ESC + "J"  # clear from cursor to end of screen
+CLEAR_LINE = ESC + "K"  # clear from cursor to end of line
+
+SYNC_BEGIN = ESC + "?2026h"  # optional (terminals that support it)
+SYNC_END = ESC + "?2026l"
+
+
+# Source - https://stackoverflow.com/a
+# Posted by James Spencer, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-12-21, License - CC BY-SA 4.0
+
+if os.name == "nt":
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int), ("visible", ctypes.c_byte)]
+
+
+def enable_vt_mode_windows():
+    if os.name != "nt":
+        return
+    # Many modern Windows terminals support ANSI already.
+    os.system("")
+
+
+def write_atomic(text: str, *, sync: bool = True) -> None:
+    """Write one full frame update without intermediate visible states."""
+    if sync:
+        sys.stdout.write(SYNC_BEGIN)
+    sys.stdout.write(text)
+    if sync:
+        sys.stdout.write(SYNC_END)
+    sys.stdout.flush()
+
+
+def clear_screen():
+    """Clears screen using cls or clear depending on OS."""
+    _ = os.system("cls" if os.name == "nt" else "clear")
+    # sys.stdout.write("\x1b[2J")
+    # sys.stdout.flush()
+
+
+def clear_screen_soft():
+    sys.stdout.write(HOME + CLEAR_TO_END)
+
+
+def disable_autowrap():
+    """Returns whether it was able to disable autowrap."""
+    if sys.stdout.isatty():
+        sys.stdout.write("\x1b[?7l")
+        sys.stdout.flush()
+        return True
+    return False
+
+
+def enable_autowrap():
+    """Returns whether it was able to enable autowrap."""
+    if sys.stdout.isatty():
+        sys.stdout.write("\x1b[?7h")
+        sys.stdout.flush()
+        return True
+    return False
+
+
+def tput_cup(row: int, col: int):
+    """Moves the cursor to positions row and col.
+    https://man7.org/linux/man-pages/man1/tput.1.html
+
+    Does not flush.
+    """
+    sys.stdout.write(f"\x1b[{row + 1};{col + 1}H")
+    # sys.stdout.flush()  # not needed appearently
+
+
+def get_lowest_y_pos(template_len: int, HEIGHT: int, TOP: int):
+    template_row = TOP + template_len
+    chafa_row = TOP + HEIGHT
+    return max(template_row, max(chafa_row, 0))
+
+
+def tput_el():  # tput clear to end of the line
+    """Clears from the cursor to the end of the line."""
+    sys.stdout.write("\x1b[K")
+    sys.stdout.flush()
+
+
+def get_terminal_width():
+    """Returns terminal width(columns)"""
+    return os.get_terminal_size().columns
+
+
+def get_terminal_height():
+    """Returns terminal height(lines)"""
+    return os.get_terminal_size().lines
+
+
+def hide_cursor():
+    if os.name == "nt":
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == "posix":
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+
+
+def show_cursor():
+    if os.name == "nt":
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == "posix":
+        sys.stdout.write("\033[?25h")
+        sys.stdout.flush()
+
+
+ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+def clean_ansi(raw_text: str):
+    return ANSI_RE.sub("", raw_text)
+
+
+def get_character_width(raw: str):
+    """Gives the raw terminal width of a particular string by stripping ANSI codes, removing \n \t \r and using wcwidth to get the actual character width."""
+    return wcwidth.wcswidth(
+        clean_ansi(raw).replace("\n", "").replace("\r", "").replace("\t", "")
+    )
+
+
+def truncate_line(line: str, max_width: int):
+    """Does not keep the trailing \n"""
+    if max_width <= 0 or not line:
+        return ""
+
+    # Remove ANSI codes to get visible text length
+    visible_length = get_character_width(line)
+
+    total_output = ""
+    if visible_length <= max_width:
+        total_output = f"{line}\r"
+    else:
+        out: list[str] = []
+        width = 0
+        i = 0
+
+        while i < len(line) and width < max_width:
+            # if ansi sequence starts, copy it to out
+            m = ANSI_RE.match(line, i)
+            if m:
+                out.append(m.group(0))
+                i = m.end()
+                continue
+            ch = line[i]
+            i += 1
+
+            w: int = wcwidth.wcwidth(ch)
+            if w < 0:
+                w = 0
+
+            if width + w > max_width:
+                break
+            out.append(ch)
+            width += w
+        out.append("\x1b[0m")
+        total_output = "".join(out)
+    total_output = total_output.replace("\n", "")
+    total_output = total_output.replace("\r", "")
+    return total_output
+
 
 def get_version_of_anifetch():
     try:
-        return version("anifetch")
+        return version("anifetch-cli")
     except PackageNotFoundError:
         raise Exception("Anifetch package not found.")
 
@@ -119,10 +307,36 @@ def get_data_path():
     return base
 
 
-def default_asset_presence_check(asset_dir):
-    if not any(asset_dir.iterdir()):
-        packaged_asset = files("anifetch.assets") / "example.mp4"
-        shutil.copy(str(packaged_asset), asset_dir / "example.mp4")
+def _copy_tree(src_root: Path, dst_root: Path, overwrite: bool = False) -> None:
+    src_root = src_root.resolve()
+    dst_root.mkdir(parents=True, exist_ok=True)
+
+    for p in src_root.rglob("*"):
+        rel = p.relative_to(src_root)
+        dst = dst_root / rel
+
+        if p.is_dir():
+            dst.mkdir(parents=True, exist_ok=True)
+            continue
+
+        dst.parent.mkdir(parents=True, exist_ok=True)
+
+        if dst.exists() and not overwrite:
+            continue
+
+        shutil.copy2(p, dst)
+
+
+def default_asset_presence_check(asset_dir: Path):
+    """
+    Copies packaged example assets from anifetch.assets into asset_dir if theyre missing.
+    """
+    src_assets_dir = Path(__file__).resolve().parent / "assets"
+
+    if not src_assets_dir.exists():
+        raise FileNotFoundError(f"Assets folder not found: {src_assets_dir}")
+
+    _copy_tree(src_assets_dir, asset_dir, overwrite=False)
 
 
 def get_neofetch_status():  # will still save the rendered chafa in cache in any case
@@ -141,39 +355,94 @@ def get_neofetch_status():  # will still save the rendered chafa in cache in any
         return "uninstalled"  # neofetch is not installed
 
 
-def render_frame(path, width, height, chafa_args: str) -> str:
-    """
-    Renders a single frame using chafa.
+def get_fetch_output(
+    use_fastfetch: bool,
+    neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
+    force_neofetch: bool,
+):
+    fetch_output: list[str]
+    if not use_fastfetch:  # use neofetch
+        if (
+            neofetch_status == "wrapper" and force_neofetch
+        ) or neofetch_status == "neofetch":
+            # Get Neofetch Output
+            fetch_output = subprocess.check_output(
+                ["neofetch", "--off"], text=True
+            ).splitlines()
 
-    Args:
-        path (Path): Path to the image file.
-        width (int): Target width for rendering.
-        height (int): Target height for rendering.
-        chafa_args (str): Additional CLI arguments for chafa (space-separated).
+        elif neofetch_status == "uninstalled":
+            print(
+                "Neofetch is not installed. Please install Neofetch.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-    Returns:
-        str: Rendered frame as ASCII text.
+        else:
+            print(
+                "Neofetch is deprecated. Try fastfetch by removing the '-nf' / '--neofetch' argument or force neofetch to run by adding '--force' argument.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    else:
+        try:
+            fetch_output = subprocess.check_output(
+                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
+            ).splitlines()
+        except FileNotFoundError as e:
+            if e.errno == errno.ENOENT:
+                print(
+                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file#installation\n If you installed Fastfetch but it still doesn't work, check your PATH."
+                )
+                raise SystemExit
+            else:
+                raise Exception(e)
+    return fetch_output
 
-    Raises:
-        SystemExit: If chafa fails to render the frame.
-    """
+
+def center_template_to_animation(
+    WIDTH, len_chafa, len_fetch, fetch_output
+) -> list[str]:
+    pad = (len_chafa - len_fetch) // 2
+    remind = (len_chafa - len_fetch) % 2
+    fetch_lines: list[str] = (
+        [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+    )
+    return fetch_lines
+
+
+def make_template_from_fetch_lines(
+    fetch_lines: list[str], PAD_LEFT, GAP, WIDTH
+) -> tuple[list[str], int]:
+    template: list[str] = "\n".join(fetch_lines)
+    # Only do this once instead of for every line.
+    template_actual_width = get_text_length_of_formatted_text(fetch_lines[0])
+    return (template, template_actual_width)
+
+
+def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
     chafa_cmd = [
         "chafa",
         *chafa_args.strip().split(),
         "--format",
-        "symbols",  # Fix issue #1 by forcing consistent rendering
+        "symbols",  # Fixes https://github.com/Notenlish/anifetch/issues/1
         f"--size={width}x{height}",
         path.as_posix(),
     ]
 
-    try:
-        return subprocess.check_output(chafa_cmd, text=True)
-    except subprocess.CalledProcessError as e:
+    p = subprocess.run(
+        chafa_cmd,
+        text=True,
+        stdin=subprocess.DEVNULL,  # Fixes terminal mode switching(^[[A etc. being printed and past commands not showing up when up/down arrows are being used)
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if p.returncode != 0:
         print(
-            f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {e.stderr}",
+            f"[ERROR] chafa rendering failed.\nCommand: {' '.join(chafa_cmd)}\nError: {p.stderr}",
             file=sys.stderr,
         )
-        sys.exit(1)
+        raise SystemExit
+    return p.stdout
 
 
 def get_video_dimensions(filename):
@@ -209,6 +478,10 @@ def clean_cache_args(cache_args: dict) -> dict:
         "fast_fetch",
         "benchmark",
         "force_render",
+        "force",
+        "neofetch",
+        "interval",
+        "cleanup",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:

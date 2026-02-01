@@ -3,27 +3,55 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anifetch"
-version = "0.1.3"
-description = "Animated terminal fetch with video/audio support."
-authors = [{name = "Notenlish"}, {name = "Immelancholy"}, {name = "Gallophostrix", email = "gallophostrix@gmail.com"}]
+name = "anifetch-cli"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Topic :: Terminals",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+keywords = [
+    "fetch",
+    "terminal",
+    "cli",
+    "animated",
+    "neofetch",
+    "fastfetch",
+    "anifetch",
+]
+version = "1.0.0"
+description = "Animated terminal fetch with video and audio support."
+authors = [
+    { name = "Notenlish", email = "notenlish@gmail.com" },
+    { name = "Immelancholy" },
+    { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
+]
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 dependencies = [
-    "platformdirs"
+    "platformdirs",
+    "wcwidth",
+    "blessed",
+    "rich",
+    # "windows-curses; platform_system == 'Windows'"
     # Example : "rich>=13.0.0"
 ]
 
+[project.urls]
+Homepage = "https://github.com/Notenlish/anifetch"
+Issues = "https://github.com/Notenlish/anifetch/issues"
+
 [project.scripts]
 anifetch = "anifetch.__init__:main"
+anifetch-cli = "anifetch.__init__:main"
 
 [tool.setuptools]
 packages = ["anifetch"]
 package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-anifetch = [
-    "assets/*",
-    "anifetch-static-resize2.sh"
-]
+anifetch = ["assets/**/*"]

@@ -13,7 +13,6 @@ import time
 from .utils import (
     check_codec_of_file,
     extract_audio_from_file,
-    get_text_length_of_formatted_text,
     get_ext_from_codec,
     get_data_path,
     default_asset_presence_check,
@@ -30,11 +29,19 @@ from .utils import (
     save_caches_json,
     args_checker,
     threaded_chafa_frame_gen,
+    get_fetch_output,
+    center_template_to_animation,
+    make_template_from_fetch_lines,
+    tput_cup,
+    get_lowest_y_pos,
+    clear_screen,
 )
+from typing import Literal
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 GAP = 2
 PAD_LEFT = 4
+LEFT = PAD_LEFT
 
 
 def run_anifetch(args):
@@ -53,8 +60,8 @@ def run_anifetch(args):
     args.sound_flag_given = check_sound_flag_given(sys.argv)
     args.chroma_flag_given = args.chroma is not None
 
-    neofetch_status = "uninstalled"
-    if not args.fast_fetch:
+    neofetch_status: Literal["neofetch", "uninstalled", "wrapper"] = "uninstalled"
+    if args.neofetch:
         neofetch_status = get_neofetch_status()
 
     BASE_PATH = get_data_path()
@@ -209,10 +216,11 @@ def run_anifetch(args):
         normal_print(should_print, "Caching...")
 
     WIDTH = args.width
+
     # automatically calculate height if not given
-    if "--height" not in sys.argv and "-H" not in sys.argv:
+    if should_update and ("--height" not in sys.argv and "-H" not in sys.argv):
         try:
-            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)  #### Zob
+            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -223,48 +231,18 @@ def run_anifetch(args):
         HEIGHT = args.height
 
     # Get the fetch output(neofetch/fastfetch)
-    if not args.fast_fetch:
-        if (
-            neofetch_status == "wrapper" and args.force
-        ) or neofetch_status == "neofetch":
-            # Get Neofetch Output
-            fetch_output = subprocess.check_output(
-                ["neofetch", "--off"], text=True
-            ).splitlines()
+    fetch_output: list[str] = get_fetch_output(
+        not args.neofetch, neofetch_status, args.force
+    )
 
-        elif neofetch_status == "uninstalled":
-            print(
-                "Neofetch is not installed. Please install Neofetch or Fastfetch. To use FastFetch add '-ff' to the end of the command.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
-        else:
-            print(
-                "Neofetch is deprecated. Try fastfetch using '-ff' argument or force neofetch to run using '--force' argument.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-    else:
-        try:
-            fetch_output = subprocess.check_output(
-                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
-            ).splitlines()
-        except FileNotFoundError as e:
-            if e.errno == errno.ENOENT:
-                print(
-                    "The command Fastfetch was not found. You probably forgot to install it. You can install it by going to here: https://github.com/fastfetch-cli/fastfetch\n If you installed Fastfetch but it still doesn't work, check your PATH."
-                )
-                raise SystemExit
-            else:
-                raise Exception(e)
+    # copy fetch_output to fetch_lines
+    fetch_lines: list[str] = fetch_output[:]
+    len_fetch = len(fetch_lines)
 
     # put cached frames here
     frames: dict[int, str] = {}  # {frame_id : frame}
 
-    # copy the fetch output to the fetch_lines variable
-    fetch_lines = fetch_output[:]
-    len_fetch = len(fetch_lines)
+    len_chafa = None
 
     # cache is invalid, re-render
     if should_update:
@@ -344,6 +322,10 @@ def run_anifetch(args):
 
         print_verbose(should_print_verbose, "Emptied the output folder.")
 
+        # make sure height and width are at least 1
+        WIDTH = max(WIDTH, 1)
+        HEIGHT = max(HEIGHT, 1)
+
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
         animation_files.sort()
@@ -405,7 +387,7 @@ def run_anifetch(args):
 
         HEIGHT = len(frames[0].splitlines())
 
-        # reloarding the cached output
+        # reloading the cached output
         with open(CACHE_LIST_PATH, "r") as f:
             all_saved_caches = json.load(f)
             corresponding_cache = find_corresponding_cache(
@@ -437,66 +419,71 @@ def run_anifetch(args):
     if len(fetch_lines) == 0:
         raise Exception("fetch_lines has no items in it:", fetch_lines)
 
-    template = []
-    for fetch_line in fetch_lines:
-        output = f"{' ' * (PAD_LEFT + GAP)}{' ' * WIDTH}{' ' * GAP}{fetch_line}"
-        template.append(output + "\n")
-
-    # Only do this once instead of for every line.
-    output_width = get_text_length_of_formatted_text(output)
-    template_actual_width = output_width  # TODO: maybe this should instead be the text_length_of_formatted_text(cleaned_line)
-
-    # writing the tempate to a file.
-    with open(CACHE_PATH / "template.txt", "w") as f:
-        f.writelines(template)
-    print_verbose(should_print_verbose, "Template updated")
+    template, template_actual_width = make_template_from_fetch_lines(
+        fetch_lines, PAD_LEFT, GAP, WIDTH
+    )
 
     # for defining the positions of the cursor, that way I can set cursor pos and only redraw a portion of the text, not the entire text.
-    TOP = 2
-    LEFT = PAD_LEFT
+    TOP = args.top
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
 
-    bash_script_name = "anifetch-static-resize2.sh"
-    script_dir = pathlib.Path(__file__).parent
-    bash_script_path = script_dir / bash_script_name
+    using_cached: bool = not should_update
 
-    if not args.benchmark:  # opitional?
-        try:
-            framerate_to_use = args.playback_rate
-            if args.sound_flag_given:
-                framerate_to_use = (
-                    args.framerate
-                )  # ignore wanted playback rate so that desync doesn't happen
-
-            script_args = [
-                "bash",
-                str(bash_script_path),
-                str(CACHE_PATH),
-                str(framerate_to_use),
-                str(TOP),
-                str(LEFT),
-                str(RIGHT),
-                str(BOTTOM),
-                str(template_actual_width),
-            ]
-            if args.sound_flag_given:  # if user requested for sound to be played
-                script_args.append(str(args.sound_saved_path))
-
-            print_verbose(should_print_verbose, script_args)
-            # raise SystemExit
-            subprocess.call(
-                script_args,
-                text=True,
-            )
-        except KeyboardInterrupt:
-            import platform
-
-            if platform.system == "Linux" or platform.system == "Darwin":
-                subprocess.call("stty sane")
-            # Reset the terminal in case it doesnt render the user inputted text after Ctrl+C
-    else:  # benchmark mode
+    if args.benchmark:
         print(time.time() - st)
+    else:
+        from .renderer import Renderer
+
+        try:
+            if not args.sound_saved_path:
+                args.sound_saved_path = ""
+        except AttributeError:
+            args.sound_saved_path = ""
+
+        framerate_to_use = args.playback_rate
+
+        renderer = Renderer(
+            str(BASE_PATH),
+            str(CACHE_PATH),
+            framerate_to_use,
+            TOP,
+            LEFT,
+            RIGHT,
+            BOTTOM,
+            using_cached,
+            template_actual_width,
+            template,
+            frames,
+            not args.neofetch,
+            neofetch_status,
+            args.force,
+            args.center,
+            len_chafa or None,
+            WIDTH,
+            GAP,
+            refresh_interval=args.interval,
+            sound_saved_path=args.sound_saved_path,
+        )
+
+        renderer.start_rendering()
+
+        # stopped rendering
+        # sys.stdout.flush()
+
+        if args.cleanup:
+            pass
+            # clear_screen()
+        else:
+            pass
+            #
+            # _bottom = get_lowest_y_pos(len(template), HEIGHT, TOP)
+            # sys.stdout.write(renderer.terminal.enter_fullscreen())
+            # sys.stdout.write(renderer.terminal.show_cursor())
+            # TODO: MAYBE? JUST MAYBE? Clear out the bottom 2 rows with black, then move to _bottom and then flush?
+            # sys.stdout.write(renderer.terminal.move(_bottom, 0))
+            # sys.stdout.flush()
+            # TODO: sys.stdout.write(renderer.terminal.enter_fullscreen()) if I dont do this it fucks up anifetch sometimes?
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

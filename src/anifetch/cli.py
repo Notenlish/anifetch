@@ -38,6 +38,14 @@ parser.add_argument(
     help="Height of the chafa animation.",
     type=int,
 )
+parser.add_argument(
+    "-t",
+    "-T",
+    "--top",
+    default=2,
+    help="Sets the starting row(top) position.",
+    type=int,
+)
 parser.add_argument("-v", "--verbose", default=False, action="store_true")
 parser.add_argument(
     "-r",
@@ -75,10 +83,16 @@ parser.add_argument(
     help="Disabled by default. Use this argument to center the animation relative to the fetch output. Note that centering may slow down the execution.",
 )
 parser.add_argument(
-    "-c",
+    "-ca",
     "--chafa-arguments",
     default="--symbols ascii --fg-only",
     help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
+)
+parser.add_argument(
+    "--cleanup",
+    default=False,
+    help="Clears the screen when the program quits. Default is False.",
+    action="store_true",
 )
 parser.add_argument(
     "--force",
@@ -94,10 +108,10 @@ parser.add_argument(
     type=int,
 )
 parser.add_argument(
-    "-ff",
-    "--fast-fetch",
+    "-nf",
+    "--neofetch",
     default=False,
-    help="Add this argument if you want to use fastfetch instead. Note than fastfetch will be run with '--logo none'.",
+    help="Add this argument if you want to use neofetch instead.",
     action="store_true",
 )
 parser.add_argument(
@@ -106,6 +120,14 @@ parser.add_argument(
     nargs="?",
     help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
     type=str,
+)
+parser.add_argument(
+    "-i",
+    "--interval",
+    required=False,
+    type=float,
+    help="Set fetch refresh interval in seconds. Default is -1(never).",
+    default=-1,
 )
 parser.add_argument(
     "--version",
