@@ -2,32 +2,24 @@ import os
 import sys
 import time
 from .utils import (
-    hide_cursor,
     show_cursor,
-    tput_cup,
-    tput_el,
     truncate_line,
-    enable_autowrap,
-    disable_autowrap,
     get_fetch_output,
     center_template_to_animation,
     make_template_from_fetch_lines,
-    clear_screen,
     clear_screen_soft,
     get_terminal_width,
-    get_terminal_height,
 )
 import subprocess
 from .keyreader import KeyReader
 import logging
 from typing import Literal
 from threading import Thread
-import rich
 from rich.live import Live
 from rich.layout import Layout
-from rich.panel import Panel
 from rich.text import Text
 from rich.console import Console
+from rich.align import Align
 
 
 logger = logging.getLogger(__name__)
@@ -35,19 +27,16 @@ logging.basicConfig(
     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
 )
 
-# TODO: instead of writing frames one by one just write them once to a single frame.txt
-
-
-# TODO: nix flake update needed
 # TODO: pypi release
+
+
+# TODO: instead of writing frames one by one just write them once to a single frame.txt
 # TODO: add streaming mode(instead of processing all files at once, process them over time. It will just check whether the next frame is available, and use that. If not available, wait for it to be available.)
-# TODO: add a "nocache" mode(for streaming mode).
-# TODO: Make installation process easier for nixos on setup script(tell users to use flakes or smth), installation script for MacOS and Windows(maybe?)
-# TODO: For windows just use scoop / winget idk.
+# TODO: add a "nocache" mode where it simply streams the frames.
 # TODO: nixos config stuff
-# TODO: remove the old bash script
-# TODO: Make a documentation site with Astro(use a premade theme and configure to your liking)
 # TODO: Ship 1.0 version
+
+# TODO: Make a documentation site with Astro(use a premade theme and configure to your liking)
 
 
 def cleanup():
@@ -67,11 +56,13 @@ class Renderer:
         top: int,
         left: int,
         right: int,
+        height: int,
+        len_fetch: int,
         bottom: int,
         using_cached: bool,
         template_width: int,
         template: list[str],
-        chafa_frames: list[str],
+        chafa_frames: dict[int, str],
         use_fastfetch: bool,
         neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
         force_neofetch: bool,
@@ -88,6 +79,7 @@ class Renderer:
         self.top: int = top
         self.left: int = left
         self.right: int = right
+        self.height: int = height
         self.bottom: int = bottom
 
         self.using_cached = using_cached
@@ -128,19 +120,22 @@ class Renderer:
 
         self.key_reader = KeyReader()
 
-        self.chafa_frames = {i: frame for i, frame in enumerate(chafa_frames)}
+        self.chafa_frames = chafa_frames
+
+        self._some_max_height = max(len(self.chafa_frames[0].splitlines()), len_fetch)
 
         self.layout = Layout()
         self.layout.split_column(Layout(name="top", size=self.top), Layout(name="main"))
 
         self.layout["main"].split_row(
             Layout(name="left", size=self.left),
-            Layout(name="chafa", size=self.width),  # left
+            Layout(name="chafa", size=self.width),
             Layout(name="gap", size=self.gap),
             Layout(
                 name="template",
             ),  # right
         )
+
         self.layout["top"].update(Text(""))
         self.layout["main"]["left"].update(Text(""))
         self.layout["main"]["gap"].update(Text(""))
@@ -188,11 +183,20 @@ class Renderer:
             time.sleep(0.05)
 
     def draw_stuff(self, chafa_frame: str):
-        self.layout["main"]["chafa"].update(Text.from_ansi(chafa_frame))
+        chafa_t = Text.from_ansi(chafa_frame)
+        if self.is_centered:
+            self.layout["main"]["chafa"].update(
+                Align.center(chafa_t, vertical="middle", height=self._some_max_height)
+            )
+        else:
+            self.layout["main"]["chafa"].update(chafa_t)
 
         _template_str = "".join(self.original_template_buffer)
+
         self.layout["main"]["template"].update(
-            Text.from_ansi(_template_str, justify="left", no_wrap=True)
+            Text.from_ansi(
+                _template_str, justify="left", no_wrap=True
+            )  # TODO: put align center here
         )
 
     def process_resize_if_requested(self):
@@ -244,11 +248,11 @@ class Renderer:
             self.fetch_update_thread = Thread(target=self.check_template_buffer_refresh)
             self.fetch_update_thread.start()
 
-            # disable_autowrap()
             clear_screen_soft()
-            self.draw_stuff(
-                self.chafa_frames[0]
-            )  # avoid Live container drawing the placeholder boxes with borders
+
+            # avoid Live container drawing the placeholder boxes with borders
+            self.draw_stuff(self.chafa_frames[0])
+
             with Live(
                 self.layout,
                 refresh_per_second=20,
@@ -260,6 +264,7 @@ class Renderer:
         except KeyboardInterrupt:
             pass
 
+        # after frame finishes redraw the stuff
         def layout_to_ansi(layout, width: int) -> str:
             console = Console(
                 force_terminal=True,  # emit ANSI
@@ -279,6 +284,9 @@ class Renderer:
         # cleanup()
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
+
+        if self.sound_process:
+            self.sound_process.kill()
 
     def _make_truncated_template(self, terminal_width: int):
         self.template_buffer = [
@@ -312,15 +320,13 @@ class Renderer:
         start_time = time.time()
         self.last_refresh_time = time.time()
 
-        print(self.using_cached)
-
         first_reading = True if self.using_cached else False
         while True:
             # didnt read every file so we need to iterate over the files
             if first_reading:  # using_cached
                 for frame_name in sorted(os.listdir(self.frame_dir)):
                     frame_path = f"{self.frame_dir}/{frame_name}"
-                    with open(frame_path) as f:
+                    with open(frame_path, "r", encoding="utf-8") as f:
                         chafa_frame = f.read()
                         self.chafa_frames[i] = chafa_frame
 

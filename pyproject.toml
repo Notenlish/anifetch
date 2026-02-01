@@ -1,3 +1,5 @@
+# TODO: publish on pypi
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
@@ -24,22 +26,19 @@ keywords = [
 ]
 version = "1.0.0"
 description = "Animated terminal fetch with video and audio support."
-authors = [
-    { name = "Notenlish", email = "notenlish@gmail.com" },
-    { name = "Immelancholy" },
+# If I put everyone here it messes with the "author" meta section.
+authors = [{ name = "Notenlish", email = "notenlish@gmail.com" }]
+maintainers = [
+    # If I make it start with immelancholy for some reason it uses gallophostix's gmail for immelancholy.
     { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
+    { name = "Immelancholy" },
+    { name = "Notenlish", email = "notenlish@gmail.com" },
 ]
+
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-dependencies = [
-    "platformdirs",
-    "wcwidth",
-    "blessed",
-    "rich",
-    # "windows-curses; platform_system == 'Windows'"
-    # Example : "rich>=13.0.0"
-]
+dependencies = ["platformdirs", "wcwidth", "blessed", "rich"]
 
 [project.urls]
 Homepage = "https://github.com/Notenlish/anifetch"

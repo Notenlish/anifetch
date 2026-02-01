@@ -8,14 +8,7 @@ from .utils import get_version_of_anifetch
 
 parser = argparse.ArgumentParser(
     prog="Anifetch",
-    description="Allows you to use neofetch with video in terminal (using chafa).",
-)
-parser.add_argument(
-    "-b",
-    "--benchmark",
-    default=False,
-    help="For testing. Runs Anifetch without actually starting the animation and returns how long it took in seconds.",
-    action="store_true",
+    description="Allows you to use fastfetch/neofetch with video in terminal.",
 )
 parser.add_argument(
     "filename",
@@ -46,26 +39,32 @@ parser.add_argument(
     help="Sets the starting row(top) position.",
     type=int,
 )
-parser.add_argument("-v", "--verbose", default=False, action="store_true")
+parser.add_argument(
+    "-v",
+    "--verbose",
+    default=False,
+    help="Enables some verbose print logs",
+    action="store_true",
+)
 parser.add_argument(
     "-r",
     "--framerate",
     default=10,
-    help="Sets the framerate when extracting frames from ffmpeg.",
+    help="Sets the framerate when extracting frames from ffmpeg. Default is 10.",
     type=int,
 )
 parser.add_argument(
     "-pr",
     "--playback-rate",
     default=10,
-    help="Ignored when a sound is playing so that desync doesn't happen. Sets the playback rate of the animation. Not to be confused with the 'framerate' option. This basically sets for how long the script will wait before rendering new frame, while the framerate option affects how many frames are generated via ffmpeg.",
+    help="Default is 10. Ignored when a sound is playing so that desync doesn't happen. Sets the playback rate of the animation. Not to be confused with the 'framerate' option. This basically sets for how long the script will wait before rendering new frame, while the framerate option affects how many frames are generated via ffmpeg.",
 )
 parser.add_argument(
     "-s",
     "--sound",
     required=False,
     nargs="?",
-    help="Optional. Will playback a sound file while displaying the animation. If you give only -s without any sound file it will attempt to extract the sound from the video.",
+    help="Optional. Will playback a sound file while displaying the animation. If you give only --sound without any sound file it will attempt to extract the sound from the video.",
     type=str,
 )
 parser.add_argument(
@@ -86,7 +85,7 @@ parser.add_argument(
     "-ca",
     "--chafa-arguments",
     default="--symbols ascii --fg-only",
-    help="Specify the arguments to give to chafa. For more information, use 'chafa --help'",
+    help="Specify the arguments to give to chafa. Default is \"--symbols ascii --fg-only\". For more information, use 'chafa --help'",
 )
 parser.add_argument(
     "--cleanup",
@@ -104,7 +103,7 @@ parser.add_argument(
     "--quality",
     "-q",
     default=6,
-    help="Quality when extracting frames. 2-5 high quality, 6-10 lower quality.",
+    help="Quality when extracting frames. 2-5 high quality, 6-10 lower quality. Default is 6.",
     type=int,
 )
 parser.add_argument(
@@ -118,7 +117,7 @@ parser.add_argument(
     "--chroma",
     required=False,
     nargs="?",
-    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a # e.g. '--chroma 0xc82044:0.1:0.1'",
+    help="Add this argument to chromakey a hexadecimal color from the video using ffmpeg using syntax of '--chroma <hex color>:<similarity>:<blend>' with <hex-color> being 0xRRGGBB with a 0x as opposed to a #. Example: '--chroma 0xc82044:0.1:0.1'",
     type=str,
 )
 parser.add_argument(
@@ -152,6 +151,14 @@ parser.add_argument(
     required=False,
     action="store_true",
     help="Clear all saved cache configurations.",
+)
+
+parser.add_argument(
+    "-b",
+    "--benchmark",
+    default=False,
+    help="For testing. Runs Anifetch without actually starting the animation and returns how long it took in seconds.",
+    action="store_true",
 )
 
 

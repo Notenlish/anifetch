@@ -35,9 +35,10 @@ from .utils import (
     tput_cup,
     get_lowest_y_pos,
     clear_screen,
+    clear_screen_soft,
 )
 from typing import Literal
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, Future
 
 GAP = 2
 PAD_LEFT = 4
@@ -326,11 +327,15 @@ def run_anifetch(args):
         WIDTH = max(WIDTH, 1)
         HEIGHT = max(HEIGHT, 1)
 
+        # WHY IS THE FRAMES NOT PROPERLY FINISHED AND HANDLED???
+
         # get the frames
         animation_files = os.listdir(VIDEO_DIR)
         animation_files.sort()
-        futures = []
+        futures: list[Future] = []
         max_workers: int = max(1, (os.cpu_count() or 2) - 1)
+        max_workers = 1
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             chafa_args: str = args.chafa_arguments.strip()
             chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
@@ -348,26 +353,21 @@ def run_anifetch(args):
                     args.center,
                     len_fetch,
                     fetch_output,
-                    frames,
                 )
                 futures.append(future)
                 # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
                 # AKA: even if I specify 40x20, chafa might give me 40x11 or something like that.
-            for future in as_completed(futures):
-                _fetch_lines, _HEIGHT = future.result()
-                _fetch_lines: list[str] | None
-                _HEIGHT: int | None
-                if _HEIGHT:
-                    HEIGHT = _HEIGHT
-                if _fetch_lines:  # needed in case the function modified fetch_lines
-                    fetch_lines = _fetch_lines
+            for future in futures:
+                _i, _frame = future.result()
+                frames[_i] = _frame
+
     else:
         # just use cached
-        animation_files = os.listdir(OUTPUT_DIR)
+        animation_files: list[str] = os.listdir(OUTPUT_DIR)
         animation_files.sort()
         for i, filename in enumerate(animation_files):
             path = OUTPUT_DIR / filename
-            with open(path, "r") as file:
+            with open(path, "r", encoding="utf-8") as file:
                 frame = file.read()
                 frames[i] = frame
             break  # first frame used for the template and the height
@@ -380,10 +380,6 @@ def run_anifetch(args):
                 fetch_lines = (
                     [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
                 )
-
-        # TODO: what is the point of this??
-        # with open(CACHE_PATH / "frame.txt", "w") as f:
-        #     f.writelines(frames)
 
         HEIGHT = len(frames[0].splitlines())
 
@@ -450,6 +446,8 @@ def run_anifetch(args):
             TOP,
             LEFT,
             RIGHT,
+            HEIGHT,
+            len_fetch,
             BOTTOM,
             using_cached,
             template_actual_width,
@@ -472,18 +470,10 @@ def run_anifetch(args):
         # sys.stdout.flush()
 
         if args.cleanup:
-            pass
+            clear_screen_soft()
             # clear_screen()
         else:
             pass
-            #
-            # _bottom = get_lowest_y_pos(len(template), HEIGHT, TOP)
-            # sys.stdout.write(renderer.terminal.enter_fullscreen())
-            # sys.stdout.write(renderer.terminal.show_cursor())
-            # TODO: MAYBE? JUST MAYBE? Clear out the bottom 2 rows with black, then move to _bottom and then flush?
-            # sys.stdout.write(renderer.terminal.move(_bottom, 0))
-            # sys.stdout.flush()
-            # TODO: sys.stdout.write(renderer.terminal.enter_fullscreen()) if I dont do this it fucks up anifetch sometimes?
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

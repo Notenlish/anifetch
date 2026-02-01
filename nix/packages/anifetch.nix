@@ -22,7 +22,6 @@ in
     ];
 
     dependencies = [
-      pkgs.bc
       pkgs.chafa
       pkgs.ffmpeg
       pkgs.python3Packages.platformdirs

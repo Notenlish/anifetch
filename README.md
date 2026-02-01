@@ -172,7 +172,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 ```
-> on windows do this to activate the venv instead: `venv\Scripts\activate`. Also on windows you should call `py` instead of `python3`.
+> on windows do this to activate the venv instead: `venv\Scripts\activate`. Also on windows you should use `py` instead of `python3`.
 
 
 This installs `anifetch` in editable mode within a local virtual environment for development.
@@ -182,7 +182,7 @@ You can then run the program in two ways:
 - As a CLI: `anifetch`
 - Or as a module: `python3 -m anifetch` (useful for debugging or internal testing)
 
-> Please avoid using `pip install` outside a virtual environment on systems like Ubuntu. This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
+> Please avoid using `pip install` outside a virtual environment on Linux. This is restricted by [PEP 668](https://peps.python.org/pep-0668/) to protect the system Python.
 
 On Nix you can run:
 
@@ -214,10 +214,10 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 ### Optional arguments:
 
 - `-s` / `--sound`: Plays sound along with the video. If you provide a sound file, it will use it, otherwise will use ffmpg to extract audio from the video.
-- `-r` / `--framerate`: frame rate of playback
+- `-r` / `--framerate`: Framerate to use when extracting frames from ffmpeg.
 - `-W` / `--width`: video width
 - `-H` / `--height`: video height (may be automatically fixed with the width)
-- `-ca` / `--chafa-arguments`: extra arguments to pass to `chafa`
+- `-ca` / `--chafa-arguments`: extra arguments to pass to `chafa`. For an example, try adding this: `-ca "--symbols wide --fg-only"` this makes the output use Japanese characters.
 - `-C` / `--center`: centers the terminal animation vertically
 - `--cleanup`: Clears the screen on program exit.
 - `-nf` / `--neofetch`: uses `neofetch` instead of `fastfetch`
@@ -226,7 +226,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `-b` / `--benchmark`: For testing, prints how long it took to process in seconds.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
-- `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this.
+- `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
 
 ### Cached files:
 
@@ -280,10 +280,6 @@ Also, ffmpeg can generate the the same image for 2 consecutive frames, which may
 Currently only the `symbols` format of chafa is supported, formats like kitty, iterm etc. are not supported. If you try to tell chafa to use iterm, kitty etc. it will just override your format with `symbols` mode.
 
 ## What's Next
-
-- [ ] Add an info text that updates itself when caching.
-
-- [ ] Allow setting ffmpeg args.
 
 - [ ] Support different formats like iterm, kitty, sixel etc.
 

@@ -71,8 +71,6 @@ def write_atomic(text: str, *, sync: bool = True) -> None:
 def clear_screen():
     """Clears screen using cls or clear depending on OS."""
     _ = os.system("cls" if os.name == "nt" else "clear")
-    # sys.stdout.write("\x1b[2J")
-    # sys.stdout.flush()
 
 
 def clear_screen_soft():
@@ -428,10 +426,11 @@ def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
         f"--size={width}x{height}",
         path.as_posix(),
     ]
-
     p = subprocess.run(
         chafa_cmd,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         stdin=subprocess.DEVNULL,  # Fixes terminal mode switching(^[[A etc. being printed and past commands not showing up when up/down arrows are being used)
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -482,6 +481,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "neofetch",
         "interval",
         "cleanup",
+        "center",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:
@@ -558,57 +558,14 @@ def threaded_chafa_frame_gen(
     centered: bool,
     len_fetch: int,
     fetch_output: list[str],
-    frames: dict[int, str],
-) -> list[str] | None:
+) -> tuple[int, str]:
     # f = 00001.png
     path = VIDEO_DIR / f
     frame = render_frame(path, WIDTH, HEIGHT, chafa_args)
 
     chafa_lines = frame.splitlines()
-    fetch_lines: list[str] | None = None
-    updated_height = False
-
-    if centered:  # TODO: should i check for i == 0?
-        # centering the fetch output or the chafa animation if needed.
-        len_chafa = len(chafa_lines)
-
-        if (
-            len_chafa < len_fetch
-        ):  # if the chafa animation is shorter than the fetch output
-            pad = (len_fetch - len_chafa) // 2
-            remind = (len_fetch - len_chafa) % 2
-            # chafa_lines.pop()  # don't ask me why, the last line always seems to be empty
-            chafa_lines = (
-                [" " * WIDTH] * pad + chafa_lines + [" " * WIDTH] * (pad + remind)
-            )
-
-        elif (
-            len_fetch < len_chafa
-            and i == 0  # I only need one thread to update the fetch_lines(template)
-        ):  # if the chafa animation is longer than the fetch output
-            pad = (len_chafa - len_fetch) // 2
-            remind = (len_chafa - len_fetch) % 2
-            fetch_lines = (
-                [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
-            )
-
-        if i == 0:
-            # updating the HEIGHT variable from the first frame
-            HEIGHT = len(chafa_lines)
-            updated_height = True
-    else:
-        if i == 0:
-            len_chafa = len(chafa_lines)
-            pad = abs(len_fetch - len_chafa) // 2
-            remind = abs(len_fetch - len_chafa) % 2
-            HEIGHT = len(chafa_lines) + (2 * pad + remind) * WIDTH
-            updated_height = True
-
     out = "\n".join(chafa_lines)
 
-    if i == 0:
-        frames[i] = out
-    with open((OUTPUT_DIR / f).with_suffix(".txt"), "w") as file:
+    with open((OUTPUT_DIR / f).with_suffix(".txt"), "w", encoding="utf-8") as file:
         file.write(out)
-
-    return fetch_lines, HEIGHT if updated_height else None
+    return i, out
