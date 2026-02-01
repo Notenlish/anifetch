@@ -456,7 +456,7 @@ def run_anifetch(args):
     LEFT = PAD_LEFT
     RIGHT = WIDTH + PAD_LEFT
     BOTTOM = HEIGHT
-
+    LOOP = args.loop
     bash_script_name = "anifetch-static-resize2.sh"
     script_dir = pathlib.Path(__file__).parent
     bash_script_path = script_dir / bash_script_name
@@ -479,6 +479,8 @@ def run_anifetch(args):
                 str(RIGHT),
                 str(BOTTOM),
                 str(template_actual_width),
+                str(LOOP),
+                str(len_fetch),
             ]
             if args.sound_flag_given:  # if user requested for sound to be played
                 script_args.append(str(args.sound_saved_path))
