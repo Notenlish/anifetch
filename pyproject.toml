@@ -37,7 +37,7 @@ maintainers = [
 
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["platformdirs", "wcwidth", "blessed", "rich"]
 
 [project.urls]

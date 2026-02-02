@@ -457,6 +457,7 @@ def run_anifetch(args):
             neofetch_status,
             args.force,
             args.center,
+            args.loop,
             len_chafa or None,
             WIDTH,
             GAP,

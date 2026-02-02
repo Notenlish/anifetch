@@ -8,7 +8,7 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ### Installation for Linux
 
-Recommended Python version: 3.12 and later. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
+Recommended Python version: 3.11 and later. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
 
 Run this in the terminal.
 
@@ -227,6 +227,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
 - `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
+- `--loop`: Determines how many times the animation should loop. Default is -1(always loop).
 
 ### Cached files:
 

@@ -67,6 +67,7 @@ class Renderer:
         neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
         force_neofetch: bool,
         is_centered: bool,
+        loop: int,
         len_chafa: int | None,
         width: int,
         gap: int,
@@ -96,6 +97,7 @@ class Renderer:
         )
         self.force_neofetch: bool = force_neofetch
         self.is_centered: bool = is_centered
+        self.loop: int = loop
         self.len_chafa: int | None = len_chafa
         self.width: int = width
         self.gap: int = gap
@@ -316,12 +318,13 @@ class Renderer:
         return changed
 
     def draw_loop(self):
+        loop_count = 0
         i = 0
         start_time = time.time()
         self.last_refresh_time = time.time()
 
         first_reading = True if self.using_cached else False
-        while True:
+        while loop_count < self.loop or self.loop == -1:
             # didnt read every file so we need to iterate over the files
             if first_reading:  # using_cached
                 for frame_name in sorted(os.listdir(self.frame_dir)):
@@ -333,12 +336,13 @@ class Renderer:
                     self._process_one_frame(i, start_time, chafa_frame)
                     i += 1
                 first_reading = False
+                loop_count += 1
             else:
                 start_time = time.time()
                 # in here it is guaranteed that every frame already exists in the self.chafa_frames
                 for j, _chafa_frame in self.chafa_frames.items():
                     self._process_one_frame(j, start_time, _chafa_frame)
-
+                loop_count += 1
             # time.sleep(0.0000005)
 
     def _process_one_frame(self, index, start_time, chafa_frame):

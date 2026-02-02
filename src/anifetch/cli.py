@@ -100,6 +100,13 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
+    "-l",
+    "--loop",
+    default=-1,
+    help="Determines how many times the animation should loop. Default is -1(always loop).",
+    type=int,
+)
+parser.add_argument(
     "--quality",
     "-q",
     default=6,
