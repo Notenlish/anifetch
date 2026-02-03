@@ -107,6 +107,12 @@ parser.add_argument(
     type=int,
 )
 parser.add_argument(
+    "--no-key-exit",
+    help="Do not exit anifetch when a user presses a key.",
+    action="store_false",
+)
+
+parser.add_argument(
     "--quality",
     "-q",
     default=6,

@@ -12,7 +12,6 @@ from .utils import (
 )
 import subprocess
 from .keyreader import KeyReader
-import logging
 from typing import Literal
 from threading import Thread
 from rich.live import Live
@@ -22,10 +21,11 @@ from rich.console import Console
 from rich.align import Align
 
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
-)
+# import logging
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(
+#     filename="anifetch.log", encoding="utf-8", level=logging.DEBUG, filemode="w"
+# )
 
 # TODO: pypi release
 
@@ -68,6 +68,8 @@ class Renderer:
         force_neofetch: bool,
         is_centered: bool,
         loop: int,
+        cleanup: bool,
+        no_key_exit: bool,
         len_chafa: int | None,
         width: int,
         gap: int,
@@ -98,6 +100,8 @@ class Renderer:
         self.force_neofetch: bool = force_neofetch
         self.is_centered: bool = is_centered
         self.loop: int = loop
+        self.cleanup: bool = cleanup
+        self.no_key_exit: bool = no_key_exit
         self.len_chafa: int | None = len_chafa
         self.width: int = width
         self.gap: int = gap
@@ -121,6 +125,7 @@ class Renderer:
         self.sound_process: subprocess.Popen[bytes] | None = None
 
         self.key_reader = KeyReader()
+        self.last_key = None
 
         self.chafa_frames = chafa_frames
 
@@ -278,11 +283,12 @@ class Renderer:
                 console.print(layout, end="")  # render exactly once
             return cap.get()
 
-        text = layout_to_ansi(self.layout, width=get_terminal_width())
-        lines = text.splitlines()
-        while lines and not lines[-1].strip():
-            lines.pop()
-        print("\n".join(lines), end="")
+        if not self.cleanup:
+            text = layout_to_ansi(self.layout, width=get_terminal_width())
+            lines = text.splitlines()
+            while lines and not lines[-1].strip():
+                lines.pop()
+            print("\n".join(lines), end="")
         # cleanup()
         self.stop_fetch_thread = True
         self.fetch_update_thread.join()
@@ -356,10 +362,12 @@ class Renderer:
 
         # index += 1
 
-        k = self.key_reader.poll()
-        if k is not None:
-            # if k in ("q", "Q"):
-            raise KeyboardInterrupt
+        if self.no_key_exit:
+            k = self.key_reader.poll()
+            if k is not None:
+                # if k in ("q", "Q"):
+                self.last_key = k
+                raise KeyboardInterrupt
 
         self.process_resize_if_requested()
         self.draw_stuff(chafa_frame)

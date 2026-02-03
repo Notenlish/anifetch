@@ -228,6 +228,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
 - `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
 - `--loop`: Determines how many times the animation should loop. Default is -1(always loop).
+- `--no-key-exit`: Don't exit anifetch when user presses a key.
 
 ### Cached files:
 
@@ -248,6 +249,15 @@ For full help:
 ```bash
 anifetch --help
 ```
+
+### Auto start on terminal start.
+
+Add this to the end of `.bashrc`:
+
+```bash
+anifetch [video_file] [other_args_if_needed]
+```
+
 
 ## Customizing Fastfetch/Neofetch output
 

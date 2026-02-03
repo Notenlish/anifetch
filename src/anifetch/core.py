@@ -458,6 +458,8 @@ def run_anifetch(args):
             args.force,
             args.center,
             args.loop,
+            args.cleanup,
+            args.no_key_exit,
             len_chafa or None,
             WIDTH,
             GAP,
@@ -475,6 +477,24 @@ def run_anifetch(args):
             # clear_screen()
         else:
             pass
+
+        if renderer.last_key:
+            from pynput.keyboard import Controller, Key
+
+            keyboard = Controller()
+
+            if renderer.last_key:
+                # start of line
+                keyboard.press(Key.home)
+                keyboard.release(Key.home)
+
+                keyboard.press(renderer.last_key)
+
+                # end of line
+                keyboard.press(Key.end)
+                keyboard.release(Key.end)
+
+                keyboard.release(renderer.last_key)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

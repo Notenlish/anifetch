@@ -483,6 +483,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "cleanup",
         "center",
         "loop",
+        "no_key_exit",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:
