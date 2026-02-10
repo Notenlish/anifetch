@@ -309,9 +309,9 @@ class Renderer:
 
         # reprocess template if the terminal width has changed.
         if terminal_width != self.last_terminal_width or self.refetched:
-            logging.info(
-                f"Window size changed / refreshed the fetch, remaking template buffer. Max size is {terminal_width}"
-            )
+            # logging.info(
+            #     f"Window size changed / refreshed the fetch, remaking template buffer. Max size is {terminal_width}"
+            # )
             self.refetched = False
             if terminal_width < 1:
                 terminal_width = 1

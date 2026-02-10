@@ -108,7 +108,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--no-key-exit",
-    help="Do not exit anifetch when a user presses a key.",
+    help="Do not exit anifetch when a user presses a key. Use Ctrl + C to exit if enabled.",
     action="store_false",
 )
 
