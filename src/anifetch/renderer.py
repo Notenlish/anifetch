@@ -192,8 +192,9 @@ class Renderer:
     def draw_stuff(self, chafa_frame: str):
         chafa_t = Text.from_ansi(chafa_frame)
         if self.is_centered:
+            # self._some_max_height -1 is needed to properly align it for some reason. Dont question it.
             self.layout["main"]["chafa"].update(
-                Align.center(chafa_t, vertical="middle", height=self._some_max_height)
+                Align.center(chafa_t, vertical="middle", height=self._some_max_height -1)
             )
         else:
             self.layout["main"]["chafa"].update(chafa_t)
