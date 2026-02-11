@@ -38,7 +38,11 @@ winget install chafa ffmpeg fastfetch
 
 You can install neofetch too but it is deprecated and not recommended. Run this to install: `winget install neofetch`
 
-You can then install anifetch via `pip install anifetch-cli`. You can install it via pipx too by doing: `pipx install anifetch-cli`
+After installing the necessary dependencies using winget/scoop, install anifetch via pip. You can install it via pipx too.
+
+```pip install anifetch-cli```
+
+> **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
 ### Installation for MacOS with Homebrew
 
@@ -50,8 +54,11 @@ Run this in the terminal after verifying homebrew is installed:
 brew install chafa ffmpeg fastfetch
 ```
 
-You can then install anifetch via `pip install anifetch-cli`. You can install it via pipx too via `pipx install anifetch-cli`
+After installing the necessary dependencies, install anifetch via pip . You can install it via pipx too.
 
+```pip install anifetch-cli```
+
+> **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
 ### Manual Installation
 
