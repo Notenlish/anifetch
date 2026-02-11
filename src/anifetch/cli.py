@@ -28,7 +28,7 @@ parser.add_argument(
     "-H",
     "--height",
     default=20,
-    help="Height of the chafa animation.",
+    help="Height of the chafa animation. Please note that for the height you wanted to use, you may need to set a higher width as well to accommodate the video's aspect ratio, otherwise a smaller height will be used.",
     type=int,
 )
 parser.add_argument(
