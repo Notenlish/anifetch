@@ -268,7 +268,7 @@ class Renderer:
                 refresh_per_second=20,
                 screen=True,
                 transient=True,  # if false, keep the last frame
-            ) as live:
+            ):
                 self.draw_loop()
             # enable_autowrap()
         except KeyboardInterrupt:
