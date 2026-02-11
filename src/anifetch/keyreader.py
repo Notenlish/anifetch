@@ -2,6 +2,7 @@ import os
 import sys
 import atexit
 
+
 class KeyReader:
     """
     Cross-platform, non-blocking key reader for terminal animations.
@@ -9,12 +10,14 @@ class KeyReader:
     - macOS/Linux: termios + select
     Restores terminal settings on exit.
     """
+
     def __init__(self):
-        self.is_windows = (os.name == "nt")
+        self.is_windows = os.name == "nt"
         self._started = False
 
         if not self.is_windows:
             import termios
+
             self.termios = termios
             self.fd = sys.stdin.fileno()
             self.old_attrs = None
@@ -26,6 +29,7 @@ class KeyReader:
 
         if not self.is_windows:
             import tty
+
             self.old_attrs = self.termios.tcgetattr(self.fd)
             tty.setcbreak(self.fd)  # no-Enter input, but less aggressive than raw
             atexit.register(self.stop)
@@ -52,6 +56,7 @@ class KeyReader:
 
         if self.is_windows:
             import msvcrt
+
             if not msvcrt.kbhit():
                 return None
             ch = msvcrt.getwch()
@@ -61,6 +66,7 @@ class KeyReader:
             return ch
         else:
             import select
+
             r, _, _ = select.select([sys.stdin], [], [], 0)
             if not r:
                 return None

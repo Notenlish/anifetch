@@ -30,15 +30,11 @@ from .utils import (
     args_checker,
     threaded_chafa_frame_gen,
     get_fetch_output,
-    center_template_to_animation,
     make_template_from_fetch_lines,
-    tput_cup,
-    get_lowest_y_pos,
-    clear_screen,
     clear_screen_soft,
 )
 from typing import Literal
-from concurrent.futures import ThreadPoolExecutor, as_completed, Future
+from concurrent.futures import ThreadPoolExecutor, Future
 
 GAP = 2
 PAD_LEFT = 4

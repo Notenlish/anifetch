@@ -11,8 +11,6 @@ import re
 import subprocess
 import os
 import sys
-from importlib.resources import files, as_file
-from importlib.resources.abc import Traversable
 from importlib.metadata import version, PackageNotFoundError
 import shutil
 from copy import deepcopy
@@ -44,7 +42,6 @@ SYNC_END = ESC + "?2026l"
 # Retrieved 2025-12-21, License - CC BY-SA 4.0
 
 if os.name == "nt":
-    import msvcrt
     import ctypes
 
     class _CursorInfo(ctypes.Structure):

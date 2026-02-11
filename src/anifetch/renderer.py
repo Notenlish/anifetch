@@ -194,7 +194,9 @@ class Renderer:
         if self.is_centered:
             # self._some_max_height -1 is needed to properly align it for some reason. Dont question it.
             self.layout["main"]["chafa"].update(
-                Align.center(chafa_t, vertical="middle", height=self._some_max_height -1)
+                Align.center(
+                    chafa_t, vertical="middle", height=self._some_max_height - 1
+                )
             )
         else:
             self.layout["main"]["chafa"].update(chafa_t)
