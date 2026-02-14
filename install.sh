@@ -29,7 +29,7 @@ install_anifetch() {
         echo "anifetch upgraded successfully (or was already at the latest version from GitHub)."
     else
         echo "anifetch not found or upgrade failed. Performing initial installation from GitHub..."
-        python3 -m pipx install git+https://github.com/Notenlish/anifetch.git#egg=anifetch
+        python3 -m pipx install git+https://github.com/Notenlish/anifetch.git#egg=anifetch-cli
         echo "anifetch installed successfully."
     fi
     echo "anifetch installation/upgrade process completed."
