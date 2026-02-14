@@ -42,6 +42,7 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 
 ```pip install anifetch-cli```
 
+> [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
 ### Installation for MacOS with Homebrew
@@ -58,6 +59,7 @@ After installing the necessary dependencies, install anifetch via pip . You can 
 
 ```pip install anifetch-cli```
 
+> [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
 ### Manual Installation
