@@ -123,7 +123,7 @@ parser.add_argument(
     "-nf",
     "--neofetch",
     default=False,
-    help="Add this argument if you want to use neofetch instead.",
+    help="Add this argument if you want to use neofetch instead. You may need to add --force on some linux distros too.",
     action="store_true",
 )
 parser.add_argument(
