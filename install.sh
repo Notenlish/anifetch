@@ -48,8 +48,6 @@ elif [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_L
 
     install_pipx_apt || exit 1
 
-    pipx ensurepath || true
-
     sudo apt install -y fastfetch
 
     pipx ensurepath
