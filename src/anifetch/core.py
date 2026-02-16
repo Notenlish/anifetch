@@ -479,18 +479,21 @@ def run_anifetch(args):
 
             keyboard = Controller()
 
-            if renderer.last_key:
-                # start of line
-                keyboard.press(Key.home)
-                keyboard.release(Key.home)
+            # needed because if I only enter one key even though the user pressed a bunch of keys the keys will be entered disorderly(only the a single key is not automatically entered and the other keys are entered)
+            # so we store the key, go to line start, enter the first key(that the user pressed) and then go to the end of line.
+            # that way even if the user presses a bunch of keys, it will all be in order.
+            
+            # start of line
+            keyboard.press(Key.home)
+            keyboard.release(Key.home)
 
-                keyboard.press(renderer.last_key)
+            keyboard.press(renderer.last_key)
 
-                # end of line
-                keyboard.press(Key.end)
-                keyboard.release(Key.end)
+            # end of line
+            keyboard.press(Key.end)
+            keyboard.release(Key.end)
 
-                keyboard.release(renderer.last_key)
+            keyboard.release(renderer.last_key)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.
