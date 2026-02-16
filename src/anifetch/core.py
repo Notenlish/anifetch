@@ -482,7 +482,7 @@ def run_anifetch(args):
             # needed because if I only enter one key even though the user pressed a bunch of keys the keys will be entered disorderly(only the a single key is not automatically entered and the other keys are entered)
             # so we store the key, go to line start, enter the first key(that the user pressed) and then go to the end of line.
             # that way even if the user presses a bunch of keys, it will all be in order.
-            
+
             # start of line
             keyboard.press(Key.home)
             keyboard.release(Key.home)
