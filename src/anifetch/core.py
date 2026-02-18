@@ -341,8 +341,8 @@ def run_anifetch(args):
         chafa_args += (
             " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
         )
-        print(chafa_args)
-        raise SystemExit
+        # print(chafa_args)
+        # raise SystemExit
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             for i, f in enumerate(animation_files):
                 future = executor.submit(

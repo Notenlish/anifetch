@@ -24,7 +24,7 @@ keywords = [
     "fastfetch",
     "anifetch",
 ]
-version = "1.0.0"
+version = "1.0.1"
 description = "Animated terminal fetch with video and audio support."
 # If I put everyone here it messes with the "author" meta section.
 authors = [{ name = "Notenlish", email = "notenlish@gmail.com" }]
