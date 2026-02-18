@@ -126,6 +126,9 @@ def run_anifetch(args):
         sys.exit(0)
 
     filename = pathlib.Path(args.filename)
+    IS_GIF = False
+    if args.filename:
+        IS_GIF = True
 
     # If the filename is relative, check if it exists in the assets directory.
     if not filename.exists():
@@ -267,7 +270,9 @@ def run_anifetch(args):
                     str(
                         min(max(args.quality or 6, 2), 10)
                     ),  # 2-5 high quality, 6-10 lower
-                    str(CACHE_PATH / "video/%05d.jpg"),
+                    str(CACHE_PATH / "video/%05d.png")
+                    if IS_GIF
+                    else str(CACHE_PATH / "video/%05d.jpg"),
                 ],
                 stdout=stdout,
                 stderr=stderr,
@@ -332,10 +337,13 @@ def run_anifetch(args):
         max_workers: int = max(1, (os.cpu_count() or 2) - 1)
         max_workers = 1
 
+        chafa_args: str = args.chafa_arguments.strip()
+        chafa_args += (
+            " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
+        )
+        print(chafa_args)
+        raise SystemExit
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            chafa_args: str = args.chafa_arguments.strip()
-            chafa_args += " --format symbols"  # Fixes https://github.com/Notenlish/anifetch/issues/1
-
             for i, f in enumerate(animation_files):
                 future = executor.submit(
                     threaded_chafa_frame_gen,
