@@ -37,6 +37,9 @@
 
 `anifetch example.mp4 --quality 10`
 
+## Transparent GIF
+`anifetch transparent.gif`  --> find a transparent gif to use for this.
+
 
 ## Resizing
 
