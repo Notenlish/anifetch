@@ -423,8 +423,8 @@ def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
         f"--size={width}x{height}",
         path.as_posix(),
     ]
-    print(chafa_cmd)
-    raise SystemExit
+    # print(chafa_cmd)
+    # raise SystemExit
     p = subprocess.run(
         chafa_cmd,
         text=True,
