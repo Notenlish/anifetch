@@ -407,7 +407,7 @@ def get_fetch_output(
             output: list = ["fastfetch", "--logo", "none", "--pipe", "false"]
             if config_file:
                 output += ["--config", config_file]
-            print(output)
+            # print(output)
                 
             fetch_output = subprocess.check_output(
                 output, text=True
