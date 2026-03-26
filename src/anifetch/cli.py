@@ -159,6 +159,7 @@ parser.add_argument(
     help="Delete one or more caches by number(s) (as listed with --cache-list)",
 )
 parser.add_argument(
+    "-C", # capital C because lowercase c is used for config argument
     "--clear",
     required=False,
     action="store_true",

@@ -375,7 +375,7 @@ def get_fetch_output(
                         )
                         sys.exit(1)
                 else:                    # if user input a preset name, look for it in ~/.config/neofetch/{preset_name}.conf
-                    config_file = os.path.expanduser(f"~/.config/neofetch/{config_file}.conf")
+                    config_file = str(Path.home() / ".config/neofetch" / f"{config_file}.conf")
                     if not Path(config_file).exists():
                         print(
                             f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/neofetch/.",
@@ -406,6 +406,23 @@ def get_fetch_output(
         try:
             output: list = ["fastfetch", "--logo", "none", "--pipe", "false"]
             if config_file:
+                if config_file.endswith(".jsonc"): # if user input config path directly (~/.config/fastfetch/custom.conf or /home/user/custom.conf etc.)
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the path is correct.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                        
+                                    # this part is actually otional because fasstfetch have built in tools like this but this is for checking valid config
+                else:                    # if user input a preset name, look for it in ~/.config/fastfetch/{preset_name}.jsonc
+                    config_file = str(Path.home() / ".config/fastfetch" / f"{config_file}.jsonc")
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/fastfetch/.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
                 output += ["--config", config_file]
             # print(output)
                 
