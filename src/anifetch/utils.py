@@ -234,6 +234,7 @@ def strip_ansi(text):
 def get_text_length_of_formatted_text(text: str):
     text = strip_ansi(text)
     return len(text)
+    # return get_character_width(text)
 
 
 def get_ext_from_codec(codec):
@@ -354,15 +355,38 @@ def get_fetch_output(
     use_fastfetch: bool,
     neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
     force_neofetch: bool,
+    config_file: str
 ):
     fetch_output: list[str]
+        
     if not use_fastfetch:  # use neofetch
         if (
             neofetch_status == "wrapper" and force_neofetch
         ) or neofetch_status == "neofetch":
             # Get Neofetch Output
+            
+            output: list = ["neofetch", "--off"]
+            if config_file:
+                if config_file.endswith(".conf"): # if user input config path directly (~/.config/neofetch/custom.conf or /home/user/custom.conf etc.)
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the path is correct.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                else:                    # if user input a preset name, look for it in ~/.config/neofetch/{preset_name}.conf
+                    config_file = os.path.expanduser(f"~/.config/neofetch/{config_file}.conf")
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/neofetch/.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                output += ["--config", config_file]
+                # print(output)
+            
             fetch_output = subprocess.check_output(
-                ["neofetch", "--off"], text=True
+                output, text=True
             ).splitlines()
 
         elif neofetch_status == "uninstalled":
@@ -378,11 +402,17 @@ def get_fetch_output(
                 file=sys.stderr,
             )
             sys.exit(1)
-    else:
+    else: # use fastfetch
         try:
+            output: list = ["fastfetch", "--logo", "none", "--pipe", "false"]
+            if config_file:
+                output += ["--config", config_file]
+            print(output)
+                
             fetch_output = subprocess.check_output(
-                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
+                output, text=True
             ).splitlines()
+            
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
                 print(
@@ -411,6 +441,7 @@ def make_template_from_fetch_lines(
     template: list[str] = "\n".join(fetch_lines)
     # Only do this once instead of for every line.
     template_actual_width = get_text_length_of_formatted_text(fetch_lines[0])
+    # template_actual_width = max((get_text_length_of_formatted_text(line) for line in fetch_lines), default=0)
     return (template, template_actual_width)
 
 

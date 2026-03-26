@@ -229,10 +229,10 @@ def run_anifetch(args):
         HEIGHT = round(args.width * ratio)
     else:
         HEIGHT = args.height
-
+       
     # Get the fetch output(neofetch/fastfetch)
     fetch_output: list[str] = get_fetch_output(
-        not args.neofetch, neofetch_status, args.force
+        not args.neofetch, neofetch_status, args.force, args.config
     )
 
     # copy fetch_output to fetch_lines
@@ -311,8 +311,6 @@ def run_anifetch(args):
                 print_verbose(should_print_verbose, "Extracted audio file.")
 
                 args.sound_saved_path = str(audio_file)
-
-            cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
             cleaned_dict["sound_saved_path"] = args.sound_saved_path
 
