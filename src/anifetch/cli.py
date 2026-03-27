@@ -159,7 +159,7 @@ parser.add_argument(
     help="Delete one or more caches by number(s) (as listed with --cache-list)",
 )
 parser.add_argument(
-    "-C", # capital C because lowercase c is used for config argument
+    "-C",
     "--clear",
     required=False,
     action="store_true",
@@ -175,10 +175,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-c',
-    '--config',
+    "-c",
+    "--config",
     default="",
-    help="Specify config file for Neofetch/Fastfetch. Use a path or a preset name (e.g. 'main' → ~/.config/neofetch/main.conf or fastfetch equivalent)."
+    help="Specify config file for Neofetch/Fastfetch. Use a path or a preset name (e.g. 'main' → ~/.config/neofetch/main.conf or ~/.config/fastfetch/config.jsonc).",
 )
 
 

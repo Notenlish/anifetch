@@ -355,27 +355,31 @@ def get_fetch_output(
     use_fastfetch: bool,
     neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
     force_neofetch: bool,
-    config_file: str
+    config_file: str,
 ):
     fetch_output: list[str]
-        
+
     if not use_fastfetch:  # use neofetch
         if (
             neofetch_status == "wrapper" and force_neofetch
         ) or neofetch_status == "neofetch":
             # Get Neofetch Output
-            
+
             output: list = ["neofetch", "--off"]
             if config_file:
-                if config_file.endswith(".conf"): # if user input config path directly (~/.config/neofetch/custom.conf or /home/user/custom.conf etc.)
+                if config_file.endswith(
+                    ".conf"
+                ):  # if user input config path directly (~/.config/neofetch/custom.conf or /home/user/custom.conf etc.)
                     if not Path(config_file).exists():
                         print(
                             f"Config file {config_file} not found. Make sure the path is correct.",
                             file=sys.stderr,
                         )
                         sys.exit(1)
-                else:                    # if user input a preset name, look for it in ~/.config/neofetch/{preset_name}.conf
-                    config_file = str(Path.home() / ".config/neofetch" / f"{config_file}.conf")
+                else:  # if user input a preset name, look for it in ~/.config/neofetch/{preset_name}.conf
+                    config_file = str(
+                        Path.home() / ".config/neofetch" / f"{config_file}.conf"
+                    )
                     if not Path(config_file).exists():
                         print(
                             f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/neofetch/.",
@@ -384,10 +388,8 @@ def get_fetch_output(
                         sys.exit(1)
                 output += ["--config", config_file]
                 # print(output)
-            
-            fetch_output = subprocess.check_output(
-                output, text=True
-            ).splitlines()
+
+            fetch_output = subprocess.check_output(output, text=True).splitlines()
 
         elif neofetch_status == "uninstalled":
             print(
@@ -402,21 +404,25 @@ def get_fetch_output(
                 file=sys.stderr,
             )
             sys.exit(1)
-    else: # use fastfetch
+    else:  # use fastfetch
         try:
             output: list = ["fastfetch", "--logo", "none", "--pipe", "false"]
             if config_file:
-                if config_file.endswith(".jsonc"): # if user input config path directly (~/.config/fastfetch/custom.conf or /home/user/custom.conf etc.)
+                if config_file.endswith(
+                    ".jsonc"
+                ):  # if user input config path directly (~/.config/fastfetch/custom.jsonc or /home/user/custom.jsonc)
                     if not Path(config_file).exists():
                         print(
                             f"Config file {config_file} not found. Make sure the path is correct.",
                             file=sys.stderr,
                         )
                         sys.exit(1)
-                        
-                                    # this part is actually otional because fasstfetch have built in tools like this but this is for checking valid config
-                else:                    # if user input a preset name, look for it in ~/.config/fastfetch/{preset_name}.jsonc
-                    config_file = str(Path.home() / ".config/fastfetch" / f"{config_file}.jsonc")
+
+                        # this part is actually optional because fastfetch have built in tools like this but this is for checking valid config
+                else:  # if user input a preset name, look for it in ~/.config/fastfetch/{preset_name}.jsonc
+                    config_file = str(
+                        Path.home() / ".config/fastfetch" / f"{config_file}.jsonc"
+                    )
                     if not Path(config_file).exists():
                         print(
                             f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/fastfetch/.",
@@ -424,12 +430,9 @@ def get_fetch_output(
                         )
                         sys.exit(1)
                 output += ["--config", config_file]
-            # print(output)
-                
-            fetch_output = subprocess.check_output(
-                output, text=True
-            ).splitlines()
-            
+
+            fetch_output = subprocess.check_output(output, text=True).splitlines()
+
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
                 print(
@@ -529,6 +532,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "center",
         "loop",
         "no_key_exit",
+        "config",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:
