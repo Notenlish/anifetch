@@ -178,7 +178,7 @@ parser.add_argument(
     "-c",
     "--config",
     default="",
-    help="Specify config file for Neofetch/Fastfetch. Use a path or a preset name.\n"
+    help="Specify non-default config file for Neofetch/Fastfetch. Use a path or a preset name.\n"
     "Examples:\n"
     "- Linux/macOS:\n"
     "  - Neofetch: 'main' → ~/.config/neofetch/main.conf\n"
