@@ -178,7 +178,13 @@ parser.add_argument(
     "-c",
     "--config",
     default="",
-    help="Specify config file for Neofetch/Fastfetch. Use a path or a preset name (e.g. 'main' → ~/.config/neofetch/main.conf or ~/.config/fastfetch/config.jsonc).",
+    help="Specify config file for Neofetch/Fastfetch. Use a path or a preset name.\n"
+    "Examples:\n"
+    "- Linux/macOS:\n"
+    "  - Neofetch: 'main' → ~/.config/neofetch/main.conf\n"
+    "  - Fastfetch: 'main' → ~/.config/fastfetch/main.jsonc\n"
+    "- Windows:\n"
+    "  - Fastfetch: 'main' → %%APPDATA%%\\fastfetch\\main.jsonc",
 )
 
 
