@@ -234,6 +234,7 @@ def strip_ansi(text):
 def get_text_length_of_formatted_text(text: str):
     text = strip_ansi(text)
     return len(text)
+    # return get_character_width(text)
 
 
 def get_ext_from_codec(codec):
@@ -354,16 +355,41 @@ def get_fetch_output(
     use_fastfetch: bool,
     neofetch_status: Literal["neofetch", "uninstalled", "wrapper"],
     force_neofetch: bool,
+    config_file: str,
 ):
     fetch_output: list[str]
+
     if not use_fastfetch:  # use neofetch
         if (
             neofetch_status == "wrapper" and force_neofetch
         ) or neofetch_status == "neofetch":
             # Get Neofetch Output
-            fetch_output = subprocess.check_output(
-                ["neofetch", "--off"], text=True
-            ).splitlines()
+
+            output: list = ["neofetch", "--off"]
+            if config_file:
+                if config_file.endswith(
+                    ".conf"
+                ):  # if user input config path directly (~/.config/neofetch/custom.conf or /home/user/custom.conf etc.)
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the path is correct.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                else:  # if user input a preset name, look for it in ~/.config/neofetch/{preset_name}.conf
+                    config_file = str(
+                        Path.home() / ".config/neofetch" / f"{config_file}.conf"
+                    )
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/neofetch/.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                output += ["--config", config_file]
+                # print(output)
+
+            fetch_output = subprocess.check_output(output, text=True).splitlines()
 
         elif neofetch_status == "uninstalled":
             print(
@@ -378,11 +404,35 @@ def get_fetch_output(
                 file=sys.stderr,
             )
             sys.exit(1)
-    else:
+    else:  # use fastfetch
         try:
-            fetch_output = subprocess.check_output(
-                ["fastfetch", "--logo", "none", "--pipe", "false"], text=True
-            ).splitlines()
+            output: list = ["fastfetch", "--logo", "none", "--pipe", "false"]
+            if config_file:
+                if config_file.endswith(
+                    ".jsonc"
+                ):  # if user input config path directly (~/.config/fastfetch/custom.jsonc or /home/user/custom.jsonc)
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the path is correct.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+
+                        # this part is actually optional because fastfetch have built in tools like this but this is for checking valid config
+                else:  # if user input a preset name, look for it in ~/.config/fastfetch/{preset_name}.jsonc
+                    config_file = str(
+                        Path.home() / ".config/fastfetch" / f"{config_file}.jsonc"
+                    )
+                    if not Path(config_file).exists():
+                        print(
+                            f"Config file {config_file} not found. Make sure the preset name is correct and the corresponding config file exists in ~/.config/fastfetch/.",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                output += ["--config", config_file]
+
+            fetch_output = subprocess.check_output(output, text=True).splitlines()
+
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
                 print(
@@ -411,6 +461,7 @@ def make_template_from_fetch_lines(
     template: list[str] = "\n".join(fetch_lines)
     # Only do this once instead of for every line.
     template_actual_width = get_text_length_of_formatted_text(fetch_lines[0])
+    # template_actual_width = max((get_text_length_of_formatted_text(line) for line in fetch_lines), default=0)
     return (template, template_actual_width)
 
 
@@ -481,6 +532,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "center",
         "loop",
         "no_key_exit",
+        "config",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
     for key in args_to_remove:

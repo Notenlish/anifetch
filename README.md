@@ -238,6 +238,12 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
 - `--loop`: Determines how many times the animation should loop. Default is -1(always loop).
 - `--no-key-exit`: Don't exit anifetch when user presses a key.
+- `-c` / `--config`: Specify a non-default config for Neofetch/Fastfetch.
+  - Accepts a path or preset name (e.g. `main`).
+  - Neofetch (Linux/macOS): `~/.config/neofetch/main.conf`
+  - Fastfetch (Linux/macOS): `~/.config/fastfetch/main.jsonc`
+  - Fastfetch (Windows): `%APPDATA%\fastfetch\main.jsonc`
+  - See [Customizing Fastfetch/Neofetch](#customizing-fastfetchneofetch-output) for config details.
 
 ### Cached files:
 

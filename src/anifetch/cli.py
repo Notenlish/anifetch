@@ -75,7 +75,6 @@ parser.add_argument(
     help="Disabled by default. Anifetch saves the filename to check if the file has changed, if the name is same, it won't render it again. If enabled, the video will be forcefully rendered, whether it has the same name or not. Please note that it only checks for filename, if you changed the framerate then you'll need to force render.",
 )
 parser.add_argument(
-    "-C",
     "--center",
     default=False,
     action="store_true",
@@ -160,6 +159,7 @@ parser.add_argument(
     help="Delete one or more caches by number(s) (as listed with --cache-list)",
 )
 parser.add_argument(
+    "-C",
     "--clear",
     required=False,
     action="store_true",
@@ -172,6 +172,19 @@ parser.add_argument(
     default=False,
     help="For testing. Runs Anifetch without actually starting the animation and returns how long it took in seconds.",
     action="store_true",
+)
+
+parser.add_argument(
+    "-c",
+    "--config",
+    default="",
+    help="Specify non-default config file for Neofetch/Fastfetch. Use a path or a preset name.\n"
+    "Examples:\n"
+    "- Linux/macOS:\n"
+    "  - Neofetch: 'main' → ~/.config/neofetch/main.conf\n"
+    "  - Fastfetch: 'main' → ~/.config/fastfetch/main.jsonc\n"
+    "- Windows:\n"
+    "  - Fastfetch: 'main' → %%APPDATA%%\\fastfetch\\main.jsonc",
 )
 
 
