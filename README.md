@@ -7,8 +7,20 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 ## Installation
 
 ### Installation for Linux
+Recommended Python version: 3.11 and later.
 
-Recommended Python version: 3.11 and later. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
+#### Installation for Arch / Arch based distros
+
+Run this in the terminal.
+```bash
+yay -S anifetch-cli
+```
+
+#### Installation for NixOS
+
+Refer to [Installation for NixOS](#installation-for-nixos).
+
+#### Installation for other distros
 
 Run this in the terminal.
 
@@ -16,13 +28,8 @@ Run this in the terminal.
 curl https://raw.githubusercontent.com/Notenlish/anifetch/refs/heads/main/install.sh | bash
 ```
 
-After installation, run this to test if anifetch was installed correctly:
 
-```bash
-anifetch example.mp4
-```
-
-Please read our [User guide](#user-guide) for more info on how to use anifetch.
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
 
@@ -40,10 +47,15 @@ You can install neofetch too but it is deprecated and not recommended. Run this 
 
 After installing the necessary dependencies using winget/scoop, install anifetch via pip. You can install it via pipx too.
 
+
+
 ```pip install anifetch-cli```
 
 > [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
+
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
 
 ### Installation for MacOS with Homebrew
 
@@ -61,6 +73,9 @@ After installing the necessary dependencies, install anifetch via pip . You can 
 
 > [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
+
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
 
 ### Manual Installation
 
@@ -100,6 +115,7 @@ You can then run the `anifetch` command directly in your terminal.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
 
@@ -170,6 +186,9 @@ The Nix package contains all the dependencies in a wrapper script for the applic
 
 After you've done these steps, rebuild your system.
 
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
+
 ---
 
 ### Developer Installation (for contributors):
@@ -201,6 +220,21 @@ pip install -e .
 ```
 
 inside the anifetch dir after cloning the repo. This creates a python venv you can re-enter by running `nix develop` inside the project dir.
+
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
+
+## Post Installation
+
+After installation, run this to test if anifetch was installed correctly:
+
+```bash
+anifetch example.mp4
+```
+
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
+
+---
 
 ## User Guide
 
