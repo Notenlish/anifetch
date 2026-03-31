@@ -12,9 +12,16 @@ Recommended Python version: 3.11 and later.
 #### Installation for Arch / Arch based distros
 
 Run this in the terminal.
+
+Using `Yay`:
 ```bash
 yay -S anifetch-cli
 ```
+
+> [!WARNING]
+> `anifetch-cli` use "anifetch" as its executable name, it might corrupt or overlap `anifetch` package from AUR if both installed in the same system.
+
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 #### Installation for NixOS
 
