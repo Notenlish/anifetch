@@ -25,7 +25,7 @@ install_pipx_apt() {
 install_anifetch() {
     echo "Installing anifetch..."
 
-    if python3 -m pipx upgrade anifetch &> /dev/null; then
+    if python3 -m pipx upgrade anifetch-cli &> /dev/null; then
         echo "anifetch upgraded successfully (or was already at the latest version from GitHub)."
     else
         echo "anifetch not found or upgrade failed. Performing initial installation from GitHub..."
