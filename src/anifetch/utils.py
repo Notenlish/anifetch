@@ -386,10 +386,8 @@ def get_fetch_output(
                             file=sys.stderr,
                         )
                         sys.exit(1)
-                output += ["--config", config_file]
-                # print(output)
-
-            fetch_output = subprocess.check_output(output, text=True).splitlines()
+            output += ["--config", config_file]
+            fetch_output = subprocess.check_output(output, text=True, encoding='utf-8', errors='replace').splitlines()
 
         elif neofetch_status == "uninstalled":
             print(
@@ -431,7 +429,7 @@ def get_fetch_output(
                         sys.exit(1)
                 output += ["--config", config_file]
 
-            fetch_output = subprocess.check_output(output, text=True).splitlines()
+            fetch_output = subprocess.check_output(output, text=True, encoding='utf-8', errors='replace').splitlines()
 
         except FileNotFoundError as e:
             if e.errno == errno.ENOENT:
