@@ -9,11 +9,12 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 ### Installation for Linux
 Recommended Python version: 3.11 and later.
 
-#### Installation for Arch / Arch based distros
+### Installation for Arch / Arch-based distros (Community maintained)
 
-Run this in the terminal.
+Anifetch is available in the AUR package [anifetch-cli](https://aur.archlinux.org/packages/anifetch-cli), maintained by @AmmarSyamil.
 
-Using `Yay`:
+Install it from the terminal. For example, with Yay:
+
 ```bash
 yay -S anifetch-cli
 ```
