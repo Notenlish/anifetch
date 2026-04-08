@@ -6,10 +6,14 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-### Installation for Linux
+**Quick Links Instalation Guide For:** 
+
+[Linux](#linux) • [Windows](#windows) • [macOS](#macos)• [Manual](#manual-installation) • [Development](#developer-installation)
+
+### Linux
 Recommended Python version: 3.11 and later.
 
-### Installation for Arch / Arch-based distros (Community maintained)
+#### Installation for Arch / Arch-based distros (Community maintained)
 
 Anifetch is available in the AUR package [anifetch-cli](https://aur.archlinux.org/packages/anifetch-cli), maintained by @AmmarSyamil.
 
@@ -41,7 +45,7 @@ Please read our [Post installation](#post-installation) and [User guide](#user-g
 
 ---
 
-### Installation for Windows (Winget or Scoop)
+### Windows
 
 Check whether you have winget installed by running `winget` in the windows terminal. If you dont have it, install it [here](https://github.com/microsoft/winget-cli/?tab=readme-ov-file#installing-the-client). If you want, you can use [Scoop](https://scoop.sh/) instead. Just replace the `winget` part with `scoop`.
 
@@ -65,7 +69,7 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 
-### Installation for MacOS with Homebrew
+### macOS
 
 Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
 
@@ -199,7 +203,7 @@ Please read our [Post installation](#post-installation) and [User guide](#user-g
 
 ---
 
-### Developer Installation (for contributors):
+### Developer Installation
 
 ```bash
 git clone https://github.com/Notenlish/anifetch.git
