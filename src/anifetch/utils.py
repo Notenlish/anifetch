@@ -534,6 +534,7 @@ def clean_cache_args(cache_args: dict) -> dict:
         "center",
         "loop",
         "no_key_exit",
+        "no_input_restore",
         "config",
     )
     cleaned = deepcopy(cache_args)  # need to deepcopy to not modify original dict.
