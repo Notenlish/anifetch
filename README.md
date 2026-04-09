@@ -6,11 +6,11 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-**Quick Links Instalation Guide For:** 
+**Quick Links Installation Guide For:** 
 
 [Linux](#linux) • [Windows](#windows) • [macOS](#macos)• [Manual](#manual-installation) • [Development](#developer-installation)
 
-### Linux
+### Installation for Linux System
 Recommended Python version: 3.11 and later.
 
 #### Installation for Arch / Arch-based distros (Community maintained)
@@ -33,7 +33,7 @@ Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
 
-### Windows
+### Installation for Windows (Using Winget)
 
 Check whether you have winget installed by running `winget` in the windows terminal. If you dont have it, install it [here](https://github.com/microsoft/winget-cli/?tab=readme-ov-file#installing-the-client). If you want, you can use [Scoop](https://scoop.sh/) instead. Just replace the `winget` part with `scoop`.
 
@@ -55,7 +55,7 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 
-### macOS
+### Installation for macOS (HomwBrew)
 
 Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
 
