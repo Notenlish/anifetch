@@ -33,7 +33,7 @@ Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
 
-### Installation for Windows (Using Winget)
+### Installation for Windows (Winget or Scoop)
 
 Check whether you have winget installed by running `winget` in the windows terminal. If you dont have it, install it [here](https://github.com/microsoft/winget-cli/?tab=readme-ov-file#installing-the-client). If you want, you can use [Scoop](https://scoop.sh/) instead. Just replace the `winget` part with `scoop`.
 
