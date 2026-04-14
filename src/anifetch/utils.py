@@ -622,3 +622,69 @@ def threaded_chafa_frame_gen(
     with open((OUTPUT_DIR / f).with_suffix(".txt"), "w", encoding="utf-8") as file:
         file.write(out)
     return i, out
+
+
+def check_is_image(filename: pathlib.Path):
+    IMAGE_EXTENSIONS = (
+        ".apng",
+        ".png",
+        ".webp",
+        ".jpg",
+        ".jpeg",
+        ".tiff",
+        ".tif",
+        ".bmp",
+        ".ico",
+        ".avif",
+        ".jfif",
+        ".svg",
+    )
+    if any([filename.suffix == ext for ext in IMAGE_EXTENSIONS]):
+        return True
+    return False
+
+
+def check_image_transparency(filename: pathlib.Path):
+    IMAGE_EXTENSIONS_WITH_ALPHA = (".png", ".webp", ".tiff", ".bmp", ".ico", ".avif")
+    if any([filename.suffix == ext for ext in IMAGE_EXTENSIONS_WITH_ALPHA]):
+        return True
+    return False
+
+
+def check_is_video(filename: pathlib.Path):
+    VIDEO_EXTENSIONS = (
+        ".mp4",
+        ".mov",
+        ".avi",
+        ".mkv",
+        ".webm",
+        ".flv",
+        ".wmv",
+        ".m4v",
+        ".mpg",
+        ".mpeg",
+    )
+    if any([filename.suffix == ext for ext in VIDEO_EXTENSIONS]):
+        return True
+    return False
+
+
+def check_video_transparency(filename: pathlib.Path):
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=pix_fmt",
+            "-of",
+            "csv=p=0",
+            str(filename),
+        ]
+    )
+    pix_fmt = (result.stdout.strip()).decode()
+
+    # "a" = alpha
+    return "a" in pix_fmt

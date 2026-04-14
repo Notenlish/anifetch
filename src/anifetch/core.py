@@ -32,6 +32,10 @@ from .utils import (
     get_fetch_output,
     make_template_from_fetch_lines,
     clear_screen_soft,
+    check_is_video,
+    check_is_image,
+    check_video_transparency,
+    check_image_transparency,
 )
 from typing import Literal
 from concurrent.futures import ThreadPoolExecutor, Future
@@ -126,9 +130,6 @@ def run_anifetch(args):
         sys.exit(0)
 
     filename = pathlib.Path(args.filename)
-    IS_GIF = False
-    if args.filename:
-        IS_GIF = True
 
     # If the filename is relative, check if it exists in the assets directory.
     if not filename.exists():
@@ -142,6 +143,31 @@ def run_anifetch(args):
                 file=sys.stderr,
             )
             sys.exit(1)
+
+    if not filename.is_file():
+        print("[ERROR] Filename is not a file. Please give an file.")
+        sys.exit(1)
+
+    IS_IMAGE = False
+    IS_GIF = False
+    IS_VIDEO = False
+    IS_TRANSPARENT = False
+    if filename.suffix == ".gif":
+        IS_GIF = True
+        IS_TRANSPARENT = True
+    else:
+        IS_VIDEO = check_is_video(filename)
+        if IS_VIDEO:
+            IS_TRANSPARENT = check_video_transparency(filename)
+    if not IS_GIF and not IS_VIDEO:
+        IS_IMAGE = check_is_image(filename)
+        IS_TRANSPARENT = check_image_transparency(filename)
+
+    if (not IS_GIF) and (not IS_IMAGE) and (not IS_VIDEO):
+        print("[ERROR] File is neither a gif, image or video.")
+        sys.exit(1)
+
+    # TODO: make sure image mode also works as well. currently it raises a runtime Error
 
     newpath = ASSET_PATH / filename.name
 
@@ -271,7 +297,7 @@ def run_anifetch(args):
                         min(max(args.quality or 6, 2), 10)
                     ),  # 2-5 high quality, 6-10 lower
                     str(CACHE_PATH / "video/%05d.png")
-                    if IS_GIF
+                    if IS_TRANSPARENT
                     else str(CACHE_PATH / "video/%05d.jpg"),
                 ],
                 stdout=stdout,
