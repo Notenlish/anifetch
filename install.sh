@@ -55,6 +55,7 @@ elif [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_L
 
 elif [[ "$ID" == "arch" || "$ID" == "manjaro" || "$ID_LIKE" =~ "arch" ]]; then
     echo "Detected Arch-based distribution. Using pacman."
+    sudo pacman -Sy --noconfirm  # (s)ync and refresh(y)
     sudo pacman -S --noconfirm chafa ffmpeg python-pip git
     sudo pacman -S --noconfirm python-pipx
     sudo pacman -S --noconfirm fastfetch
@@ -93,6 +94,7 @@ else
         install_pipx_apt || exit 1
         sudo apt install -y fastfetch
     elif command -v pacman &> /dev/null; then
+        sudo pacman -Sy --noconfirm
         sudo pacman -S --noconfirm chafa ffmpeg git python-pip
         sudo pacman -S --noconfirm python-pipx
         sudo pacman -S --noconfirm fastfetch
@@ -113,4 +115,4 @@ else
     install_anifetch
 fi
 
-echo "Installation script finished."
+echo "Installation script finished. Open a new terminal or source your shell's config file (eg: source ~/.bashrc) for anifetch command to be found."
