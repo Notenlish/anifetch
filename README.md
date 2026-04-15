@@ -8,7 +8,7 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 **Quick Links Installation Guide For:** 
 
-[Linux](#linux) • [Windows](#windows) • [macOS](#macos)• [Manual](#manual-installation) • [Development](#developer-installation)
+[Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew)• [Manual](#manual-installation) • [Development](#developer-installation)
 
 ### Installation for Linux System
 Recommended Python version: 3.11 and later.
@@ -16,6 +16,22 @@ Recommended Python version: 3.11 and later.
 #### Installation for Arch / Arch-based distros (Community maintained)
 
 Anifetch is available in the AUR package [anifetch-cli](https://aur.archlinux.org/packages/anifetch-cli), maintained by @AmmarSyamil.
+
+Install it from the terminal. For example, with Yay:
+
+```bash
+yay -S anifetch-cli
+```
+
+After installation, run this to test if anifetch was installed correctly:
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
+
+```bash
+anifetch example.mp4
+```
+
+#### Installation for other Linux Distro.
+If you use NixOS refer to Installation for [NixOS](#installation-for-nixos).
 
 Install it from the terminal. For example, with Yay:
 
@@ -29,9 +45,11 @@ After installation, run this to test if anifetch was installed correctly:
 anifetch example.mp4
 ```
 
+
 Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
+
 
 ### Installation for Windows (Winget or Scoop)
 
@@ -55,7 +73,7 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
 
 
-### Installation for macOS (HomwBrew)
+### Installation for macOS (HomeBrew)
 
 Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
 
