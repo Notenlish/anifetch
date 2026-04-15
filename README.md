@@ -24,11 +24,11 @@ yay -S anifetch-cli
 ```
 
 After installation, run this to test if anifetch was installed correctly:
-Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ```bash
 anifetch example.mp4
 ```
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 #### Installation for other Linux Distro.
 If you use NixOS refer to Installation for [NixOS](#installation-for-nixos).
