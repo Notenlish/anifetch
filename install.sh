@@ -50,7 +50,7 @@ elif [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_L
 
     sudo apt install -y fastfetch
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "arch" || "$ID" == "manjaro" || "$ID_LIKE" =~ "arch" ]]; then
@@ -60,7 +60,7 @@ elif [[ "$ID" == "arch" || "$ID" == "manjaro" || "$ID_LIKE" =~ "arch" ]]; then
     sudo pacman -S --noconfirm python-pipx
     sudo pacman -S --noconfirm fastfetch
     # what is -Sy and --noconfirm
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "rocky" || "$ID" == "almalinux" || "$ID_LIKE" =~ "fedora" || "$ID_LIKE" =~ "rhel" ]]; then
@@ -69,7 +69,7 @@ elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "r
     sudo dnf install -y fastfetch
     sudo dnf install -y pipx
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "opensuse" || "$ID_LIKE" =~ "suse" ]]; then
@@ -78,7 +78,7 @@ elif [[ "$ID" == "opensuse" || "$ID_LIKE" =~ "suse" ]]; then
     sudo zypper --non-interactive install python3-pipx
     sudo zypper --non-interactive install fastfetch
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 # Generic Linux fallback
@@ -111,7 +111,7 @@ else
         echo "You might need to install Python 3 and pip first."
     fi
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 fi
 
