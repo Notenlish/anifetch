@@ -6,11 +6,34 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-### Installation for Linux
+**Quick Links Installation Guide For:** 
 
-Recommended Python version: 3.11 and later. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
+[Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew)• [Manual](#manual-installation) • [Development](#developer-installation)
 
-Run this in the terminal.
+### Installation for Linux System
+Recommended Python version: 3.11 and later.
+
+#### Installation for Arch / Arch-based distros (Community maintained)
+
+Anifetch is available in the AUR package [anifetch-cli](https://aur.archlinux.org/packages/anifetch-cli), maintained by @AmmarSyamil.
+
+Install it from the terminal. For example, with Yay:
+
+```bash
+yay -S anifetch-cli
+```
+
+After installation, run this to test if anifetch was installed correctly:
+
+```bash
+anifetch example.mp4
+```
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
+
+#### Installation for other Linux Distro.
+If you use NixOS refer to Installation for [NixOS](#installation-for-nixos).
+
+Install it from the terminal. For example, with Yay:
 
 ```bash
 curl https://raw.githubusercontent.com/Notenlish/anifetch/refs/heads/main/install.sh | bash
@@ -22,9 +45,11 @@ After installation, run this to test if anifetch was installed correctly:
 anifetch example.mp4
 ```
 
+
 Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
+
 
 ### Installation for Windows (Winget or Scoop)
 
@@ -45,7 +70,10 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 > [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
-### Installation for MacOS with Homebrew
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
+
+### Installation for macOS (HomeBrew)
 
 Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
 
@@ -172,7 +200,7 @@ After you've done these steps, rebuild your system.
 
 ---
 
-### Developer Installation (for contributors):
+### Developer Installation
 
 ```bash
 git clone https://github.com/Notenlish/anifetch.git
