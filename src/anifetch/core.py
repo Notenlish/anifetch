@@ -455,6 +455,8 @@ def run_anifetch(args):
 
         framerate_to_use = args.playback_rate
 
+        print("no key exit:", args.no_key_exit)
+
         renderer = Renderer(
             str(BASE_PATH),
             str(CACHE_PATH),
@@ -494,7 +496,7 @@ def run_anifetch(args):
         else:
             pass
 
-        if renderer.last_key:
+        if renderer.last_key and args.no_input_restore:
             from pynput.keyboard import Controller, Key
 
             KEY_MAP = {

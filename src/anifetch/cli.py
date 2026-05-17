@@ -112,6 +112,16 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--no-input-restore",
+    help=(
+        "Disable restoring pressed keys back into the terminal after stopping Anifetch. "
+        "By default Anifetch re-enters your key presses automatically. "
+        "On some systems (eg: Wayland/KDE) Anifetch may trigger a security prompt which can be annoying, add this argument to fix it."
+    ),
+    action="store_false",
+)
+
+parser.add_argument(
     "--quality",
     "-q",
     default=6,

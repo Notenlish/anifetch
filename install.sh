@@ -50,16 +50,17 @@ elif [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID" == "linuxmint" || "$ID_L
 
     sudo apt install -y fastfetch
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "arch" || "$ID" == "manjaro" || "$ID_LIKE" =~ "arch" ]]; then
     echo "Detected Arch-based distribution. Using pacman."
+    sudo pacman -Sy --noconfirm  # (s)ync and refresh(y)
     sudo pacman -S --noconfirm chafa ffmpeg python-pip git
     sudo pacman -S --noconfirm python-pipx
     sudo pacman -S --noconfirm fastfetch
     # what is -Sy and --noconfirm
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "rocky" || "$ID" == "almalinux" || "$ID_LIKE" =~ "fedora" || "$ID_LIKE" =~ "rhel" ]]; then
@@ -68,7 +69,7 @@ elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID" == "centos" || "$ID" == "r
     sudo dnf install -y fastfetch
     sudo dnf install -y pipx
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 elif [[ "$ID" == "opensuse" || "$ID_LIKE" =~ "suse" ]]; then
@@ -77,7 +78,7 @@ elif [[ "$ID" == "opensuse" || "$ID_LIKE" =~ "suse" ]]; then
     sudo zypper --non-interactive install python3-pipx
     sudo zypper --non-interactive install fastfetch
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 
 # Generic Linux fallback
@@ -93,6 +94,7 @@ else
         install_pipx_apt || exit 1
         sudo apt install -y fastfetch
     elif command -v pacman &> /dev/null; then
+        sudo pacman -Sy --noconfirm
         sudo pacman -S --noconfirm chafa ffmpeg git python-pip
         sudo pacman -S --noconfirm python-pipx
         sudo pacman -S --noconfirm fastfetch
@@ -109,8 +111,8 @@ else
         echo "You might need to install Python 3 and pip first."
     fi
 
-    pipx ensurepath
+    python3 -m pipx ensurepath
     install_anifetch
 fi
 
-echo "Installation script finished."
+echo "Installation script finished. Open a new terminal or source your shell's config file (eg: source ~/.bashrc) for anifetch command to be found."
