@@ -686,9 +686,10 @@ def check_video_transparency(filename: pathlib.Path):
             "-of",
             "csv=p=0",
             str(filename),
-        ]
+        ],
+        capture_output=True,
     )
-    pix_fmt = str(result).strip()
+    pix_fmt = result.stdout.strip().decode("utf-8")
     return "a" in pix_fmt
 
 

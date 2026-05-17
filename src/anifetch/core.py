@@ -455,8 +455,6 @@ def run_anifetch(args):
 
         framerate_to_use = args.playback_rate
 
-        print("no key exit:", args.no_key_exit)
-
         renderer = Renderer(
             str(BASE_PATH),
             str(CACHE_PATH),
