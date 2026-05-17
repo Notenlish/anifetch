@@ -16,7 +16,7 @@ from .utils import (
     get_ext_from_codec,
     get_data_path,
     default_asset_presence_check,
-    get_video_dimensions,
+    get_media_dimensions,
     get_neofetch_status,
     print_verbose,
     normal_print,
@@ -36,6 +36,7 @@ from .utils import (
     check_is_image,
     check_video_transparency,
     check_image_transparency,
+    split_to_frames,
 )
 from typing import Literal
 from concurrent.futures import ThreadPoolExecutor, Future
@@ -246,7 +247,7 @@ def run_anifetch(args):
     # automatically calculate height if not given
     if should_update and ("--height" not in sys.argv and "-H" not in sys.argv):
         try:
-            vid_w, vid_h = get_video_dimensions(ASSET_PATH / args.filename)
+            vid_w, vid_h = get_media_dimensions(ASSET_PATH / args.filename)
         except RuntimeError as e:
             print(f"[ERROR] {e}")
             sys.exit(1)
@@ -284,38 +285,27 @@ def run_anifetch(args):
         stdout = None if args.verbose else subprocess.DEVNULL
         stderr = None if args.verbose else subprocess.PIPE
 
-        try:
-            result_ffmpeg = subprocess.run(
-                [
-                    "ffmpeg",
-                    "-i",
-                    f"{args.filename}",
-                    "-vf",
-                    f"fps={args.framerate},format=rgba",
-                    "-q:v",
-                    str(
-                        min(max(args.quality or 6, 2), 10)
-                    ),  # 2-5 high quality, 6-10 lower
-                    str(CACHE_PATH / "video/%05d.png")
-                    if IS_TRANSPARENT
-                    else str(CACHE_PATH / "video/%05d.jpg"),
-                ],
-                stdout=stdout,
-                stderr=stderr,
-                text=True,
-            )
-        except FileNotFoundError as e:
-            if e.errno == errno.ENOENT:
-                print(
-                    "The command Ffmpeg was not found. You probably forgot to install it. You can install it by going to here: https://ffmpeg.org/download.html\n If you installed Ffmpeg but it still doesn't work, check your PATH."
+        if IS_IMAGE:
+            shutil.copy(
+                args.filename, VIDEO_DIR / f"{0:05d}.{filename.suffix}"
+            )  # just a file named 00000.{suffix}
+        else:  # video or gif
+            try:
+                result_ffmpeg = split_to_frames(
+                    args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr
                 )
-                raise SystemExit
+            except FileNotFoundError as e:
+                if e.errno == errno.ENOENT:
+                    print(
+                        "The command Ffmpeg was not found. You probably forgot to install it. You can install it by going to here: https://ffmpeg.org/download.html\n If you installed Ffmpeg but it still doesn't work, check your PATH."
+                    )
+                    raise SystemExit
+                else:
+                    raise
             else:
-                raise
-        else:
-            if result_ffmpeg.returncode != 0:
-                print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
-                sys.exit(1)
+                if result_ffmpeg.returncode != 0:
+                    print(f"[ERROR] ffmpeg failed: {result_ffmpeg.stderr}")
+                    sys.exit(1)
 
         print_verbose(should_print_verbose, args.sound_flag_given)
 
@@ -507,6 +497,23 @@ def run_anifetch(args):
         if renderer.last_key:
             from pynput.keyboard import Controller, Key
 
+            KEY_MAP = {
+                # Windows sequences
+                "àH": Key.up,
+                "àP": Key.down,
+                "àK": Key.left,
+                "àM": Key.right,
+                "\x00H": Key.up,
+                "\x00P": Key.down,
+                # Unix/macOS ANSI sequences
+                "\x1b[A": Key.up,
+                "\x1b[B": Key.down,
+                "\x1b[C": Key.right,
+                "\x1b[D": Key.left,
+                "\x1b[H": Key.home,
+                "\x1b[F": Key.end,
+            }
+
             keyboard = Controller()
 
             # needed because if I only enter one key even though the user pressed a bunch of keys the keys will be entered disorderly(only the a single key is not automatically entered and the other keys are entered)
@@ -517,13 +524,15 @@ def run_anifetch(args):
             keyboard.press(Key.home)
             keyboard.release(Key.home)
 
-            keyboard.press(renderer.last_key)
+            translated_key = KEY_MAP.get(renderer.last_key, renderer.last_key)
+
+            keyboard.press(translated_key)
 
             # end of line
             keyboard.press(Key.end)
             keyboard.release(Key.end)
 
-            keyboard.release(renderer.last_key)
+            keyboard.release(translated_key)
 
     if pathlib.Path(VIDEO_DIR).exists():
         shutil.rmtree(VIDEO_DIR)  # no need to keep the video frames.

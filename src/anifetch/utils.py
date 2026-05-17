@@ -494,7 +494,10 @@ def render_frame(path: Path, width: int, height: int, chafa_args: str) -> str:
     return p.stdout
 
 
-def get_video_dimensions(filename):
+def get_media_dimensions(filename):
+    """
+    Works for both gif, video and image.
+    """
     cmd = [
         "ffprobe",
         "-v",
@@ -684,7 +687,25 @@ def check_video_transparency(filename: pathlib.Path):
             str(filename),
         ]
     )
-    pix_fmt = (result.stdout.strip()).decode()
-
-    # "a" = alpha
+    pix_fmt = str(result).strip()
     return "a" in pix_fmt
+
+
+def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
+    return subprocess.run(
+        [
+            "ffmpeg",
+            "-i",
+            f"{args.filename}",
+            "-vf",
+            f"fps={args.framerate},format=rgba",
+            "-q:v",
+            str(min(max(args.quality or 6, 2), 10)),  # 2-5 high quality, 6-10 lower
+            str(CACHE_PATH / "video/%05d.png")
+            if IS_TRANSPARENT
+            else str(CACHE_PATH / "video/%05d.jpg"),
+        ],
+        stdout=stdout,
+        stderr=stderr,
+        text=True,
+    )
