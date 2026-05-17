@@ -6,11 +6,34 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-### Installation for Linux
+**Quick Links Installation Guide For:** 
 
-Recommended Python version: 3.11 and later. If you use NixOS refer to [Installation for NixOS](#installation-for-nixos).
+[Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew)• [Manual](#manual-installation) • [Development](#developer-installation)
 
-Run this in the terminal.
+### Installation for Linux System
+Recommended Python version: 3.11 and later.
+
+#### Installation for Arch / Arch-based distros (Community maintained)
+
+Anifetch is available in the AUR package [anifetch-cli](https://aur.archlinux.org/packages/anifetch-cli), maintained by @AmmarSyamil.
+
+Install it from the terminal. For example, with Yay:
+
+```bash
+yay -S anifetch-cli
+```
+
+After installation, run this to test if anifetch was installed correctly:
+
+```bash
+anifetch example.mp4
+```
+Please read our [User guide](#user-guide) for more info on how to use anifetch.
+
+#### Installation for other Linux Distro.
+If you use NixOS refer to Installation for [NixOS](#installation-for-nixos).
+
+Install it from the terminal. For example, with Yay:
 
 ```bash
 curl https://raw.githubusercontent.com/Notenlish/anifetch/refs/heads/main/install.sh | bash
@@ -22,9 +45,11 @@ After installation, run this to test if anifetch was installed correctly:
 anifetch example.mp4
 ```
 
+
 Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
+
 
 ### Installation for Windows (Winget or Scoop)
 
@@ -45,7 +70,10 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 > [!WARNING]
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
-### Installation for MacOS with Homebrew
+Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
+
+
+### Installation for macOS (HomeBrew)
 
 Install homebrew if you haven't installed it already by following the guide [here](https://brew.sh/).
 
@@ -172,7 +200,7 @@ After you've done these steps, rebuild your system.
 
 ---
 
-### Developer Installation (for contributors):
+### Developer Installation
 
 ```bash
 git clone https://github.com/Notenlish/anifetch.git
@@ -238,6 +266,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
 - `--loop`: Determines how many times the animation should loop. Default is -1(always loop).
 - `--no-key-exit`: Don't exit anifetch when user presses a key.
+- `--no-input-restore`: Disable restoring pressed keys back into the terminal after stopping Anifetch. Use this if your OS gives security prompts saying `"Anifetch" is requesting special priviliges` when you press a key to stop Anifetch.
 - `-c` / `--config`: Specify a non-default config for Neofetch/Fastfetch.
   - Accepts a path or preset name (e.g. `main`).
   - Neofetch (Linux/macOS): `~/.config/neofetch/main.conf`
@@ -298,6 +327,8 @@ As it can be seen, Anifetch is quite fast if you cache the animations.
 Make sure to install the dependencies listed on [Prerequisites](#Prerequisites). If ffmpeg throws an error saying `libxm12.so.16: cannot open shared object file: No such file or directory exists` then you must install `libxm12`. Here's an comment showing how to install it for arch: [https://github.com/Notenlish/anifetch/issues/24#issuecomment-2920189918](solution)
 
 If weird characters are appearing in your terminal then your terminals font probably can't render some characters. Consider installling [nerdfonts](https://www.nerdfonts.com/).
+
+If your OS is prompting you about `"Anifetch" is requesting special priviliges` or something similiar after pressing a key to stop the running Anifetch instance, add this argument: `--no-input-restore`. The technical reason for this is that Anifetch records the keys you press and enters them back to the terminal on your behalf. That way you can immediately run whatever command you want, without having to re-enter a key or two. Certain OS's have built-in protections against this as a security notice, which is why you might encounter a security prompt. 
 
 ## Notes
 
