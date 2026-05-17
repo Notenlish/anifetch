@@ -1,6 +1,7 @@
 .wakatime-project
 .ruff_cache/
 .flatpak-builder/
+.ignore/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
