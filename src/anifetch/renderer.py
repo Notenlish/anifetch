@@ -366,7 +366,9 @@ class Renderer:
         # index += 1
 
         if self.no_key_exit:
-            k = self.key_reader.poll()  # instead of this maybe use pynput.keyboard.listener instead.
+            k = (
+                self.key_reader.poll()
+            )  # instead of this maybe use pynput.keyboard.listener instead.
             if k is not None:
                 # if k in ("q", "Q"):
                 self.last_key = k
