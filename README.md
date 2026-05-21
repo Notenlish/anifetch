@@ -8,7 +8,7 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 **Quick Links Installation Guide For:** 
 
-[Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew)• [Manual](#manual-installation) • [Development](#developer-installation)
+[Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew) • [Manual](#manual-installation) • [Development](#developer-installation)
 
 ### Installation for Linux System
 Recommended Python version: 3.11 and later.
