@@ -25,6 +25,9 @@ in
       pkgs.chafa
       pkgs.ffmpeg
       pkgs.python3Packages.platformdirs
+      pkgs.python3Packages.pynput
+      pkgs.python3Packages.rich
+      pkgs.python3Packages.wcwidth
     ];
 
     meta = with lib; {
