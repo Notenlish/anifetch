@@ -9,7 +9,7 @@
 in
   fs.trace sourceFiles
   python3Packages.buildPythonApplication {
-    name = "anifetch-wrapped";
+    name = "anifetch";
     version = "1.0.0";
     pyproject = true;
     src = fs.toSource {
@@ -32,7 +32,7 @@ in
 
     meta = with lib; {
       description = "neofetch but animated ";
-      homepage = "https://github.com/Notenlish/anifetch";
+      homepage = "https://github.com/tickreyiz/anifetch";
       license = licenses.mit;
       maintainers = with maintainers; [Immelancholy];
     };
