@@ -11,7 +11,6 @@ let
 in
 fs.trace sourceFiles python3Packages.buildPythonApplication {
   name = "aniftetch-wrapped";
-  version = "1.0.0";
   pyproject = true;
   src = fs.toSource {
     root = ../../.;
@@ -32,9 +31,10 @@ fs.trace sourceFiles python3Packages.buildPythonApplication {
   ];
 
   meta = with lib; {
-    description = "neofetch but animated ";
+    description = "neofetch but animated";
     homepage = "https://github.com/Notenlish/anifetch";
     license = licenses.mit;
     maintainers = with maintainers; [ Immelancholy ];
+    mainProgram = "anifetch";
   };
 }
