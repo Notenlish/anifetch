@@ -1,36 +1,40 @@
 {
   python3Packages,
-  pkgs,
+  chafa,
+  ffmpeg,
   lib,
   ...
-}: let
+}:
+let
   fs = lib.fileset;
   sourceFiles = ../../.;
 in
-  fs.trace sourceFiles
-  python3Packages.buildPythonApplication {
-    name = "aniftech-wrapped";
-    version = "1.0.0";
-    pyproject = true;
-    src = fs.toSource {
-      root = ../../.;
-      fileset = sourceFiles;
-    };
+fs.trace sourceFiles python3Packages.buildPythonApplication {
+  name = "aniftech-wrapped";
+  version = "1.0.0";
+  pyproject = true;
+  src = fs.toSource {
+    root = ../../.;
+    fileset = sourceFiles;
+  };
 
-    build-system = [
-      pkgs.python3Packages.setuptools
-    ];
+  build-system = with python3Packages; [
+    setuptools
+  ];
 
-    dependencies = [
-      pkgs.chafa
-      pkgs.ffmpeg
-      pkgs.python3Packages.platformdirs
-    ];
+  dependencies = with python3Packages; [
+    chafa
+    ffmpeg
+    platformdirs
+    wcwidth
+    rich
+    pynput
+  ];
 
-    meta = with lib; {
-      description = "neofetch but animated ";
-      homepage = "https://github.com/Notenlish/anifetch";
-      license = licenses.mit;
-      maintainers = with maintainers; [Immelancholy];
-    };
-  }
+  meta = with lib; {
+    description = "neofetch but animated ";
+    homepage = "https://github.com/Notenlish/anifetch";
+    license = licenses.mit;
+    maintainers = with maintainers; [ Immelancholy ];
+  };
+}

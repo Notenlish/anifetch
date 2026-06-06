@@ -2,6 +2,7 @@
 .ruff_cache/
 .flatpak-builder/
 .ignore/
+.direnv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
