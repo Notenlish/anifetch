@@ -224,7 +224,7 @@ On Nix you can run:
 nix develop
 ```
 
-To install the package into a devshell. However, it is recommended to use [direnv](https://github.com/direnv/direnv) to enter the development environment automatically, much like a python venv.
+To install the package into a devshell. However, it is recommended to use [nix-direnv](https://github.com/nix-community/nix-direnv) to enter the development environment automatically, much like a python venv.
 
 ## User Guide
 
