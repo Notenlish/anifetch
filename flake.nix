@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    git-hooks.url = "github:cachix/git-hooks.nix";
   };
 
   outputs =
@@ -12,6 +13,7 @@
       ...
     }:
     let
+      inherit (self) inputs;
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -39,15 +41,45 @@
         anifetch = self.overlays.default;
       };
 
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+      formatter = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          config = self.checks.${system}.pre-commit-check.config;
+          inherit (config) package configFile;
+          script = ''
+            ${pkgs.lib.getExe package} run --all-files --config ${configFile}
+          '';
+        in
+        pkgs.writeShellScriptBin "pre-commit-run" script
+      );
+
+      checks = forAllSystems (system: {
+        pre-commit-check = inputs.git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nixfmt.enable = true;
+
+            ruff-sh = {
+              enable = true;
+              entry = "./ruff.sh";
+            };
+          };
+        };
+      });
 
       devShell = forAllSystems (
         system:
         let
           pkgs = import nixpkgs { inherit system; };
+          inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         pkgs.mkShell {
-          packages = [
+          inherit shellHook;
+          buildInputs = enabledPackages;
+          packages = with pkgs; [
+            bash
+            ruff
             self.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
         }
