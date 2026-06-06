@@ -151,9 +151,9 @@ Remember to add:
 to your nixos configuration, like I've done here on my system:
 
 ```nix
-    nixosConfigurations = {
-      Enlil = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
+  nixosConfigurations = {
+    Enlil = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs outputs; };
 ```
 
 #### ❄️ As a package:
@@ -224,7 +224,7 @@ On Nix you can run:
 nix develop
 ```
 
-To install the package into a devshell. However, it is recommended to use direnv to enter the development environment automatically, much like a python venv.
+To install the package into a devshell. However, it is recommended to use [direnv](https://github.com/direnv/direnv) to enter the development environment automatically, much like a python venv.
 
 ## User Guide
 
