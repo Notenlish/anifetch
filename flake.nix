@@ -54,19 +54,27 @@
         pkgs.writeShellScriptBin "pre-commit-run" script
       );
 
-      checks = forAllSystems (system: {
-        pre-commit-check = inputs.git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = {
-            nixfmt.enable = true;
+      checks = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          pre-commit-check = inputs.git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              nixfmt.enable = true;
 
-            ruff-sh = {
-              enable = true;
-              entry = "./ruff.sh";
+              ruff-sh = {
+                enable = true;
+                entry = "./ruff.sh";
+              };
             };
+
+            package = pkgs.prek;
           };
-        };
-      });
+        }
+      );
 
       devShell = forAllSystems (
         system:
