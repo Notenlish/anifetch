@@ -5,51 +5,52 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    ...
-  }: let
-    inherit (self) outputs;
-    systems = [
-      "x86_64-linux"
-      "aarch64-linux"
-      "x86_64-darwin"
-      "aarch64-darwin"
-    ];
-    forAllSystems = nixpkgs.lib.genAttrs systems;
-  in {
-    packages = forAllSystems (system: import ./nix/packages nixpkgs.legacyPackages.${system});
-
-    overlays = import ./nix/overlays;
-
-    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
-
-    devShell = forAllSystems (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
-      myPython = pkgs.python3;
-      pythonWithPkgs = myPython.withPackages (ps: [
-        ps.pip
-        ps.setuptools
-      ]);
-      venv = "venv";
+  outputs =
+    {
+      self,
+      nixpkgs,
+      ...
+    }:
+    let
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
     in
-      pkgs.mkShell {
-        packages = [
-          pythonWithPkgs
-          pkgs.bc
-          pkgs.chafa
-          pkgs.ffmpeg
-        ];
+    {
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          default = pkgs.callPackage ./nix/package.nix { };
+          anifetch = self.packages.default;
+        }
+      );
 
-        shellHook = ''
-          if [ ! -d "${venv}" ]; then
-            echo "Creating Python venv..."
-            python3 -m venv ${venv}
-          fi
-          echo "Activating venv..."
-          source ${venv}/bin/activate
-        '';
-      });
-  };
+      overlays = {
+        default = final: _prev: {
+          anifetch = import ./nix/package.nix final.pkgs;
+        };
+        anifetch = self.overlays.default;
+      };
+
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+
+      devShell = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        pkgs.mkShell {
+          packages = [
+            self.packages.${pkgs.stdenv.hostPlatform.system}.default
+          ];
+        }
+      );
+    };
 }
