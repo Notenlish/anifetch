@@ -12,7 +12,6 @@
       ...
     }:
     let
-      inherit (self) outputs;
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -22,20 +21,34 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
     in
     {
-      packages = forAllSystems (system: import ./nix/packages nixpkgs.legacyPackages.${system});
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          default = pkgs.callPackage ./nix/package.nix { };
+          anifetch = self.packages.default;
+        }
+      );
 
-      overlays = import ./nix/overlays;
+      overlays = {
+        default = final: _prev: {
+          anifetch = import ./nix/package.nix final.pkgs;
+        };
+        anifetch = self.overlays.default;
+      };
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
 
       devShell = forAllSystems (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs { inherit system; };
         in
         pkgs.mkShell {
           packages = [
-            self.outputs.packages.${pkgs.stdenv.hostPlatform.system}.default
+            self.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
         }
       );

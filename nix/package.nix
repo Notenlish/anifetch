@@ -7,13 +7,13 @@
 }:
 let
   fs = lib.fileset;
-  sourceFiles = ../../.;
+  sourceFiles = ../.;
 in
 fs.trace sourceFiles python3Packages.buildPythonApplication {
   name = "aniftetch-wrapped";
   pyproject = true;
   src = fs.toSource {
-    root = ../../.;
+    root = ../.;
     fileset = sourceFiles;
   };
 
