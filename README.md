@@ -6,7 +6,7 @@ This is a small tool built with fastfetch/neofetch, ffmpeg and chafa. It allows 
 
 ## Installation
 
-**Quick Links Installation Guide For:** 
+**Quick Links Installation Guide For:**
 
 [Linux](#installation-for-linux-system) • [Windows](#installation-for-windows-winget-or-scoop) • [macOS](#installation-for-macos-homebrew) • [Manual](#manual-installation) • [Development](#developer-installation)
 
@@ -45,11 +45,9 @@ After installation, run this to test if anifetch was installed correctly:
 anifetch example.mp4
 ```
 
-
 Please read our [User guide](#user-guide) for more info on how to use anifetch.
 
 ---
-
 
 ### Installation for Windows (Winget or Scoop)
 
@@ -71,7 +69,6 @@ After installing the necessary dependencies using winget/scoop, install anifetch
 > **Do not** install `anifetch` on pypi, it is not related with this project. Install `anifetch-cli`.
 
 Please read our [Post installation](#post-installation) and [User guide](#user-guide) for more info on how to use anifetch.
-
 
 ### Installation for macOS (HomeBrew)
 
@@ -128,7 +125,6 @@ You can then run the `anifetch` command directly in your terminal.
 
 Since pipx installs packages in an isolated environment, you won't have to worry about dependency conflicts or polluting your global python environment. `anifetch` will behave just like a native cli tool. You can upgrade your installation with `pipx upgrade anifetch`
 
-
 ---
 
 ### Installation for NixOS
@@ -137,12 +133,12 @@ Add the anifetch repo as a flake input:
 
 ```nix
 {
-    inputs = {
-        anifetch = {
-            url = "github:Notenlish/anifetch";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
+  inputs = {
+    anifetch = {
+      url = "github:Notenlish/anifetch";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
+  };
 }
 ```
 
@@ -165,12 +161,13 @@ to your nixos configuration, like I've done here on my system:
 Add anifetch to your packages list like so:
 
 ```nix
-{inputs, pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
-        inputs.anifetch.packages.${pkgs.system}.default
-        fastfetch # Choose either fastfetch or neofetch to run anifetch with
-        neofetch
-    ];
+{ inputs, pkgs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    inputs.anifetch.packages.${pkgs.stdenv.hostPlatform.system}.default
+    fastfetch # Choose either fastfetch or neofetch to run anifetch with
+    neofetch
+  ];
 }
 ```
 
@@ -179,18 +176,19 @@ Add anifetch to your packages list like so:
 Add the overlay to nixpkgs overlays, then add the package to your package list as you would a package from the normal nixpkgs repo.
 
 ```nix
-{inputs, pkgs, ...}: {
-    nixpkgs = {
-        overlays = [
-            inputs.anifetch.overlays.anifetch
-        ];
-    };
-
-    environment.systemPackages = with pkgs; [
-        anifetch
-        fastfetch # Choose either fastfetch or neofetch to run anifetch with
-        neofetch
+{ inputs, pkgs, ... }:
+{
+  nixpkgs = {
+    overlays = [
+      inputs.anifetch.overlays.default
     ];
+  };
+
+  environment.systemPackages = with pkgs; [
+    anifetch
+    fastfetch # Choose either fastfetch or neofetch to run anifetch with
+    neofetch
+  ];
 }
 ```
 
@@ -211,7 +209,6 @@ pip install -e .
 ```
 > on windows do this to activate the venv instead: `venv\Scripts\activate`. Also on windows you should use `py` instead of `python3`.
 
-
 This installs `anifetch` in editable mode within a local virtual environment for development.
 
 You can then run the program in two ways:
@@ -225,14 +222,13 @@ On Nix you can run:
 
 ```bash
 nix develop
-pip install -e .
 ```
 
-inside the anifetch dir after cloning the repo. This creates a python venv you can re-enter by running `nix develop` inside the project dir.
+To install the package into a devshell. However, it is recommended to use direnv to enter the development environment automatically, much like a python venv.
 
 ## User Guide
 
-You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that at least one of these must be installed, otherwise anifetch won't work. **By default, `anifetch` will use fastfetch**. 
+You don't need to configure anything for `fastfetch` or `neofetch`. If they already work on your machine, `anifetch` will detect and use them automatically. Please note that at least one of these must be installed, otherwise anifetch won't work. **By default, `anifetch` will use fastfetch**.
 
 > We dont recommend using neofetch as it is archived. **To use neofetch**, you must append `-nf` to the anifetch command. For some distros you may need to append `--force` to the command too since neofetch is deprecated.
 
@@ -259,7 +255,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--cleanup`: Clears the screen on program exit.
 - `-nf` / `--neofetch`: uses `neofetch` instead of `fastfetch`
 - `-fr` / `--force-render`: Forcefully re-renders the animation while not caring about the cache. Useful if the cache is broken or the contents of the video file has changed.
-- `-i` / `--interval`: Use this to make anifetch update the fetch information over time, sets fetch refresh interval in seconds. Default is -1(never). 
+- `-i` / `--interval`: Use this to make anifetch update the fetch information over time, sets fetch refresh interval in seconds. Default is -1(never).
 - `-b` / `--benchmark`: For testing, prints how long it took to process in seconds.
 - `--force`: Add this argument if you want to use neofetch even if it is deprecated on your system.
 - `--chroma`: Add this argument to chromakey a hexadecimal color from the video using ffmpeg. Syntax: '--chroma \<hex-color>:\<similiarity>:\<blend>'
@@ -302,13 +298,11 @@ Add this to the end of `.bashrc`:
 anifetch [video_file] [other_args_if_needed]
 ```
 
-
 ## Customizing Fastfetch/Neofetch output
 
 For customizing fastfetch/neofetch output, you can check out these pages:
 - [Fastfetch Customization](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration)
 - [Neofetch Customization](https://github.com/dylanaraps/neofetch/wiki/Customizing-Info)
-
 
 ## 📊 Benchmarks
 
@@ -328,7 +322,7 @@ Make sure to install the dependencies listed on [Prerequisites](#Prerequisites).
 
 If weird characters are appearing in your terminal then your terminals font probably can't render some characters. Consider installling [nerdfonts](https://www.nerdfonts.com/).
 
-If your OS is prompting you about `"Anifetch" is requesting special priviliges` or something similiar after pressing a key to stop the running Anifetch instance, add this argument: `--no-input-restore`. The technical reason for this is that Anifetch records the keys you press and enters them back to the terminal on your behalf. That way you can immediately run whatever command you want, without having to re-enter a key or two. Certain OS's have built-in protections against this as a security notice, which is why you might encounter a security prompt. 
+If your OS is prompting you about `"Anifetch" is requesting special priviliges` or something similiar after pressing a key to stop the running Anifetch instance, add this argument: `--no-input-restore`. The technical reason for this is that Anifetch records the keys you press and enters them back to the terminal on your behalf. That way you can immediately run whatever command you want, without having to re-enter a key or two. Certain OS's have built-in protections against this as a security notice, which is why you might encounter a security prompt.
 
 ## Notes
 
