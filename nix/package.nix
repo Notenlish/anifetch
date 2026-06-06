@@ -11,6 +11,7 @@ let
 in
 fs.trace sourceFiles python3Packages.buildPythonApplication {
   name = "aniftetch-wrapped";
+  version = "git";
   pyproject = true;
   src = fs.toSource {
     root = ../.;
