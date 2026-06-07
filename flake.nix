@@ -99,15 +99,38 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
+          myPython = pkgs.python3;
+          pythonWithPkgs = myPython.withPackages (ps: [
+            ps.pip
+            ps.setuptools
+          ]);
+
+          venv = "venv";
           inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         {
           default = pkgs.mkShell {
-            inherit shellHook;
             nativeBuildInputs = [
-              self.packages.${system}.default
+              pythonWithPkgs
+              pkgs.bc
+              pkgs.chafa
+              pkgs.ffmpeg
             ]
             ++ enabledPackages;
+            shellHook = shellHook + ''
+              export "CPATH=${pkgs.linuxHeaders}/include:$CPATH"
+              if [ ! -d "${venv}" ]; then
+                echo "Creating Python venv..."
+                python3 -m venv ${venv}
+              fi
+              echo "Activating venv..."
+              source ${venv}/bin/activate
+              if ! pip show anifetch &>/dev/null; then
+                echo "Aniftech not installed: Install anifetch..."
+                pip install -e .
+              fi
+              echo "Venv activated."
+            '';
           };
         }
       );
