@@ -30,7 +30,7 @@
         in
         {
           default = pkgs.callPackage ./nix/package.nix { };
-          anifetch = self.packages.default;
+          anifetch = self.packages.${system}.default;
         }
       );
 
@@ -65,9 +65,28 @@
             hooks = {
               nixfmt.enable = true;
 
-              ruff-sh = {
+              ruff-check = {
                 enable = true;
-                entry = "./ruff.sh";
+                entry = "${pkgs.lib.getExe pkgs.ruff}";
+                args = [
+                  "check"
+                  "--fix"
+                ];
+                types = [
+                  "file"
+                  "python"
+                ];
+              };
+              ruff-format = {
+                enable = true;
+                entry = "${pkgs.lib.getExe pkgs.ruff}";
+                args = [
+                  "format"
+                ];
+                types = [
+                  "file"
+                  "python"
+                ];
               };
             };
 
@@ -76,20 +95,20 @@
         }
       );
 
-      devShell = forAllSystems (
+      devShells = forAllSystems (
         system:
         let
           pkgs = import nixpkgs { inherit system; };
           inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
-        pkgs.mkShell {
-          inherit shellHook;
-          buildInputs = enabledPackages;
-          packages = with pkgs; [
-            bash
-            ruff
-            self.packages.${pkgs.stdenv.hostPlatform.system}.default
-          ];
+        {
+          default = pkgs.mkShell {
+            inherit shellHook;
+            nativeBuildInputs = [
+              self.packages.${system}.default
+            ]
+            ++ enabledPackages;
+          };
         }
       );
     };
