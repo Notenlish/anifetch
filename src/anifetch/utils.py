@@ -711,3 +711,13 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
         stderr=stderr,
         text=True,
     )
+
+
+def debug_write_str(t:str):
+    with open("debug.ignore", "w") as f:
+        f.write(t)
+
+def overwrite_string(og_text:str, index:int, text_to_overwrite:str):
+    out = og_text[:index] + text_to_overwrite + og_text[index + len(text_to_overwrite):]
+
+    return out

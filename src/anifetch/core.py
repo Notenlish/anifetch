@@ -2,6 +2,7 @@
 Anifetch core module for running the animation.
 """
 
+from anifetch.ansi_process import expand_ansi_movement_seq
 import json
 import os
 import pathlib
@@ -261,6 +262,8 @@ def run_anifetch(args):
     fetch_output: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force, args.config
     )
+    expand_ansi_movement_seq(fetch_output)
+    raise SystemExit
 
     # copy fetch_output to fetch_lines
     fetch_lines: list[str] = fetch_output[:]
