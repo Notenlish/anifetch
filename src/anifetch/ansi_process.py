@@ -1,6 +1,8 @@
 from typing import Literal
 import re
 from .utils import debug_write_str, overwrite_string
+from .ansi2txt import ansi2txt
+
 
 
 class Token:
@@ -77,6 +79,7 @@ def expand_ansi_movement_seq(lines:list[str]):
                 # this doesn't overwrite text
                 # line = line[:cur_i] + token.value + line[cur_i:]
                 line = overwrite_string(line, cur_i, token.value)
+                
                 cur_i += len(token.value)
             if token.type == "go_right":
                 # pyrefly: ignore [unsupported-operation]
