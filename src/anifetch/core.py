@@ -262,7 +262,8 @@ def run_anifetch(args):
     fetch_output: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force, args.config
     )
-    expand_ansi_movement_seq(fetch_output)
+    
+    # expand_ansi_movement_seq(fetch_output)
     raise SystemExit
 
     # copy fetch_output to fetch_lines
