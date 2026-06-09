@@ -1,54 +1,59 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+    requires      = ["setuptools>=61.0"]
+    build-backend = "setuptools.build_meta"
 
 [project]
-name = "anifetch-cli"
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Topic :: Terminals",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-    "Operating System :: Unix",
-    "Operating System :: MacOS",
-]
-keywords = [
-    "fetch",
-    "terminal",
-    "cli",
-    "animated",
-    "neofetch",
-    "fastfetch",
-    "anifetch",
-]
-version = "1.0.5"
-description = "Animated terminal fetch with video and audio support."
-# If I put everyone here it messes with the "author" meta section.
-authors = [{ name = "Notenlish", email = "notenlish@gmail.com" }]
-maintainers = [
-    # If I make it start with immelancholy for some reason it uses gallophostix's gmail for immelancholy.
-    { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
-    { name = "Immelancholy" },
-    { name = "Notenlish", email = "notenlish@gmail.com" },
-]
+    name = "anifetch-cli"
+    classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Topic :: Terminals",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+    ]
+    keywords = [
+        "fetch",
+        "terminal",
+        "cli",
+        "animated",
+        "neofetch",
+        "fastfetch",
+        "anifetch",
+    ]
+    version = "1.0.5"
+    description = "Animated terminal fetch with video and audio support."
+    # If I put everyone here it messes with the "author" meta section.
+    authors = [{ name = "Notenlish", email = "notenlish@gmail.com" }]
+    maintainers = [
+        # If I make it start with immelancholy for some reason it uses gallophostix's gmail for immelancholy.
+        { name = "Gallophostrix", email = "gallophostrix@gmail.com" },
+        { name = "Immelancholy" },
+        { name = "Notenlish", email = "notenlish@gmail.com" },
+    ]
 
-readme = "README.md"
-license = { text = "MIT" }
-requires-python = ">=3.11"
-dependencies = ["platformdirs==4.5.1", "wcwidth==0.2.14", "rich==14.3.1", "pynput==1.8.1","ansi2txt==0.2.0"]
+    readme = "README.md"
+    license = { text = "MIT" }
+    requires-python = ">=3.11"
+    dependencies = [
+        "platformdirs==4.5.1",
+        "wcwidth==0.2.14",
+        "rich==14.3.1",
+        "pynput==1.8.1",
+    ]
 
 [project.urls]
-Homepage = "https://github.com/Notenlish/anifetch"
-Issues = "https://github.com/Notenlish/anifetch/issues"
+    Homepage = "https://github.com/Notenlish/anifetch"
+    Issues   = "https://github.com/Notenlish/anifetch/issues"
 
 [project.scripts]
-anifetch = "anifetch.__init__:main"
-anifetch-cli = "anifetch.__init__:main"
+    anifetch     = "anifetch.__init__:main"
+    anifetch-cli = "anifetch.__init__:main"
 
 [tool.setuptools]
-packages = ["anifetch"]
-package-dir = { "" = "src" }
+    packages    = ["anifetch"]
+    package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-anifetch = ["assets/**/*"]
+    anifetch = ["assets/**/*"]
