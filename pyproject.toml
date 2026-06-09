@@ -41,6 +41,7 @@
         "wcwidth==0.2.14",
         "rich==14.3.1",
         "pynput==1.8.1",
+        "pyte==0.8.2"
     ]
 
 [project.urls]

@@ -6,7 +6,7 @@ from .ansi2txt import ansi2txt
 
 
 class Token:
-    def __init__(self, type_:Literal["text", "go_left", "go_right"], value) -> None:
+    def __init__(self, type_:Literal["text", "go_left", "go_right", "move_to_column"], value) -> None:
         self.type = type_
         self.value: str|int = value 
     
@@ -19,10 +19,20 @@ class Token:
             return f"<{self.type} {self.value}>"
             # return f"\x1b[{self.value}{code}"
 
+# How to fix this
+# 1 Proper handling of text length via wcwidth(color escape sequences mess with the strings)
+# 2 proper handling of emojis. When this 💻 emoji is present in the config, the code prints 1 more border than required
+
+
+def strip_ansi_colors(lines: list[str]) -> list[str]:
+    ANSI_COLOR_RE = re.compile(r'\x1B\[[0-9;]*m')
+    return [ANSI_COLOR_RE.sub('', line) for line in lines]
+
 def tokenize_lines(lines:list[str]):
     # lines = ["lllllll  lllllll[1G[7A[18C╔════════════════════════════════════════════════════════════════════════════════════════════════════╗[101D root@debian 💻 ","[18C║[100C║[100D kernel   >  6.12.1"]
     ## attempt to tokenize every line.
-    pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-FfHhsu]"
+    # pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-FfHhsu]"
+    pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-GHfhsu]"
 
 
     line_tokens_all: list[list[Token]] = []
@@ -45,7 +55,10 @@ def tokenize_lines(lines:list[str]):
             _left = match_text.find("[") + 1
             _right = len(match_text) -1
             # print(f"lets see what this is?? \n\n {match_text[_left: _right]}")
-            amount = int(match_text[_left: _right])
+            try:
+                amount = int(match_text[_left: _right])
+            except ValueError:
+                amount = None
 
             code = match_text[-1]
 
@@ -53,6 +66,9 @@ def tokenize_lines(lines:list[str]):
                 line_tokens.append(Token("go_right", amount))
             elif code == "D":
                 line_tokens.append(Token("go_left", amount))
+            elif code == "G":
+                if not amount: amount = 1
+                line_tokens.append(Token("move_to_column", amount))
             #else:
             #    continue
             
@@ -101,6 +117,15 @@ def expand_ansi_movement_seq(lines:list[str]):
                 needed_space = max(wanted_i * -1, 0)  # 10
                 line = " " * needed_space + line
                 cur_i = wanted_i + needed_space  # 0
+            if token.type == "go_to_column":
+                # ANSI ESC[nG -> move to column n (1-based)
+                wanted_i = max(token.value, 1) - 1  # convert to 0-based
+
+                # extend line if needed
+                if wanted_i > len(line):
+                    line += " " * (wanted_i - len(line))
+                
+                cur_i = wanted_i
         lines.append(line)
     
     debug_write_str("\n".join(lines))

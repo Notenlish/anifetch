@@ -2,7 +2,7 @@
 Anifetch core module for running the animation.
 """
 
-from anifetch.ansi_process import expand_ansi_movement_seq
+from .ansi_process import expand_ansi_movement_seq,strip_ansi_colors
 import json
 import os
 import pathlib
@@ -262,7 +262,7 @@ def run_anifetch(args):
     fetch_output: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force, args.config
     )
-
+    fetch_output = strip_ansi_colors(fetch_output)
     expand_ansi_movement_seq(fetch_output)
     raise SystemExit
 
