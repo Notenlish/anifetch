@@ -714,7 +714,7 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
 
 
 def debug_write_str(t:str):
-    with open("debug.ignore", "w") as f:
+    with open("debug.ignore", "w", encoding="utf-8") as f:
         f.write(t)
 
 def overwrite_string(og_text:str, index:int, text_to_overwrite:str):
