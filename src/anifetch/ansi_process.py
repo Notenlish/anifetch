@@ -18,7 +18,7 @@ class Token:
             # return f"\x1b[{self.value}{code}"
 
 def tokenize_lines(lines:list[str]):
-    lines = ["lllllll  lllllll[1G[7A[18C╔════════════════════════════════════════════════════════════════════════════════════════════════════╗[101D root@debian 💻 ","[18C║[100C║[100D kernel   >  6.12.1"]
+    # lines = ["lllllll  lllllll[1G[7A[18C╔════════════════════════════════════════════════════════════════════════════════════════════════════╗[101D root@debian 💻 ","[18C║[100C║[100D kernel   >  6.12.1"]
     ## attempt to tokenize every line.
     pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-FfHhsu]"
 
@@ -64,8 +64,8 @@ def tokenize_lines(lines:list[str]):
     return line_tokens_all
 
 def expand_ansi_movement_seq(lines:list[str]):
+    # debug_write_str("\n\n\n".join(lines))
     line_tokens_all = tokenize_lines(lines)
-    # print(line_tokens_all)
 
     lines = []
     
@@ -100,5 +100,6 @@ def expand_ansi_movement_seq(lines:list[str]):
                 cur_i = wanted_i + needed_space  # 0
         lines.append(line)
     
-    print(lines)
+    debug_write_str("\n".join(lines))
+    print("\n".join(lines))
     return lines
