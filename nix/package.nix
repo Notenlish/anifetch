@@ -8,10 +8,11 @@
 let
   fs = lib.fileset;
   sourceFiles = ../.;
+  anifetchPyprojectToml = fromTOML (builtins.readFile ../pyproject.toml);
 in
 fs.trace sourceFiles python3Packages.buildPythonApplication {
-  name = "anifetch-wrapped";
-  version = "git";
+  pname = "anifetch";
+  version = "${anifetchPyprojectToml.project.version}-git";
   pyproject = true;
   src = fs.toSource {
     root = ../.;
