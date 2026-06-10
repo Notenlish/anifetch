@@ -712,12 +712,15 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
         text=True,
     )
 
+def printable_len(raw:str):
+    """Returns printable length of the string."""
+    return wcwidth.wcswidth(clean_ansi(raw))
 
 def debug_write_str(t:str):
     with open("debug.ignore", "w", encoding="utf-8") as f:
         f.write(t)
 
 def overwrite_string(original_text:str, index:int, text_to_overwrite:str):
-    out = original_text[:index] + text_to_overwrite + original_text[index + len(text_to_overwrite):]
+    out = original_text[:index] + text_to_overwrite + original_text[index + printable_len(text_to_overwrite):]
 
     return out

@@ -1,14 +1,13 @@
 from typing import Literal
 import re
-from .utils import debug_write_str, overwrite_string
+from .utils import debug_write_str, overwrite_string, printable_len
 from .ansi2txt import ansi2txt
 
 
-
 class Token:
-    def __init__(self, type_:Literal["text", "go_left", "go_right", "move_to_column"], value) -> None:
+    def __init__(self, type_:Literal["text", "go_left", "go_right", "go_to_column"], value) -> None:
         self.type = type_
-        self.value: str|int = value 
+        self.value: str|int = value
     
     def __repr__(self) -> str:
         if self.type == "text":
@@ -68,7 +67,7 @@ def tokenize_lines(lines:list[str]):
                 line_tokens.append(Token("go_left", amount))
             elif code == "G":
                 if not amount: amount = 1
-                line_tokens.append(Token("move_to_column", amount))
+                line_tokens.append(Token("go_to_column", amount))
             #else:
             #    continue
             
@@ -96,11 +95,11 @@ def expand_ansi_movement_seq(lines:list[str]):
                 # line = line[:cur_i] + token.value + line[cur_i:]
                 line = overwrite_string(line, cur_i, token.value)
                 
-                cur_i += len(token.value)
+                cur_i += printable_len(token.value)
             if token.type == "go_right":
                 # pyrefly: ignore [unsupported-operation]
                 wanted_i = cur_i + token.value
-                max_i = len(line)
+                max_i = printable_len(line)
                 needed_space = max(wanted_i - max_i, 0)
                 line += " " * needed_space
                 cur_i = wanted_i
@@ -122,8 +121,8 @@ def expand_ansi_movement_seq(lines:list[str]):
                 wanted_i = max(token.value, 1) - 1  # convert to 0-based
 
                 # extend line if needed
-                if wanted_i > len(line):
-                    line += " " * (wanted_i - len(line))
+                if wanted_i > printable_len(line):
+                    line += " " * (wanted_i - printable_len(line))
                 
                 cur_i = wanted_i
         lines.append(line)

@@ -262,7 +262,7 @@ def run_anifetch(args):
     fetch_output: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force, args.config
     )
-    fetch_output = strip_ansi_colors(fetch_output)
+    # fetch_output = strip_ansi_colors(fetch_output)  # if I strip ansi colors the output is nearly the same as fastfetch
     expand_ansi_movement_seq(fetch_output)
     raise SystemExit
 
