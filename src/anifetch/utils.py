@@ -714,7 +714,11 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
 
 def printable_len(raw:str):
     """Returns printable length of the string."""
-    return wcwidth.wcswidth(clean_ansi(raw))
+    cleaned = clean_ansi(raw)
+    w = wcwidth.wcswidth(cleaned)
+
+    # it can return -1, so if it does return -1 do per character
+    return w if w >= 0 else sum(max(wcwidth.wcwidth(c), 0) for c in cleaned)
 
 def debug_write_str(t:str):
     with open("debug.ignore", "w", encoding="utf-8") as f:
