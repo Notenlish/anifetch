@@ -154,8 +154,9 @@ ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 def clean_ansi(raw_text: str):
     return ANSI_RE.sub("", raw_text)
 
+
 def strip_ansi(text):
-    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")  # color only 
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")  # color only
     return ansi_escape.sub("", text)
 
 
@@ -711,7 +712,8 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
         text=True,
     )
 
-def printable_len(raw:str):
+
+def printable_len(raw: str):
     """Returns printable length of the string."""
     cleaned = clean_ansi(raw)
     w = wcwidth.wcswidth(cleaned)
@@ -719,11 +721,17 @@ def printable_len(raw:str):
     # it can return -1, so if it does return -1 do per character
     return w if w >= 0 else sum(max(wcwidth.wcwidth(c), 0) for c in cleaned)
 
-def debug_write_str(t:str):
+
+def debug_write_str(t: str):
     with open("debug.ignore", "a", encoding="utf-8") as f:
         f.write(t)
 
-def overwrite_string(original_text:str, index:int, text_to_overwrite:str):
-    out = original_text[:index] + text_to_overwrite + original_text[index + printable_len(text_to_overwrite):]
+
+def overwrite_string(original_text: str, index: int, text_to_overwrite: str):
+    out = (
+        original_text[:index]
+        + text_to_overwrite
+        + original_text[index + printable_len(text_to_overwrite) :]
+    )
 
     return out

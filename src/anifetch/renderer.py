@@ -11,6 +11,7 @@ from .utils import (
     get_terminal_width,
 )
 from .ansi_process import expand_ansi_movement_seq
+
 # from .ansi_process2 import expand_ansi_movement_seq2
 import subprocess
 from .keyreader import KeyReader
@@ -165,7 +166,10 @@ class Renderer:
             if self.stop_fetch_thread:
                 return
             fetch_output: list[str] = get_fetch_output(
-                self.use_fastfetch, self.neofetch_status, self.force_neofetch, self.config
+                self.use_fastfetch,
+                self.neofetch_status,
+                self.force_neofetch,
+                self.config,
             )
             fetch_output = expand_ansi_movement_seq(fetch_output)
 

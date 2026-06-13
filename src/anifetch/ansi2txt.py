@@ -4,6 +4,7 @@
 
 # Original code from https://github.com/mmlb/ansi2txt
 
+
 def ansi2txt(text: str) -> str:
     EOF = ""
     pos = 0

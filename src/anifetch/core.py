@@ -3,6 +3,7 @@ Anifetch core module for running the animation.
 """
 
 from .ansi_process import expand_ansi_movement_seq
+
 # from .ansi_process2 import expand_ansi_movement_seq2
 import json
 import os
