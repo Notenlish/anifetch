@@ -41,8 +41,6 @@ def _col_to_char(line: str, col: int) -> int:
     return i
 
 
-
-
 class Token:
     def __init__(self, type_:Literal["text", "go_left", "go_right", "go_to_column", "sgr"], value) -> None:
         self.type = type_
@@ -56,10 +54,6 @@ class Token:
             code = "C" if self.type == "go_left" else "D"
             return f"<{self.type} {self.value}>"
             # return f"\x1b[{self.value}{code}"
-
-# How to fix this
-# 1 Proper handling of text length via wcwidth(color escape sequences mess with the strings)
-# 2 proper handling of emojis. When this 💻 emoji is present in the config, the code prints 1 more border than required
 
 
 def strip_ansi_colors(lines: list[str]) -> list[str]:
@@ -86,8 +80,6 @@ def tokenize_lines(lines:list[str]):
                 line_tokens.append(Token("text", line[text_index:start]))
 
             match_text = line[start:end]
-            
-            # debug_write_str(f"MATCH.STRING\n\n {match_text}")
             
             bracket = match_text.find("[")
             # example:   \x1b[100D
@@ -180,6 +172,6 @@ def expand_ansi_movement_seq(lines:list[str]):
                 # cur_i = wanted_i
         result.append(line)
     
-    debug_write_str("\n".join(result))
+    # debug_write_str("\n".join(result))
     print("\n".join(result))
     return result
