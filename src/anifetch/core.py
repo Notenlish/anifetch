@@ -3,6 +3,7 @@ Anifetch core module for running the animation.
 """
 
 from .ansi_process import expand_ansi_movement_seq,strip_ansi_colors
+from .ansi_process2 import expand_ansi_movement_seq2
 import json
 import os
 import pathlib
@@ -263,7 +264,9 @@ def run_anifetch(args):
         not args.neofetch, neofetch_status, args.force, args.config
     )
     # fetch_output = strip_ansi_colors(fetch_output)  # if I strip ansi colors the output is nearly the same as fastfetch
-    expand_ansi_movement_seq(fetch_output)
+    # expand_ansi_movement_seq(fetch_output)
+    expand_ansi_movement_seq2(fetch_output)
+
     raise SystemExit
 
     # copy fetch_output to fetch_lines

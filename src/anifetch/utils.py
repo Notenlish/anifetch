@@ -154,6 +154,10 @@ ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 def clean_ansi(raw_text: str):
     return ANSI_RE.sub("", raw_text)
 
+def strip_ansi(text):
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")  # color only 
+    return ansi_escape.sub("", text)
+
 
 def get_character_width(raw: str):
     """Gives the raw terminal width of a particular string by stripping ANSI codes, removing \n \t \r and using wcwidth to get the actual character width."""
@@ -224,11 +228,6 @@ def print_verbose(verbose, *msg):
 def normal_print(should_print: bool, *msg):
     if should_print:
         print(*msg)
-
-
-def strip_ansi(text):
-    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
-    return ansi_escape.sub("", text)
 
 
 def get_text_length_of_formatted_text(text: str):
