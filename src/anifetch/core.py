@@ -2,8 +2,8 @@
 Anifetch core module for running the animation.
 """
 
-from .ansi_process import expand_ansi_movement_seq,strip_ansi_colors
-from .ansi_process2 import expand_ansi_movement_seq2
+from .ansi_process import expand_ansi_movement_seq
+# from .ansi_process2 import expand_ansi_movement_seq2
 import json
 import os
 import pathlib
@@ -260,17 +260,16 @@ def run_anifetch(args):
         HEIGHT = args.height
 
     # Get the fetch output(neofetch/fastfetch)
-    fetch_output: list[str] = get_fetch_output(
+    fetch_lines: list[str] = get_fetch_output(
         not args.neofetch, neofetch_status, args.force, args.config
     )
     # fetch_output = strip_ansi_colors(fetch_output)  # if I strip ansi colors the output is nearly the same as fastfetch
-    # expand_ansi_movement_seq(fetch_output)
-    expand_ansi_movement_seq2(fetch_output)
+    # s = time.perf_counter()
+    fetch_lines = expand_ansi_movement_seq(fetch_lines)
+    # e = time.perf_counter()
+    # print(e-s)
+    # raise SystemExit
 
-    raise SystemExit
-
-    # copy fetch_output to fetch_lines
-    fetch_lines: list[str] = fetch_output[:]
     len_fetch = len(fetch_lines)
 
     # put cached frames here
@@ -375,7 +374,7 @@ def run_anifetch(args):
                     chafa_args,
                     args.center,
                     len_fetch,
-                    fetch_output,
+                    fetch_lines,
                 )
                 futures.append(future)
                 # if wanted aspect ratio doesnt match source, chafa makes width as high as it can, and adjusts height accordingly.
@@ -401,7 +400,7 @@ def run_anifetch(args):
                 pad = (len_chafa - len_fetch) // 2
                 remind = (len_chafa - len_fetch) % 2
                 fetch_lines = (
-                    [" " * WIDTH] * pad + fetch_output + [" " * WIDTH] * (pad + remind)
+                    [" " * WIDTH] * pad + fetch_lines + [" " * WIDTH] * (pad + remind)
                 )
 
         HEIGHT = len(frames[0].splitlines())
@@ -483,6 +482,7 @@ def run_anifetch(args):
             args.loop,
             args.cleanup,
             args.no_key_exit,
+            args.config,
             len_chafa or None,
             WIDTH,
             GAP,
