@@ -10,6 +10,8 @@ from .utils import (
     clear_screen_soft,
     get_terminal_width,
 )
+from .ansi_process import expand_ansi_movement_seq
+# from .ansi_process2 import expand_ansi_movement_seq2
 import subprocess
 from .keyreader import KeyReader
 from typing import Literal
@@ -19,8 +21,9 @@ from rich.layout import Layout
 from rich.text import Text
 from rich.console import Console
 from rich.align import Align
+# import re
 
-
+# _CURSOR_MOVE_RE = re.compile(r'\x1b\[[0-9;]*[ABCDGHJKST]')
 # import logging
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(
@@ -70,6 +73,7 @@ class Renderer:
         loop: int,
         cleanup: bool,
         no_key_exit: bool,
+        config,
         len_chafa: int | None,
         width: int,
         gap: int,
@@ -102,6 +106,7 @@ class Renderer:
         self.loop: int = loop
         self.cleanup: bool = cleanup
         self.no_key_exit: bool = no_key_exit
+        self.config = config
         self.len_chafa: int | None = len_chafa
         self.width: int = width
         self.gap: int = gap
@@ -161,8 +166,9 @@ class Renderer:
             if self.stop_fetch_thread:
                 return
             fetch_output: list[str] = get_fetch_output(
-                self.use_fastfetch, self.neofetch_status, self.force_neofetch
+                self.use_fastfetch, self.neofetch_status, self.force_neofetch, self.config
             )
+            fetch_output = expand_ansi_movement_seq(fetch_output)
 
             if self.stop_fetch_thread:
                 return

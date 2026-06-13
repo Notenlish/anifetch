@@ -720,7 +720,7 @@ def printable_len(raw:str):
     return w if w >= 0 else sum(max(wcwidth.wcwidth(c), 0) for c in cleaned)
 
 def debug_write_str(t:str):
-    with open("debug.ignore", "w", encoding="utf-8") as f:
+    with open("debug.ignore", "a", encoding="utf-8") as f:
         f.write(t)
 
 def overwrite_string(original_text:str, index:int, text_to_overwrite:str):

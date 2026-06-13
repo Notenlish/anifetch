@@ -1,9 +1,14 @@
-from typing import Literal
 import re
 import regex
 from wcwidth import wcwidth, wcswidth
 from dataclasses import dataclass
 from .utils import debug_write_str
+
+# this is slower but more readable, don't use this.
+# this is because im using \X to get graphemes
+# creating Cell objects
+# wcswidth(maybe?)
+# and using regex? I'd assume 're' is faster
 
 @dataclass
 class Token:
@@ -92,6 +97,7 @@ def tokenize(raw_lines:list[str]):
                 else:
                     amount_values = [0]
                 tokens.append(SGRToken(amount_values))
+                debug_write_str(f"shitty sgr ansi coloring shit {amount_str} \n")
 
             text_index = end
         
@@ -118,23 +124,33 @@ def split_to_cells(tokenised_lines:list[list[Token]]):
                     # g: str
                     width = wcswidth(g)
                     if width == 1:
-                        cells.insert(cell_index, Cell(g, modifier=current_modifier))
+                        # Extend if needed, then overwrite
+                        while len(cells) <= cell_index:
+                            cells.append(Cell(" ", modifier=""))
+                        cells[cell_index] = Cell(g, modifier=current_modifier)
                         cell_index += 1
                     elif width == 2:
-                        cells.insert(cell_index, Cell(g, modifier=current_modifier, width=2))
-                        cells.insert(cell_index + 1, Cell("", modifier=""))  # continuation cell  # maybe +2 instead?
+                        while len(cells) <= cell_index + 1:
+                            cells.append(Cell(" ", modifier=""))
+                        cells[cell_index]     = Cell(g, modifier=current_modifier, width=2)
+                        cells[cell_index + 1] = Cell("", modifier="")  # continuation cell
                         cell_index += 2
                     else:
                         raise Exception(f"Invalid width {width} {g}")
-                    current_modifier = ""
+                    # current_modifier = ""  # HUHHHH if I just disable it it gets better
             if isinstance(token, SGRToken):
+                debug_write_str(f"skibidi skibidi the sgrtoken is here guys {token}\n")
                 # example: \x1b[1;31m
-                current_modifier = "\x1b[" + ";".join([str(v) for v in token.params]) + "m"
+                # depending on whether there is '=' or '+=' there the formatting can be fucked
+                if token.params == [0]:  # reset
+                    current_modifier = "\x1b[0m"
+                else:  # add
+                    current_modifier += "\x1b[" + ";".join([str(v) for v in token.params]) + "m"
             if isinstance(token, GoRightToken):
                 wanted_cell_index = cell_index + token.amount
                 needed = max(wanted_cell_index - len(cells), 0)
                 for _ in range(needed):
-                    cells.append(Cell(" ", modifier=""))  # not sure if this is the correct play but whatever
+                    cells.append(Cell(" ", modifier=""))
                 cell_index = wanted_cell_index
             if isinstance(token, GoLeftToken):
                 wanted_cell_index = cell_index - token.amount
@@ -149,6 +165,7 @@ def split_to_cells(tokenised_lines:list[list[Token]]):
     return cellmap
 
 def expand_ansi_movement_seq2(lines:list[str]):
+    debug_write_str("---------------\n")
     cellmap = split_to_cells(tokenize(lines))
     out = []
     for line in cellmap.lines:
@@ -156,27 +173,8 @@ def expand_ansi_movement_seq2(lines:list[str]):
         for cell in line:
             out_line += cell.modifier + cell.text
         out.append(out_line)
+    out[-1] += "\x1b[0m"  # reset
     
-    debug_write_str("\n".join(out))
+    # debug_write_str("\n".join(out))
     print("\n".join(out))
     return out
-
-
-if __name__ == '__main__':
-    graphemes:list[str] = regex.findall(r"\X", "🚀\x1b[100D👨‍👩‍👧‍👦é💻")
-    for g in graphemes:
-        # g: str
-        # print(type(g), dir(g))
-        print("character:", g)
-    print("---")
-
-    t = " 💻 "
-    print(t)
-    print(len(t))
-    print(wcswidth(t))
-    print("---")
-    print(0,t[0])
-    print(1,t[1])
-    print(2,t[2])
-    print("---")
-    tokenize("lllllll  lllllll[1G[7A[18C╔════════════════════════════════════════════════════════════════════════════════════════════════════╗[101D root@debian 💻 ")
