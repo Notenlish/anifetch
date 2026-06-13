@@ -23,7 +23,6 @@ from rich.console import Console
 from rich.align import Align
 # import re
 
-# _CURSOR_MOVE_RE = re.compile(r'\x1b\[[0-9;]*[ABCDGHJKST]')
 # import logging
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(
