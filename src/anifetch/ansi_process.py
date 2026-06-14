@@ -222,5 +222,5 @@ def expand_ansi_movement_seq(lines: list[str]):
 
         result.append(line)
 
-    print("\n".join(result))
+    # print("\n".join(result))
     return result
