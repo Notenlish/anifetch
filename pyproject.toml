@@ -41,7 +41,7 @@
         "wcwidth==0.2.14",
         "rich==14.3.1",
         "pynput==1.8.1",
-        "regex==2026.5.9"
+        # "regex==2026.5.9"
     ]
 
 [project.urls]
