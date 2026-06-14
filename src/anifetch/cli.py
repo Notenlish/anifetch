@@ -147,7 +147,7 @@ parser.add_argument(
     "--interval",
     required=False,
     type=float,
-    help="Set fetch refresh interval in seconds. Default is -1(never).",
+    help="Set fetch update interval in seconds. Default is -1(never). ",
     default=-1,
 )
 parser.add_argument(

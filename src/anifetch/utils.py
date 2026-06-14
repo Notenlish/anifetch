@@ -155,6 +155,11 @@ def clean_ansi(raw_text: str):
     return ANSI_RE.sub("", raw_text)
 
 
+def strip_ansi(text):
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")  # color only
+    return ansi_escape.sub("", text)
+
+
 def get_character_width(raw: str):
     """Gives the raw terminal width of a particular string by stripping ANSI codes, removing \n \t \r and using wcwidth to get the actual character width."""
     return wcwidth.wcswidth(
@@ -224,11 +229,6 @@ def print_verbose(verbose, *msg):
 def normal_print(should_print: bool, *msg):
     if should_print:
         print(*msg)
-
-
-def strip_ansi(text):
-    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
-    return ansi_escape.sub("", text)
 
 
 def get_text_length_of_formatted_text(text: str):
@@ -711,3 +711,27 @@ def split_to_frames(args, CACHE_PATH, IS_TRANSPARENT, stdout, stderr):
         stderr=stderr,
         text=True,
     )
+
+
+def printable_len(raw: str):
+    """Returns printable length of the string."""
+    cleaned = clean_ansi(raw)
+    w = wcwidth.wcswidth(cleaned)
+
+    # it can return -1, so if it does return -1 do per character
+    return w if w >= 0 else sum(max(wcwidth.wcwidth(c), 0) for c in cleaned)
+
+
+def debug_write_str(t: str):
+    with open("debug.ignore", "a", encoding="utf-8") as f:
+        f.write(t)
+
+
+def overwrite_string(original_text: str, index: int, text_to_overwrite: str):
+    out = (
+        original_text[:index]
+        + text_to_overwrite
+        + original_text[index + printable_len(text_to_overwrite) :]
+    )
+
+    return out

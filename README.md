@@ -332,6 +332,8 @@ Also, ffmpeg can generate the the same image for 2 consecutive frames, which may
 
 Currently only the `symbols` format of chafa is supported, formats like kitty, iterm etc. are not supported. If you try to tell chafa to use iterm, kitty etc. it will just override your format with `symbols` mode.
 
+Most fastfetch configs/presets should work out of the box. If you run into an issue with a particular preset, just open an issue and paste your config.
+
 ## What's Next
 
 - [ ] Support different formats like iterm, kitty, sixel etc.
