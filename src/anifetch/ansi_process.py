@@ -147,9 +147,9 @@ def expand_ansi_movement_seq(lines: list[str]):
 
     for line_tokens in line_tokens_all:
         line = ""
-        cur_col = 0   # visual terminal column
+        cur_col = 0  # visual terminal column
         cur_char = 0  # string index into `line`
-        saved_col = 0 # for \x1b[s / \x1b[u
+        saved_col = 0  # for \x1b[s / \x1b[u
 
         for token in line_tokens:
             if token.type == "text":
