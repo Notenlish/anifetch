@@ -75,7 +75,7 @@ def tokenize_lines(lines: list[str]):
     # lines = ["lllllll  lllllll[1G[7A[18C╔════════════════════════════════════════════════════════════════════════════════════════════════════╗[101D root@debian 💻 ","[18C║[100C║[100D kernel   >  6.12.1"]
     # pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-FfHhsu]"
     # pattern = r"(?:\x1B\[|\x9B)\d*(?:;\d*)*[A-GHfhsum]"
-    pattern = r"\r|(?:\x1B\[|\x9B)[\d;]*[A-GHKfhsu]"
+    pattern = r"\r|(?:\x1B\[|\x9B)[\d;]*[A-GHKfhsu]"  # don't include 'm' in this
 
     line_tokens_all: list[list[Token]] = []
 
