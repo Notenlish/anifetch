@@ -37,10 +37,10 @@
     license = { text = "MIT" }
     requires-python = ">=3.11"
     dependencies = [
-        "platformdirs==4.5.1",
-        "wcwidth==0.2.14",
-        "rich==14.3.1",
-        "pynput==1.8.1",
+        "platformdirs>=4.5.1",
+        "wcwidth>=0.2.14",
+        "rich>=14.3.1",
+        "pynput>=1.8.1",
         # "regex==2026.5.9"
     ]
 
