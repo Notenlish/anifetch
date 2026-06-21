@@ -22,7 +22,7 @@
         "fastfetch",
         "anifetch",
     ]
-    version = "1.0.5"
+    version = "1.0.6"
     description = "Animated terminal fetch with video and audio support."
     # If I put everyone here it messes with the "author" meta section.
     authors = [{ name = "Notenlish", email = "notenlish@gmail.com" }]
