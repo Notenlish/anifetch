@@ -358,4 +358,4 @@ I dont remember where I got the example.mp4 video from, if you know the source o
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Notenlish/anifetch&type=Date)](https://www.star-history.com/#Notenlish/anifetch&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=Notenlish/anifetch&type=Date)](https://star-history.dera.page/#Notenlish/anifetch&Date)
