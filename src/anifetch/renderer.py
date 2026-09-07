@@ -55,7 +55,7 @@ class Renderer:
         self,
         base_path: str,
         cache_path: str,
-        framerate_to_use: int,
+        framerate_to_use: float,
         top: int,
         left: int,
         right: int,
@@ -82,7 +82,7 @@ class Renderer:
     ):
         self.base_path: str = base_path
         self.cache_path: str = cache_path
-        self.framerate_to_use: int = framerate_to_use
+        self.framerate_to_use: float = framerate_to_use
         self.top: int = top
         self.left: int = left
         self.right: int = right
@@ -117,10 +117,6 @@ class Renderer:
         self.original_template_buffer: list[str] = template
         self.template_buffer: list[str] = []
         self._make_truncated_template(self.last_terminal_width)
-
-        num_lines = bottom - top
-        sleep_time = 1 / framerate_to_use
-        self.adjusted_sleep_time: float = sleep_time / num_lines
 
         self.resize_requested: bool = False
         self.resize_in_progress: bool = False

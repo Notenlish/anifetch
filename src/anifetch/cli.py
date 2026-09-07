@@ -3,7 +3,19 @@ Anifetch CLI module for parsing command line arguments.
 """
 
 import argparse
+import math
 from .utils import get_version_of_anifetch
+
+
+def positive_float(value):
+    """argparse type: a finite number strictly greater than 0."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError(f"{value!r} is not a number")
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError(f"{value!r} must be greater than 0")
+    return number
 
 
 parser = argparse.ArgumentParser(
@@ -57,6 +69,7 @@ parser.add_argument(
     "-pr",
     "--playback-rate",
     default=10,
+    type=positive_float,
     help="Default is 10. Ignored when a sound is playing so that desync doesn't happen. Sets the playback rate of the animation. Not to be confused with the 'framerate' option. This basically sets for how long the script will wait before rendering new frame, while the framerate option affects how many frames are generated via ffmpeg.",
 )
 parser.add_argument(
