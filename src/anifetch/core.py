@@ -502,7 +502,7 @@ def run_anifetch(args):
         else:
             pass
 
-        if renderer.last_key and args.no_input_restore:
+        if renderer.last_key and args.input_restore:
             from pynput.keyboard import Controller, Key
 
             KEY_MAP = {

@@ -262,7 +262,7 @@ _Note : by default, the video `example.mp4` can directly be used as an example._
 - `--quality`: Changes the output quality of ffmpeg when extracting frames. This doesn't have much effect on the quality or speed from my testing, so you shouldn't need to change this. 2 highest quality, 10 lowest quality.
 - `--loop`: Determines how many times the animation should loop. Default is -1(always loop).
 - `--no-key-exit`: Don't exit anifetch when user presses a key.
-- `--no-input-restore`: Disable restoring pressed keys back into the terminal after stopping Anifetch. Use this if your OS gives security prompts saying `"Anifetch" is requesting special priviliges` when you press a key to stop Anifetch.
+- `--input-restore`: Enables restoring pressed keys back into the terminal after stopping the animation. Note: On some Desktop Environments/OS's this may lead to the terminal asking for permission saying `"Anifetch" is requesting special privileges` when you press a key to stop Anifetch.
 - `-c` / `--config`: Specify a non-default config for Neofetch/Fastfetch.
   - Accepts a path or preset name (e.g. `main`).
   - Neofetch (Linux/macOS): `~/.config/neofetch/main.conf`
@@ -322,7 +322,7 @@ Make sure to install the dependencies listed on [Prerequisites](#Prerequisites).
 
 If weird characters are appearing in your terminal then your terminals font probably can't render some characters. Consider installling [nerdfonts](https://www.nerdfonts.com/).
 
-If your OS is prompting you about `"Anifetch" is requesting special priviliges` or something similiar after pressing a key to stop the running Anifetch instance, add this argument: `--no-input-restore`. The technical reason for this is that Anifetch records the keys you press and enters them back to the terminal on your behalf. That way you can immediately run whatever command you want, without having to re-enter a key or two. Certain OS's have built-in protections against this as a security notice, which is why you might encounter a security prompt.
+If you use `--input-restore` your terminal/OS may prompt you about `"Anifetch" is requesting special privileges` or something similiar after pressing a key to stop the running Anifetch instance. This unfortunately doesn't have a fix other than not using `--input-restore`. The technical reason for this is that Anifetch records the keys you press and enters them back to the terminal on your behalf. That way you can immediately run whatever command you want, without having to re-enter a key or two. Certain OS's have built-in protections against this as a security notice, which is why you might encounter a security prompt.
 
 ## Notes
 
